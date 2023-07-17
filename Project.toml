@@ -3,6 +3,10 @@ uuid = "be7e520c-a8fa-4f26-8f65-6d6d1049182e"
 authors = ["Sebastian Schlenkrich <sebastian.schlenkrich@frame-consult.de> and contributors"]
 version = "0.0.1"
 
+[deps]
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+
 [compat]
 julia = "1.6"
 

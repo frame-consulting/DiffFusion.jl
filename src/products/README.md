@@ -1,0 +1,1 @@
+Products that generate payoffs for future observation times.
