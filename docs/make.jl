@@ -14,6 +14,17 @@ makedocs(
     pages = [
         "index.md",
         "pages/overview.md",
+        "analytics/analytics.md",
+        "examples/examples.md",
+        "models/models.md",
+        "paths/paths.md",
+        "payoffs/payoffs.md",
+        "products/products.md",
+        "serialisation/serialisation.md",
+        "simulations/simulations.md",
+        "termstructures/termstructures.md",
+        "utils/utils.md",
+        "pages/additional_functions.md",
         "pages/function_index.md",
     ],
 )
