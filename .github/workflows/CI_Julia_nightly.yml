@@ -1,10 +1,8 @@
 name: CI_Julia_nightly
 on:
-  push:
-    branches:
-      - main
-    tags: ['*']
-  pull_request:
+  schedule:
+    - cron: 0 0 * * *
+  workflow_dispatch:
 concurrency:
   # Skip intermediate builds: always.
   # Cancel intermediate builds: only if it is a pull request build.
