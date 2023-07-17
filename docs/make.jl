@@ -31,4 +31,5 @@ makedocs(
 
 deploydocs(
     repo = "https://github.com/frame-consulting/DiffFusion.jl",
+    push_preview = true,
 )
