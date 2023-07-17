@@ -4,6 +4,16 @@ push!(LOAD_PATH,"../src/")
 using Documenter
 using DiffFusion
 
+"""
+A type alias for variables representing time.
+"""
+ModelTime = Number
+
+"""
+A type alias for variables representing modelled quantities.
+"""
+ModelValue = Number
+
 
 makedocs(
     sitename = "[∂F]",
