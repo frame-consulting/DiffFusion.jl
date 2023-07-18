@@ -216,6 +216,41 @@ DiffFusion.volatility(
 ```
 
 
+## Parameter Term Structures
+
+```@docs
+DiffFusion.PiecewiseFlatParameter
+```
+
+```@docs
+DiffFusion.BackwardFlatParameter
+```
+
+```@docs
+DiffFusion.backward_flat_parameter
+```
+
+```@docs
+DiffFusion.flat_parameter
+```
+
+```@docs
+DiffFusion.ForwardFlatParameter
+```
+
+```@docs
+DiffFusion.forward_flat_parameter
+```
+
+```@docs
+DiffFusion.time_idx(ts::DiffFusion.BackwardFlatParameter, t)
+```
+
+```@docs
+DiffFusion.time_idx(ts::DiffFusion.ForwardFlatParameter, t)
+```
+
+
 ## Yield Term Structures
 
 ```@docs

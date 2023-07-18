@@ -17,6 +17,7 @@ A type alias for variables representing modelled quantities.
 ModelValue = Number
 
 include("termstructures/Termstructures.jl")
+include("termstructures/parameter/ParameterTermstructures.jl")
 include("termstructures/rates/YieldTermstructures.jl")
 include("termstructures/volatility/VolatilityTermstructures.jl")
 
