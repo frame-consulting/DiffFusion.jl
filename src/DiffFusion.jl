@@ -18,6 +18,7 @@ ModelValue = Number
 
 include("termstructures/Termstructures.jl")
 include("termstructures/rates/YieldTermstructures.jl")
+include("termstructures/volatility/VolatilityTermstructures.jl")
 
 include("utils/InterpolationMethods.jl")
 

@@ -234,8 +234,23 @@ DiffFusion.ZeroCurve
 DiffFusion.zero_curve
 ```
 
+
+## Volatility Term Structures
+
 ```@docs
-DiffFusion.interpolation_methods
+DiffFusion.BackwardFlatVolatility
+```
+
+```@docs
+DiffFusion.backward_flat_volatility
+```
+
+```@docs
+DiffFusion.flat_volatility
+```
+
+```@docs
+DiffFusion.time_idx(ts::DiffFusion.BackwardFlatVolatility, t)
 ```
 
 
