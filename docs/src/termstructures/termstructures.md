@@ -216,6 +216,29 @@ DiffFusion.volatility(
 ```
 
 
+## Correlation Term Structures
+
+```@docs
+DiffFusion.CorrelationHolder
+```
+
+```@docs
+DiffFusion.correlation_holder
+```
+
+```@docs
+DiffFusion.correlation_key
+```
+
+```@docs
+DiffFusion.set_correlation!
+```
+
+```@docs
+DiffFusion.get
+```
+
+
 ## Parameter Term Structures
 
 ```@docs
