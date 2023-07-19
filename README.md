@@ -12,4 +12,6 @@ The intended purpose of the package is efficient exposure simulation for XVA and
 
 See the documentation for installation and usage.
 
+This package is under development.
+
 For questions and help please get in touch directly via info@frame-consult.de.

@@ -24,6 +24,7 @@ makedocs(
     pages = [
         "index.md",
         "pages/overview.md",
+        "pages/simulation_framework.md",
         "analytics/analytics.md",
         "examples/examples.md",
         "models/models.md",
