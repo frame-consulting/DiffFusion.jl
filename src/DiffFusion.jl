@@ -4,6 +4,8 @@ using Interpolations
 using LinearAlgebra
 using ProgressBars
 using Random
+using QuadGK
+using SparseArrays
 
 
 """
@@ -22,7 +24,15 @@ include("termstructures/parameter/ParameterTermstructures.jl")
 include("termstructures/rates/YieldTermstructures.jl")
 include("termstructures/volatility/VolatilityTermstructures.jl")
 
+include("models/Model.jl")
+include("models/asset/AssetModel.jl")
+include("models/asset/LognormalAssetModel.jl")
+include("models/rates/SeparableHjmModel.jl")
+include("models/rates/GaussianHjmModel.jl")
+
+include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
+
 
 
 end

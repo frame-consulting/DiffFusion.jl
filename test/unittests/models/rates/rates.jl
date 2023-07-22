@@ -3,6 +3,7 @@ using Test
 
 @testset "Interest rate models." begin
 
-    # Add tests here.
+    include("separable_hjm_model.jl")
+    include("gaussian_hjm_model.jl")
 
 end
