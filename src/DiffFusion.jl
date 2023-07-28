@@ -1,10 +1,12 @@
 module DiffFusion
 
+using Distributions
 using Interpolations
 using LinearAlgebra
 using ProgressBars
 using Random
 using QuadGK
+using Sobol
 using SparseArrays
 
 
@@ -29,6 +31,9 @@ include("models/asset/AssetModel.jl")
 include("models/asset/LognormalAssetModel.jl")
 include("models/rates/SeparableHjmModel.jl")
 include("models/rates/GaussianHjmModel.jl")
+
+include("simulations/RandomNumbers.jl")
+include("simulations/Simulation.jl")
 
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
