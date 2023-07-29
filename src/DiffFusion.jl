@@ -29,6 +29,8 @@ include("termstructures/volatility/VolatilityTermstructures.jl")
 include("models/Model.jl")
 include("models/asset/AssetModel.jl")
 include("models/asset/LognormalAssetModel.jl")
+include("models/hybrid/CompositeModel.jl")
+include("models/hybrid/SimpleModel.jl")
 include("models/rates/SeparableHjmModel.jl")
 include("models/rates/GaussianHjmModel.jl")
 
