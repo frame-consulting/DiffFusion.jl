@@ -3,6 +3,6 @@ using Test
 
 @testset "Composite models for joint simulation." begin
 
-    # Add tests here.
+    include("simple_model.jl")
 
 end
