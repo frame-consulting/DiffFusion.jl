@@ -6,6 +6,7 @@ using Test
     # Add tests here.
     include("asset_model.jl")
     include("gaussain_hjm_model.jl")
+    include("markov_future_model.jl")
     include("simple_models.jl")
 
 end

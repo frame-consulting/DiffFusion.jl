@@ -69,6 +69,14 @@ function log_zero_bond(m::CompositeModel, alias::String, t::ModelTime, T::ModelT
     return log_zero_bond(m.models[m.model_dict[alias]], alias, t, T, X)
 end
 
+"""
+    log_future(m::CompositeModel, alias::String, t::ModelTime, T::ModelTime, X::ModelState)
+
+Calculate the Future price term h(t,T)'[x(t) + 0.5y(t)(1 - h(t,T))].
+"""
+function log_future(m::CompositeModel, alias::String, t::ModelTime, T::ModelTime, X::ModelState)
+    return log_future(m.models[m.model_dict[alias]], alias, t, T, X)
+end
 
 """
     state_dependent_Theta(m::CompositeModel)
