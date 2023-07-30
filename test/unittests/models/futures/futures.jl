@@ -3,6 +3,6 @@ using Test
 
 @testset "Models for prices of futures" begin
 
-    # Add tests here.
+    include("markov_future_model.jl")
 
 end

@@ -30,40 +30,47 @@ using Test
     sigma_f_for = DiffFusion.backward_flat_volatility("EUR",times_for,values_for)
     hjm_model_for = DiffFusion.gaussian_hjm_model("EUR",delta_for,chi_for,sigma_f_for,ch,asset_model)
 
+    delta_nik = DiffFusion.flat_parameter(1.0)
+    chi_nik = DiffFusion.flat_parameter(0.05)
+    sigma_nik = DiffFusion.flat_volatility("NIK", 0.10)
+    mkv_model = DiffFusion.markov_future_model("NIK", delta_nik, chi_nik, sigma_nik, nothing, nothing)
 
     @testset "Model setup." begin
-        m = DiffFusion.simple_model("Std", [ hjm_model_dom, asset_model, hjm_model_for ])
+        m = DiffFusion.simple_model("Std", [ hjm_model_dom, asset_model, hjm_model_for, mkv_model ])
         @test DiffFusion.alias(m) == "Std"
-        @test DiffFusion.model_alias(m) == ["USD", "EUR-USD", "EUR"]
-        @test DiffFusion.state_alias(m) == ["USD_x_1", "USD_x_2", "USD_x_3", "USD_s", "EUR-USD_x", "EUR_x_1", "EUR_x_2", "EUR_s"]
-        @test DiffFusion.factor_alias(m) == ["USD_f_1", "USD_f_2", "USD_f_3", "EUR-USD_x", "EUR_f_1", "EUR_f_2"]
+        @test DiffFusion.model_alias(m) == ["USD", "EUR-USD", "EUR", "NIK"]
+        @test DiffFusion.state_alias(m) == ["USD_x_1", "USD_x_2", "USD_x_3", "USD_s", "EUR-USD_x", "EUR_x_1", "EUR_x_2", "EUR_s", "NIK_x_1"]
+        @test DiffFusion.factor_alias(m) == ["USD_f_1", "USD_f_2", "USD_f_3", "EUR-USD_x", "EUR_f_1", "EUR_f_2", "NIK_f_1"]
         @test DiffFusion.state_dependent_Theta(m) == false
         @test DiffFusion.state_alias_H(m) == DiffFusion.state_alias(m)
         @test DiffFusion.state_dependent_H(m) == false
         @test DiffFusion.factor_alias_Sigma(m) == DiffFusion.factor_alias(m)
-        @test DiffFusion.state_dependent_Sigma(m) == false
+        @test DiffFusion.state_dependent_Sigma(m) == false        
     end
 
 
     @testset "Model functions." begin
-        m = DiffFusion.simple_model("Std", [ hjm_model_dom, asset_model, hjm_model_for ])
+        m = DiffFusion.simple_model("Std", [ hjm_model_dom, asset_model, hjm_model_for, mkv_model  ])
         s = 1.0
         t = 3.0
         theta0 = DiffFusion.Theta(m, s, t)
-        @test size(theta0) == (8,)
+        @test size(theta0) == (9,)
         @test theta0[1:4] == DiffFusion.Theta(hjm_model_dom, s, t)
         @test theta0[5:5] == DiffFusion.Theta(asset_model, s, t)
         @test theta0[6:8] == DiffFusion.Theta(hjm_model_for, s, t)
+        @test theta0[9:9] == DiffFusion.Theta(mkv_model, s, t)
         #
         H0 = DiffFusion.H_T(m, s, t)
         @test H0[1:4,1:4] == DiffFusion.H_T(hjm_model_dom, s, t)
         @test H0[5:5,5:5] == DiffFusion.H_T(asset_model, s, t)
         @test H0[6:8,6:8] == DiffFusion.H_T(hjm_model_for, s, t)
+        @test H0[9:9,9:9] == DiffFusion.H_T(mkv_model, s, t)
         #
         Sigma0T = DiffFusion.Sigma_T(m,s,t)(0.5*(s+t))
         @test Sigma0T[1:4,1:3] == DiffFusion.Sigma_T(hjm_model_dom,s,t)(0.5*(s+t))
         @test Sigma0T[5:5,4:4] == DiffFusion.Sigma_T(asset_model,s,t)(0.5*(s+t))
         @test Sigma0T[6:8,5:6] == DiffFusion.Sigma_T(hjm_model_for,s,t)(0.5*(s+t))
+        @test Sigma0T[9:9,7:7] == DiffFusion.Sigma_T(mkv_model,s,t)(0.5*(s+t))
         # check Quanto impact
         DiffFusion.set_correlation!(ch, "EUR-USD_x", "EUR_f_1", -0.30)
         DiffFusion.set_correlation!(ch, "EUR-USD_x", "EUR_f_2", -0.30)
@@ -88,12 +95,12 @@ using Test
 
 
     @testset "Access model state variables" begin
-        m = DiffFusion.simple_model("Std", [ hjm_model_dom, asset_model, hjm_model_for ])
+        m = DiffFusion.simple_model("Std", [ hjm_model_dom, asset_model, hjm_model_for, mkv_model ])
         y_d = DiffFusion.func_y(hjm_model_dom, 4.0)
         G_d = DiffFusion.G_hjm(hjm_model_dom, 4.0, 8.0)
         y_f = DiffFusion.func_y(hjm_model_for, 5.0)
         G_f = DiffFusion.G_hjm(hjm_model_for, 5.0, 7.0)
-        X = (1:8) * [ 1., 2., 3.]'
+        X = (1:9) * [ 1., 2., 3.]'
         dict = DiffFusion.alias_dictionary(DiffFusion.state_alias(m))
         SX = DiffFusion.model_state(X, dict)
         SX_2 = DiffFusion.model_state(X, m)
@@ -104,10 +111,12 @@ using Test
         @test DiffFusion.log_bank_account(m, "EUR", 1.0, SX) == 8 * [ 1., 2., 3. ]
         @test DiffFusion.log_zero_bond(m, "USD", 4.0, 8.0, SX) == X[1:3,:]'*G_d .+ 0.5*G_d'*y_d*G_d
         @test DiffFusion.log_zero_bond(m, "EUR", 5.0, 7.0, SX) == X[6:7,:]'*G_f .+ 0.5*G_f'*y_f*G_f
+        @test DiffFusion.log_future(m, "NIK", 5.0, 10.0, SX) == DiffFusion.log_future(mkv_model, "NIK", 5.0, 10.0, SX)
         #
         @test_throws KeyError DiffFusion.log_asset(m, "WrongAlias", 1.0, SX)
         @test_throws KeyError DiffFusion.log_bank_account(m, "WrongAlias", 1.0, SX)
         @test_throws KeyError DiffFusion.log_zero_bond(m, "WrongAlias", 4.0, 8.0, SX)
+        @test_throws KeyError DiffFusion.log_future(m, "WrongAlias", 4.0, 8.0, SX)
     end
 
 end

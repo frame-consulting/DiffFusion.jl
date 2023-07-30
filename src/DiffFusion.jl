@@ -33,6 +33,7 @@ include("models/hybrid/CompositeModel.jl")
 include("models/hybrid/SimpleModel.jl")
 include("models/rates/SeparableHjmModel.jl")
 include("models/rates/GaussianHjmModel.jl")
+include("models/futures/MarkovFutureModels.jl")
 
 include("simulations/RandomNumbers.jl")
 include("simulations/Simulation.jl")
