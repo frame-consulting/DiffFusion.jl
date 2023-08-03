@@ -3,6 +3,6 @@ using Test
 
 @testset "MC path setup and path functions." begin
 
-    # Add tests here.
+    include("context.jl")
 
 end

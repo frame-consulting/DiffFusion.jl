@@ -35,6 +35,8 @@ include("models/rates/SeparableHjmModel.jl")
 include("models/rates/GaussianHjmModel.jl")
 include("models/futures/MarkovFutureModels.jl")
 
+include("paths/Context.jl")
+
 include("simulations/RandomNumbers.jl")
 include("simulations/Simulation.jl")
 
