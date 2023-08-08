@@ -9,6 +9,7 @@ using QuadGK
 using Sobol
 using SparseArrays
 
+import Base.length
 
 """
 A type alias for variables representing time.
@@ -35,10 +36,13 @@ include("models/rates/SeparableHjmModel.jl")
 include("models/rates/GaussianHjmModel.jl")
 include("models/futures/MarkovFutureModels.jl")
 
-include("paths/Context.jl")
-
 include("simulations/RandomNumbers.jl")
 include("simulations/Simulation.jl")
+
+include("paths/AbstractPath.jl")
+include("paths/Context.jl")
+include("paths/Path.jl")
+include("paths/PathMethods.jl")
 
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
