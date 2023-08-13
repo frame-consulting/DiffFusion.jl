@@ -3,6 +3,19 @@ using Test
 
 @testset "Payoff scripting framework." begin
 
-    # Add tests here.
+    @testset "Abstract payoffs." begin
+        # a trivial payoff
+        struct NoPayoff <: DiffFusion.Payoff end
+        p = NoPayoff()
+        # a trivial path for testing
+        struct ConstantPath <: DiffFusion.AbstractPath end
+        path = ConstantPath()
+        @test_throws ErrorException DiffFusion.obs_time(p)
+        @test_throws ErrorException DiffFusion.obs_times(p)
+        @test_throws ErrorException DiffFusion.at(p, path)
+        @test_throws ErrorException p(path)
+    end
+
+    include("nodes_and_leafs.jl")
 
 end
