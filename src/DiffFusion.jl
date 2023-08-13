@@ -3,13 +3,15 @@ module DiffFusion
 using Distributions
 using Interpolations
 using LinearAlgebra
+using Printf
 using ProgressBars
-using Random
 using QuadGK
+using Random
 using Sobol
 using SparseArrays
 
 import Base.length
+import Base.string
 
 """
 A type alias for variables representing time.
@@ -43,6 +45,11 @@ include("paths/AbstractPath.jl")
 include("paths/Context.jl")
 include("paths/Path.jl")
 include("paths/PathMethods.jl")
+
+include("payoffs/Payoff.jl")
+include("payoffs/Leafs.jl")
+include("payoffs/UnaryNodes.jl")
+include("payoffs/BinaryNodes.jl")
 
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
