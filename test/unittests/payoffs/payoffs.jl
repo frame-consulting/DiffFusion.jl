@@ -17,5 +17,6 @@ using Test
     end
 
     include("nodes_and_leafs.jl")
+    include("rates_payoffs.jl")
 
 end
