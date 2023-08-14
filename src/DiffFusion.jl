@@ -50,6 +50,7 @@ include("payoffs/Payoff.jl")
 include("payoffs/Leafs.jl")
 include("payoffs/UnaryNodes.jl")
 include("payoffs/BinaryNodes.jl")
+include("payoffs/RatesPayoffs.jl")
 
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
