@@ -52,6 +52,9 @@ include("payoffs/UnaryNodes.jl")
 include("payoffs/BinaryNodes.jl")
 include("payoffs/RatesPayoffs.jl")
 
+include("products/Cashflows.jl")
+include("products/RatesCoupons.jl")
+
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
 
