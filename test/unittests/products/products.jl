@@ -3,6 +3,7 @@ using Test
 
 @testset "Products that generate payoffs." begin
 
-    # Add tests here.
+    include("cashflows.jl")
+    include("rates_coupons.jl")
 
 end
