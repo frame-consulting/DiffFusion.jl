@@ -54,6 +54,9 @@ include("payoffs/RatesPayoffs.jl")
 
 include("products/Cashflows.jl")
 include("products/RatesCoupons.jl")
+include("products/CashFlowLeg.jl")
+include("products/MtMCashFlowLeg.jl")
+include("products/CashAndAssetLegs.jl")
 
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
