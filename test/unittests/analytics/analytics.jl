@@ -3,6 +3,7 @@ using Test
 
 @testset "Methods for exposure simulation and collateral simulation." begin
 
-    # Add tests here.
+    include("scenarios.jl")
+    include("scenario_analytics.jl")
 	
 end
