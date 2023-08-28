@@ -61,6 +61,8 @@ include("products/CashAndAssetLegs.jl")
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
 
+include("analytics/Scenarios.jl")
+include("analytics/Analytics.jl")
 
 
 end
