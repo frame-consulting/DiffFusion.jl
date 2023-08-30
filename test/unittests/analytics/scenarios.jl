@@ -119,4 +119,46 @@ using Test
         # display(s.X)
         # println(s.leg_aliases)
     end
+
+    @testset "Test operations along time axis." begin
+        leg1 = DiffFusion.cash_balance_leg("leg/1", 1.0)
+        leg2 = DiffFusion.cash_balance_leg("leg/2", 1.0, "EUR-USD")
+        leg3 = DiffFusion.asset_leg("leg/3", "EUR-USD", 1.0)
+        leg4 = DiffFusion.asset_leg("leg/4", "SXE50", 1.0, "EUR-USD")
+        #
+        times1 = [0.0, 2.0, 4.0]
+        times2 = [6.0, 8.0, 10.0]
+        times12 = [0.0, 2.0, 4.0, 6.0, 8.0, 10.0]
+        scens1 = DiffFusion.scenarios([leg1, leg2, leg3, leg4], times1, path, nothing, with_progress_bar = false)
+        scens2 = DiffFusion.scenarios([leg1, leg2, leg3, leg4], times2, path, nothing, with_progress_bar = false)
+        scens12 = DiffFusion.scenarios([leg1, leg2, leg3, leg4], times12, path, nothing, with_progress_bar = false)
+        #
+        scens_12_conc = DiffFusion.concatenate_scenarios([scens1, scens2])
+        @test scens_12_conc.X == scens12.X
+        @test scens_12_conc.times == scens12.times
+        @test scens_12_conc.leg_aliases == scens12.leg_aliases
+        @test scens_12_conc.numeraire_context_key == scens12.numeraire_context_key
+        @test scens_12_conc.discount_curve_key == scens12.discount_curve_key
+        #
+        #
+        times1 = 0.0:2.0:10.0
+        times2 = 0.0:1.0:10.0
+        scens1 = DiffFusion.scenarios([leg1, leg2, leg3, leg4], times1, path, nothing, with_progress_bar = false)
+        scens2 = DiffFusion.scenarios([leg1, leg2, leg3, leg4], times2, path, nothing, with_progress_bar = false)
+        #
+        scens2_interp = DiffFusion.concatenate_scenarios([
+            DiffFusion.interpolate_scenarios(t, scens1)
+            for t in times2
+        ])
+        @test scens2_interp.X == scens2.X  #  works because scenarios are trivial
+        @test scens2_interp.times == scens2.times
+        @test scens2_interp.leg_aliases == scens2.leg_aliases
+        @test scens2_interp.numeraire_context_key == scens2.numeraire_context_key
+        @test scens2_interp.discount_curve_key == scens2.discount_curve_key
+        #
+        # display(size(scens1.X))
+        # display(scens1.X)
+        # println(scens1.leg_aliases)
+    end
+
 end

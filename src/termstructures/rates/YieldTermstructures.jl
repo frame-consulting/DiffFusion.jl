@@ -127,7 +127,7 @@ function zero_curve(
     values::AbstractVector,
     method_alias::String,
     )
-    return zero_curve("", times, values, interpolation_methods[uppercase(method_alias)])
+    return zero_curve("", times, values, method_alias)
 end
 
 
