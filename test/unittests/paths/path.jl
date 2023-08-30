@@ -15,6 +15,12 @@ using Test
         @test_throws ErrorException DiffFusion.future_index(NoPath(), 5.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.fixing(NoPath(), 5.0, "Std")
         @test_throws ErrorException DiffFusion.length(NoPath())
+        # not yet implemented...
+        @test_throws ErrorException DiffFusion.asset_convexity_adjustment(NoPath(), 5.0, 6.0, 7.0, 8.0, "Std")
+        @test_throws ErrorException DiffFusion.index_convexity_adjustment(NoPath(), 5.0, 6.0, 7.0, 8.0, "Std")
+        @test_throws ErrorException DiffFusion.swap_rate_variance(NoPath(), 1.0, 2.0, [2.0, 3.0, 4.0], [1.0, 1.0], "Std")
+        @test_throws ErrorException DiffFusion.forward_rate_variance(NoPath(), 1.0, 2.0, 2.0, 3.0, "Std")
+        @test_throws ErrorException DiffFusion.asset_variance(NoPath(), 1.0, 2.0, "Std")
     end
 
 end
@@ -324,6 +330,9 @@ end
         #
         @test isapprox(DiffFusion.asset(p, t, "EUR-USD"), 1.25 * exp(0.01*t) * ones(1), atol=5.0e-15)
         @test isapprox(DiffFusion.asset(p, t, "SXE50"), 3750.00 * exp(0.01*t) * ones(1), atol=5.0e-15)
+        #
+        @test isapprox(DiffFusion.forward_asset(p, t, T, "EUR-USD"), 1.25 * exp(0.01*T) * ones(1), atol=5.0e-15)
+        @test isapprox(DiffFusion.forward_asset(p, t, T, "SXE50"), 3750.00 * exp(0.01*T) * ones(1), atol=5.0e-15)
         #
         @test isapprox(DiffFusion.forward_index(p, 4.0, 5.0, "HICP"), 1.25 * ones(1), atol=5.0e-15)
         #
