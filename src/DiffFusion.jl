@@ -3,6 +3,7 @@ module DiffFusion
 using Distributions
 using Interpolations
 using LinearAlgebra
+using OrderedCollections
 using Printf
 using ProgressBars
 using QuadGK
@@ -63,6 +64,16 @@ include("utils/InterpolationMethods.jl")
 
 include("analytics/Scenarios.jl")
 include("analytics/Analytics.jl")
+
+module Examples
+    using DiffFusion
+    using DiffFusion:ModelTime
+    using DiffFusion:ModelValue
+    using OrderedCollections
+    using Random
+    #
+    include("examples/Products.jl")
+end # module
 
 
 end
