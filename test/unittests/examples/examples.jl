@@ -3,6 +3,6 @@ using Test
 
 @testset "Test Examples." begin
 
-    # Add tests here.
+    include("products.jl")
 
 end
