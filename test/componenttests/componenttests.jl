@@ -5,7 +5,7 @@ using Test
 
 @testset verbose=true "componenttests.jl" begin
 
-    # Add component tests here.
+    include("scenarios.jl")
 
 end
 
