@@ -28,6 +28,7 @@ QuadGK = "2"
 Revise = "3"
 Sobol = "1"
 StatsBase = "0.34"
+UnicodePlots = "3"
 julia = "1.6"
 
 [extras]
