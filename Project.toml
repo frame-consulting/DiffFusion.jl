@@ -23,6 +23,7 @@ YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 [compat]
 Distributions = "0.25"
 Interpolations = "0.14"
+OrderedCollections = "1"
 ProgressBars = "1"
 QuadGK = "2"
 Revise = "3"
