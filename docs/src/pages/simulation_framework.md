@@ -219,8 +219,9 @@ Interest rate models are formulated as separable Heath-Jarrow-Morton
 (HJM) models for the continuous forward rate $f\left(t,T\right)$ with
 observation time $t$ and term $T$.
 
-Our specification follows in large parts Andersen/Piterbarg,
-*Interest Rate Modeling*, 2010, Sec. 4.4 and 4.5.
+Our specification follows in large parts
+[Andersen/Piterbarg, *Interest Rate Modeling*, 2010](@ref label_literature_and_references),
+Sec. 4.4 and 4.5.
 
 Forward rates are directly linked to zero coupon bonds $P\left(t,T\right)$. We have
 
@@ -889,3 +890,160 @@ H^{k}\left(s,t\right) & =\left[1\right],\\
 \Sigma^{k}\left(u\right)^{\top} & =\left[\sigma^{f-d}\left(u\right)\right].
 \end{aligned}$$
 
+
+## Future Index/Price Models
+
+In this section we specify models for Future index curves or Future
+price curves. Such models are typical for commodity derivatives.
+
+### Markov Model Specification
+
+The model is specified following 
+[Andersen 2008](@ref label_literature_and_references), eq. (10) - (12).
+We keep notation as close as possible to the HJM model specification used for
+interest rates.
+
+We denote
+
+$$F\left(t,T\right)$$
+
+a Future index or future price curve.
+The Future price is denominated in units of domestic currency. A key
+proposition is that for $t\leq T$ the future
+price $\left(F\left(t,T\right)\right)_{t}$ is a martingale in the
+domestic currency risk-neutral measure. The martingale property and the
+theory of separable HJM models motivate the specification
+
+$$F\left(t,T\right) = 
+F\left(0,T\right)\exp
+  \left\{ 
+    h\left(t,T\right)^{\top}
+    \left[
+        x_{t}+\frac{1}{2}y_{t}\left(I-H\left(t,T\right)\right)\boldsymbol{1}
+    \right]
+\right\}$$
+
+with $d$-dimensional state variable process $\left(x_{t}\right)_{t}$ and
+$d\times d$-dimensional auxiliary (variance) variable process
+$\left(y_{t}\right)_{t}$. State and auxiliary variable follow the
+dynamics
+
+$$\begin{aligned}
+  x_{t} &=
+  H\left(s,t\right)
+  \left[
+    x_{s}+\int_{s}^{t}H\left(s,u\right)^{-1}
+    \left[
+        \frac{1}{2}
+        \left(
+            y_{u}\chi\left(u\right)-\sigma_{u}^{\top}\sigma_{u}
+        \right)
+        \boldsymbol{1}du+\sigma_{u}^{\top}dW_{u}^{d}
+    \right]
+  \right],\\
+  y_{t} &=
+  H\left(s,t\right)y_{s}H\left(s,t\right)+
+  \int_{s}^{t}H\left(u,t\right)\sigma_{u}^{\top}\sigma_{u}H\left(u,t\right)du.
+  \end{aligned}$$
+
+**Quanto-adjustment.**
+
+If the domestic currency differs from the numeraire currency then we
+need to incorporate the change of measure
+
+$$\begin{aligned}
+  W_{t}^{d,n}
+  &= W_{t}^{d}+\int_{0}^{t}\alpha_{s}ds\\
+  &= W_{t}^{d}+\int_{0}^{t}\Gamma^{X^{d},S^{d-n}}\sigma_{s}^{d-n}ds.
+\end{aligned}$$
+
+This yields the state variable representation with Quanto adjustment as
+
+$$x_{t} =
+H\left(s,t\right)
+\left[
+  x_{s} + 
+  \int_{s}^{t}H\left(s,u\right)^{-1}
+  \left[
+    \frac{1}{2}\left(y_{u}\chi\left(u\right)\boldsymbol{1} -
+    \sigma_{u}^{\top}\left[\sigma_{u}\boldsymbol{1}-2\alpha_{u}\right]\right)du +
+    \sigma_{u}^{\top}dW_{u}^{d,n}
+  \right]
+\right].$$
+
+### Multi-factor Gaussian Model
+
+A critical aspect is the specification of the volatility process
+$\left(\sigma_{t}\right)_{t}$. For the Gaussian Future index model we
+re-use the methodology from the interest rate model. That is, we assume
+constant mean reversion parameters $\chi_{1},\ldots,\chi_{d}$ and
+benchmark times $\delta_{1},\ldots,\delta_{d}$. Moreover, denote
+$\Gamma^{F}=\left[\Gamma_{ij}^{F}\right]$ the instantaneous correlations
+between Future prices $F\left(t,t+\delta_{i}\right)$ and
+$F\left(t,t+\delta_{j}\right)$.
+
+Then we set
+
+$$\sigma_{t}^{\top}=H(t)H^{F}(t)^{-1}\sigma_{t}^{F}\left[D^{F}(t)\right]^{\top}$$
+
+with
+
+$$\begin{aligned}
+H(t)H^{F}(t)^{-1} & =\left(\begin{array}{ccc}
+e^{-\chi_{1}\delta_{1}} & \ldots & e^{-\chi_{d}\delta_{1}}\\
+\vdots &  & \vdots\\
+e^{-\chi_{1}\delta_{d}} & \ldots & e^{-\chi_{d}\delta_{d}}
+\end{array}\right)^{-1},\\
+\left[D^{F}(t)\right]^{\top}D^{F}(t) & =\Gamma^{F}.
+\end{aligned}$$ 
+
+This methodology reduces the modelling to the
+specification of a diagonal matrix of benchmark price volatilities
+
+$$\sigma_{t}^{F}=\left(\begin{array}{ccc}
+\sigma_{t}^{F_{1}}\\
+ & \ddots\\
+ &  & \sigma_{t}^{F_{d}}
+\end{array}\right).$$
+
+For the Gaussian Future index model, we further assume piece-wise
+constant volatility functions
+$\sigma_{t}^{F_{i}}=\sigma_{i}\left(t\right)$. Then, also the model
+volatility $\sigma_{t}=\sigma\left(t\right)$ is deterministic and
+piece-wise constant. With this specification the auxilliary variable process
+$\left(y_{t}\right)_{t}$ is deterministic as well. And we can re-use the
+machinery from interest rate models to calculate $y_{t}=y\left(t\right)$.
+
+**Hybrid model interface.**
+
+We specify the hybrid model state variable $X_{t}^{k}$ and identify the
+model component functions $\Theta^{k}\left(\cdot\right)$,
+$H^{k}\left(\cdot\right)$ and $\Sigma^{k}\left(\cdot\right)$ for a
+Gaussian Future price model.
+
+We set
+
+$$X_{t}^{k}=\left[\begin{array}{c}
+x_{t}^{1}\\
+\vdots\\
+x_{t}^{d}
+\end{array}\right].$$
+
+Then
+
+$$\begin{aligned}
+\Theta^{k}\left(s,t\right)
+&= \frac{1}{2}\int_{s}^{t}H\left(u,t\right)
+   \left[
+     \left(
+        y\left(u\right)\chi\boldsymbol{1}-
+        \left[
+            \sigma\left(u\right)^{\top}\sigma\left(u\right)\boldsymbol{1} - 
+            2\sigma\left(u\right)^{\top}\alpha\left(u\right)
+        \right]
+     \right) du
+    \right],\\
+H^{k}\left(s,t\right) &= H\left(s,t\right),\\
+\Sigma^{k}\left(u\right)^{\top}
+&= H\left(u,t\right)\sigma\left(u\right)^{\top}.
+\end{aligned}$$

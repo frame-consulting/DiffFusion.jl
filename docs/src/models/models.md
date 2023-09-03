@@ -36,6 +36,26 @@ DiffFusion.GaussianHjmModel
 DiffFusion.gaussian_hjm_model
 ```
 
+```@docs
+DiffFusion.MarkovFutureModel
+```
+
+```@docs
+DiffFusion.markov_future_model
+```
+
+```@docs
+DiffFusion.CompositeModel
+```
+
+```@docs
+DiffFusion.SimpleModel
+```
+
+```@docs
+DiffFusion.simple_model
+```
+
 ## State Variable
 
 A model allows to simulate a stochastic process $\left(X_t\right)$. For a given $t$ the vector $X_t$ is represented by a `ModelState`. 
@@ -224,10 +244,6 @@ DiffFusion.func_Sigma_T
 
 ```@docs
 DiffFusion.GaussianHjmModelVolatility
-```
-
-```@docs
-DiffFusion.swap_rate_instantaneous_covariance
 ```
 
 ```@docs

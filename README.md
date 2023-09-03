@@ -10,8 +10,6 @@ The DiffFusion.jl package implements a framework for joint simulation of financi
 
 The intended purpose of the package is efficient exposure simulation for XVA and Counterparty Credit Risk (CCR).
 
-See the documentation for installation and usage.
-
-This package is under development.
+See the [documentation](https://frame-consulting.github.io/DiffFusion.jl) for installation and usage.
 
 For questions and help please get in touch directly via info@frame-consult.de.
