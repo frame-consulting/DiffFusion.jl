@@ -2,10 +2,11 @@
 
 On this page, we give an overview of the DiffFusion.jl modelling framework.
 
+Some features mentioned here are still under development and will be added going forward. If you want to check the status of particular features, please get in touch.
 
 ## What Is the Purpose of the Framework?
 
-Scenario-based financial instrument pricing is at the core of most risk management processes and methods. The DiffFusion.jl modelling framework provides a flexible and computationally efficient simulation and pricing engine. It contains state-of-the art model implementations that go beyond what is available in many similar open source and proprietary systems.
+Scenario-based financial instrument pricing is at the core of most risk management processes and methods. The DiffFusion.jl modelling framework provides a flexible and computationally efficient simulation and pricing engine. It contains state-of-the art model implementations for single and multi-factor models.
 
 The framework is designed for regular large-scale portfolio simulations as well as ad-hoc and interactive pricing and risk calculation analysis. As such, the framework can be used in production processes as well for benchmarking and model validation purposes. 
 
@@ -22,7 +23,7 @@ The components can be used independently. However, they develop their full poten
 
 Scenario generation is based on Monte Carlo simulation of risk factors. Risk factors are represented by generic model state variables. The evolution of the model state variables is based on diffusion models.
 
-The diffusion models in the DiffFusion.jl framework represent market standard risk neutral valuation models. For details on the specific models, see the [model section](#what-models-and-products-are-covered). A key objective of the framework is flexibility regarding the choice model. For example, you can combine multi-factor rates models for major currencies with single-factor rates models for other currencies.  
+The diffusion models in the DiffFusion.jl framework represent market standard risk neutral valuation models. For details on the specific models, see the [model section](#What-Models-and-Products-Are-Covered?). A key objective of the framework is flexibility regarding the choice model. For example, you can combine multi-factor rates models for major currencies with single-factor rates models for other currencies.  
 
 Component models for e.g. interest rates, exchange rates and equities are combined into a cross-asset hybrid model. The joint evolution of the hybrid model state variables is then calculated by Monte Carlo simulation.
 
@@ -37,21 +38,19 @@ The layered design of portfolios and products allows for a very flexible extenda
 
 Portfolios and products are agnostic to the simulation model and Monte Carlo method. The link between model, simulation and market data is established via a separate entity that holds the context details. This feature also contributes to the flexibility and extendability of the framework. 
 
-Future risk-neutral prices of portfolios and products are calculated using the simulated state variables and the corresponding models. We implement analytical pricing methods whenever available and appropriate. American Monte-Carlo methods are available for complex products.
+Future risk-neutral prices of portfolios and products are calculated using the simulated state variables and the corresponding models. We implement analytical pricing methods whenever available and appropriate. American Monte-Carlo methods will be available for complex products.
 
-Sensitivities of future prices are calculated efficiently using Algorithmic Differentiation (AD) methods. AD methods are directly available in the Julia language. For more details on AD in Julia, see the [Julia setion](#why-do-we-use-julia-language). 
+Sensitivities of future prices can be calculated efficiently using Algorithmic Differentiation (AD) methods. AD methods are directly available in the Julia language. For more details on AD in Julia, see the [Julia section](#Why-Do-We-Use-Julia-Language?). 
 
 
 ### Risk Measure Calculation
 
 Scenario prices for portfolios and products are stored in a three-dimensional scenario cube. The axes of the cube are simulated scenarios, future observation times and individual product legs. With these data we calculate risk measures like expected exposure and potential future exposure. New risk measures can easily be added to the framework. Alternatively, scenario cubes can also be processed by client applications or directly by the user.
 
-Portfolio risk measures need to take into account collateralization. We model collateral directly based on relevant CSA parameters like threshold, minimum transfer amount and independent amount. Collateralized portfolios are modelled using a margin period of risk. The methodology allows for an accurate portfolio modelling. In particular, we can model exposure spikes following large payments.
-
 
 ## What Models and Products Are Covered?
 
-The DiffFusion.jl framework covers models for interest rates, exchange rates. Further asset classes like equities/indices, inflation, commodity futures, and credit spreads will be added. All models can be combined into hybrid models for joint simulation.
+The DiffFusion.jl framework covers models for interest rates, exchange rates, equities/indices, inflation, and commodity futures. All models can be combined into hybrid models for joint simulation.
 
 Financial products are composed of cash flows. Cash flows for linear products are directly available in the framework. New cash flow types can easily be added.
 
@@ -64,6 +63,11 @@ Interest rates are modelled as multi-factor Gaussian HJM models. Such models all
 
 Exchange rates are modelled in a classical Black-Scholes-type model. Exchange rate models are linked to the corresponding domestic and foreign interest rate models. Calibration of the models takes into account the joint evolution of exchange rates as well as corresponding interest rates.
 
+Equities and indices are modelled analogous to exchange rates. In that context, the foreign interest rate model is replaced by a dividend yield term structure. The framework allows for a modelling of discrete dividend and dividend yields.
+
+Inflation models are designed following the foreign currency analogy. As a consequence, inflation models are also analogous to exchange rate models. This approach covers the classical Jarrow-Yildirim three-factor model as well as the two-factor Dodgson-Kainth model. Initial inflation forward curves are direct inputs to the model. This allows for modelling seasonality.
+
+Commodity futures are modelled following the HJM framework applied for interest rates. As a consequence, we can cover single-factor models and multi-factor models. This allows for a modelling of futures volatility term structures. Initial futures curves are direct input to the model and can incorporate commodity-specific features like seasonality patterns.
 
 ### Cash Flows and Legs
 
@@ -85,7 +89,7 @@ Sensitivity calculation is critical for risk management processes. For exposure 
 The DiffFusion.jl framework can be incorporated as package in Julia application and user code. Furthermore, the framework can be used e.g. in Jupyter notebooks, Python code and R code via Julia's interfaces to these environments. The DiffFusion.jl framework can also run fully independent, e.g. in a Docker container.
 
 
-## Related Literature and References
+## [Related Literature and References] (@id label_literature_and_references)
 
 - [L. Andersen, V. Piterbarg. Interest Rate Modeling. 2010.](http://andersen-piterbarg-book.com/)
 - [R. Jarrow, Y. Yildirim. Pricing Treasury Inflation Protected Securities and Related Derivatives Using an Hjm Model. 2003.](https://ssrn.com/abstract=585828)
