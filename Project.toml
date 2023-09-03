@@ -23,11 +23,14 @@ YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 [compat]
 Distributions = "0.25"
 Interpolations = "0.14"
+OrderedCollections = "1"
 ProgressBars = "1"
 QuadGK = "2"
 Revise = "3"
 Sobol = "1"
 StatsBase = "0.34"
+UnicodePlots = "3"
+YAML = "0.4"
 julia = "1.6"
 
 [extras]
