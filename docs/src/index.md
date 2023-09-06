@@ -12,10 +12,10 @@ The code for DiffFusion.jl is hosted at [github.com/frame-consulting/DiffFusion.
 
 ## Installation
 
-The most recent version of the package can be installed via
+The most recent release of the package can be installed via
 
 ```
-using Pkg; Pkg.add(url="https://github.com/frame-consulting/DiffFusion.jl")
+using Pkg; Pkg.add("DiffFusion.jl")
 ```
 
 Unit tests can be run via
