@@ -65,6 +65,11 @@ include("utils/InterpolationMethods.jl")
 include("analytics/Scenarios.jl")
 include("analytics/Analytics.jl")
 
+include("serialisation/Serialisations.jl")
+include("serialisation/Array.jl")
+include("serialisation/Termstructures.jl")
+include("serialisation/Models.jl")
+
 module Examples
     using DiffFusion
     using DiffFusion:ModelTime
@@ -75,5 +80,7 @@ module Examples
     include("examples/Products.jl")
 end # module
 
+"List of function names eligible for de-serialisation."
+const _eligible_func_names = [ string(n) for n in names(DiffFusion; all = true, imported = false) ]
 
 end
