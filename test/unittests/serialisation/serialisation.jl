@@ -8,5 +8,8 @@ using Test
     include("models.jl")
     include("objects.jl")
     include("termstructures.jl")
+    #
+    include("rebuild_models.jl")
+    include("rebuild_termstructures.jl")
 
 end

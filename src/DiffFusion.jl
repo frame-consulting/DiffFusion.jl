@@ -69,6 +69,8 @@ include("serialisation/Serialisations.jl")
 include("serialisation/Array.jl")
 include("serialisation/Termstructures.jl")
 include("serialisation/Models.jl")
+include("serialisation/RebuildModels.jl")
+include("serialisation/RebuildTermstructures.jl")
 
 module Examples
     using DiffFusion
