@@ -38,6 +38,7 @@ makedocs(
         "pages/additional_functions.md",
         "pages/function_index.md",
     ],
+    warnonly = [:missing_docs, ],
 )
 
 deploydocs(
