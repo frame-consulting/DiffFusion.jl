@@ -78,7 +78,10 @@ module Examples
     using DiffFusion:ModelValue
     using OrderedCollections
     using Random
+    using YAML
     #
+    include("examples/Examples.jl")
+    include("examples/Models.jl")
     include("examples/Products.jl")
 end # module
 

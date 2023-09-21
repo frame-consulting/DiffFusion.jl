@@ -283,3 +283,35 @@ function display_portfolio(example::OrderedDict{String,Any})
     end
 end
 
+"""
+    scenarios!(example::OrderedDict{String,Any})
+
+Create the exposure scenarios for the portfolio.
+"""
+function scenarios!(example::OrderedDict{String,Any})
+    if haskey(example, "scenarios")
+        return example["scenarios"]
+    end
+    config = example["config/instruments"]
+    @assert haskey(config, "obs_times")
+    obs_times = config["obs_times"]
+    if isa(obs_times, AbstractDict)
+        obs_times = Vector(obs_times["start"]:obs_times["step"]:obs_times["stop"])
+    end
+    @assert isa(obs_times, Vector)
+    #
+    if haskey(config, "with_progress_bar")
+        with_progress_bar = config["with_progress_bar"]
+    else
+        with_progress_bar = true
+    end
+    @assert typeof(with_progress_bar) == Bool
+    #
+    discount_curve_key = config["discount_curve_key"]
+    #
+    legs = vcat(portfolio!(example)...)
+    path_ = path!(example)
+    scens = DiffFusion.scenarios(legs, obs_times, path_, discount_curve_key, with_progress_bar=with_progress_bar)
+    example["scenarios"] = scens
+    return scens
+end
