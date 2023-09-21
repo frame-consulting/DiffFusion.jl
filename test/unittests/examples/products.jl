@@ -164,6 +164,28 @@ using YAML
           fx_key: EUR-USD
     """
 
+    @testset "Test leg generation" begin
+        leg = DiffFusion.Examples.fixed_rate_leg(
+            "", 0.0, 10.0, 1, 0.03, 1.0e+4, "USD"
+        )
+        @test length(leg.cashflows) == 10
+        @test isa(leg.cashflows[1], DiffFusion.FixedRateCoupon)
+        #
+        leg = DiffFusion.Examples.simple_rate_leg(
+            "", 0.0, 2.0, 2, "EUR:EURIBOR6M", "EUR:EURIBOR6M", nothing, 1.0e+4, "EUR", "EUR-USD"
+        )
+        @test length(leg.cashflows) == 4
+        @test isa(leg.cashflows[1], DiffFusion.SimpleRateCoupon)
+        #
+        leg = DiffFusion.Examples.compounded_rate_leg(
+            "", 0.0, 1.0, 4, "USD:SOFR", "USD:SOFR", nothing, 1.0e+4, "USD"
+        )
+        @test length(leg.cashflows) == 4
+        @test isa(leg.cashflows[1], DiffFusion.CompoundedRateCoupon)
+        #println(leg)
+    end
+
+
     @testset "Test swap generation" begin
         example = YAML.load(yaml_string, dicttype=OrderedDict{String,Any})
         for type_key in example["config/instruments"]["types"]
