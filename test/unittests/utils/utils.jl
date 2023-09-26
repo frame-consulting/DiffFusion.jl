@@ -3,6 +3,7 @@ using Test
 
 @testset "Commonly used utility methods." begin
 
-    # Add tests here.
+    include("polynomialregression.jl")
+    include("piecewiseregression.jl")
 
 end

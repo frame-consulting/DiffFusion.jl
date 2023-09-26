@@ -61,6 +61,8 @@ include("products/CashAndAssetLegs.jl")
 
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
+include("utils/PolynomialRegression.jl")
+include("utils/PiecewiseRegression.jl")
 
 include("analytics/Scenarios.jl")
 include("analytics/Analytics.jl")
