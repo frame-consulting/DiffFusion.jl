@@ -52,6 +52,7 @@ include("payoffs/Leafs.jl")
 include("payoffs/UnaryNodes.jl")
 include("payoffs/BinaryNodes.jl")
 include("payoffs/RatesPayoffs.jl")
+include("payoffs/AmcPayoffs.jl")
 
 include("products/Cashflows.jl")
 include("products/RatesCoupons.jl")
