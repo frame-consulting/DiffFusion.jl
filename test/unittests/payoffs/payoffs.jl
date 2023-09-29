@@ -16,6 +16,7 @@ using Test
         @test_throws ErrorException p(path)
     end
 
+    include("amc_payoffs.jl")
     include("nodes_and_leafs.jl")
     include("rates_payoffs.jl")
 
