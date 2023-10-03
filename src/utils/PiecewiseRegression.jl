@@ -207,13 +207,13 @@ function piecewise_regression(
 end
 
 """
-    predict(reg::PiecewiseRegression, C::Matrix)
+    predict(reg::PiecewiseRegression, C::AbstractMatrix)
 
 Use a calibrates piecewise polynomial regression to predict function values.
 Input is a matrix of controls C of size (n,p). Result is a vector
 of size (p,).
 """
-function predict(reg::PiecewiseRegression, C::Matrix)
+function predict(reg::PiecewiseRegression, C::AbstractMatrix)
     Alpha = hcat((multi_index(C[:,j], reg.π, reg.Qs) for j in 1:size(C)[2])...)
     R = [ partition_index(reg.π, Alpha[:,j]) for j = 1:size(C)[2] ]
     p = zeros(size(C)[2])
