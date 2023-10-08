@@ -5,5 +5,7 @@ using Test
 
     include("scenarios.jl")
     include("scenario_analytics.jl")
+    #
+    include("valuations.jl")
 	
 end

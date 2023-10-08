@@ -32,6 +32,6 @@ For questions please contact [info@frame-consult.de](mailto:info@frame-consult.d
 
 The best way of getting started with the DiffFusion framework is to have a look at the test suite.
 
-An example for exposure simulation of a Vanilla swap portfolio is implemented in the [scenario generation](https://github.com/frame-consulting/DiffFusion.jl/blob/main/test/componenttests/scenarios.jl) component test.
+An example for exposure simulation of a Vanilla swap portfolio is implemented in the [scenario generation](https://github.com/frame-consulting/DiffFusion.jl/blob/main/test/componenttests/scenarios/scenarios.jl) component test.
 
 Individual examples on model, simulation and product setup can be found in the [unit tests](https://github.com/frame-consulting/DiffFusion.jl/tree/main/test/unittests).

@@ -5,7 +5,13 @@ using Test
 
 @testset verbose=true "componenttests.jl" begin
 
-    include("scenarios.jl")
+    include("scenarios/scenarios.jl")
+
+    include("sensitivities/forwards_deltas.jl")
+    include("sensitivities/option_deltas.jl")
+    include("sensitivities/swap_deltas.jl")
+    include("sensitivities/option_vegas.jl")
+
 
 end
 
