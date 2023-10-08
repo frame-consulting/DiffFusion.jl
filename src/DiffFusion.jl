@@ -1,6 +1,8 @@
 module DiffFusion
 
+using ChainRulesCore
 using Distributions
+using ForwardDiff
 using Interpolations
 using LinearAlgebra
 using OrderedCollections
@@ -10,6 +12,7 @@ using QuadGK
 using Random
 using Sobol
 using SparseArrays
+using Zygote
 
 import Base.length
 import Base.string
@@ -60,6 +63,7 @@ include("products/CashFlowLeg.jl")
 include("products/MtMCashFlowLeg.jl")
 include("products/CashAndAssetLegs.jl")
 
+include("utils/Gradients.jl")
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
 include("utils/PolynomialRegression.jl")
@@ -67,6 +71,7 @@ include("utils/PiecewiseRegression.jl")
 
 include("analytics/Scenarios.jl")
 include("analytics/Analytics.jl")
+include("analytics/Valuations.jl")
 
 include("serialisation/Serialisations.jl")
 include("serialisation/Array.jl")
@@ -87,6 +92,9 @@ module Examples
     include("examples/Models.jl")
     include("examples/Products.jl")
 end # module
+
+include("chainrules/models.jl")
+include("chainrules/simulations.jl")
 
 "List of function names eligible for de-serialisation."
 const _eligible_func_names = [ string(n) for n in names(DiffFusion; all = true, imported = false) ]
