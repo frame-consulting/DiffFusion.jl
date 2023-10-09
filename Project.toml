@@ -25,6 +25,7 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
 Distributions = "0.25"
+ForwardDiff = "0.10"
 Interpolations = "0.14"
 OrderedCollections = "1"
 ProgressBars = "1"
