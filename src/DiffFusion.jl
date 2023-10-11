@@ -1,6 +1,7 @@
 module DiffFusion
 
 using ChainRulesCore
+using DelimitedFiles
 using Distributions
 using ForwardDiff
 using Interpolations
@@ -79,6 +80,7 @@ include("serialisation/Termstructures.jl")
 include("serialisation/Models.jl")
 include("serialisation/RebuildModels.jl")
 include("serialisation/RebuildTermstructures.jl")
+include("serialisation/ReadTermstructures.jl")
 
 module Examples
     using DiffFusion
@@ -88,6 +90,7 @@ module Examples
     using Random
     using YAML
     #
+    include("examples/csv/csv.jl")
     include("examples/Examples.jl")
     include("examples/Models.jl")
     include("examples/Products.jl")
