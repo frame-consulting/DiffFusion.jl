@@ -11,5 +11,6 @@ using Test
     #
     include("rebuild_models.jl")
     include("rebuild_termstructures.jl")
-
+    #
+    include("read_termstructures.jl")
 end
