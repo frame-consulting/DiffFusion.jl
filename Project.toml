@@ -25,6 +25,7 @@ YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
+DelimitedFiles = "1"
 Distributions = "0.25"
 Interpolations = "0.14"
 OrderedCollections = "1"
