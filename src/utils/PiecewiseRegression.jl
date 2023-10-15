@@ -161,6 +161,12 @@ end
 
 
 """
+    struct PiecewiseRegression
+        π::Vector{Int}
+        Qs::Vector{AbstractMatrix}
+        regs::Vector{PolynomialRegression}
+    end
+
 A PiecewiseRegression holds the information on the partitioning of the training
 data set and a list of regressions.
 The information on the partitioning is encoded in the partitioning vector π,

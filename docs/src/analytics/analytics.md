@@ -33,3 +33,25 @@ DiffFusion.expected_exposure
 ```@docs
 DiffFusion.potential_future_exposure
 ```
+
+## Pricing Analytics
+
+```@docs
+DiffFusion.model_price
+```
+
+```@docs
+DiffFusion.model_price_and_deltas
+```
+
+```@docs
+DiffFusion.model_price_and_vegas
+```
+
+```@docs
+DiffFusion.model_price_and_deltas_vector
+```
+
+```@docs
+DiffFusion.model_price_and_vegas_vector
+```

@@ -2,7 +2,7 @@
 """
     multi_index(n::Int, k::Int)
 
-Calculate an Int matrix as Vector{Vector{Int}} of size (m,n) where each row
+Calculate an `Int` matrix as `Vector{Vector{Int}}` of size (m,n) where each row
 represents an n-dimensional multi-index α with degree |α| < k.
 """
 function multi_index(n::Int, k::Int)
@@ -40,7 +40,12 @@ end
 
 
 """
-A PolynomialRegression holds allows to predict values of a multi-variate
+    struct PolynomialRegression
+        V::Matrix{Int}
+        beta::AbstractVector
+    end
+
+A `PolynomialRegression` holds allows to predict values of a multi-variate
 function. The polynomial degrees are encoded in the multi-index matrix *V*.
 The polynomial coefficients are stored in the vector *beta*.
 """
@@ -56,7 +61,7 @@ end
         max_degree::Int,
         )
 
-Calibrate a PolynomialRegression object from a matrix of controls C of
+Calibrate a `PolynomialRegression` object from a matrix of controls C of
 size (n,p) and a vector of observations O of size (p,). The maximum
 polynomial degree is given by max_degree. 
 """
