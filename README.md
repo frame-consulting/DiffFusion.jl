@@ -59,7 +59,7 @@ A basic one-factor Gaussian interest rate model can be set up as follows:
 model = DiffFusion.gaussian_hjm_model("mdl/HJM1F", δ, χ, σ, nothing, nothing)
 ```
 
-Details on the setup of model parameters are documented in the [Term Structures](@ref) section. Available models are documented in the [Models](@ref) section.
+Details on the setup of model parameters are documented in the [Term Structures](https://frame-consulting.github.io/DiffFusion.jl/dev/termstructures/termstructures/#Term-Structures) section. Available models are documented in the [Models](https://frame-consulting.github.io/DiffFusion.jl/dev/models/models/#Models) section.
 
 ### Monte Carlo Simulation
 
@@ -72,7 +72,7 @@ n_paths = 2^10  # number of simulated paths
 sim = DiffFusion.simple_simulation(model, ch, times, n_paths)
 ```
 
-Further details on Monte Carlo simulation methods are documented in the [Simulations](@ref) section.
+Further details on Monte Carlo simulation methods are documented in the [Simulations](https://frame-consulting.github.io/DiffFusion.jl/dev/simulations/simulations/#Simulations) section.
 
 ### Monte Carlo *Path* Construction
 
@@ -87,7 +87,7 @@ ts = [
 ]
 ```
 
-More details on yield curves and model parameter term structures are documented in the [Term Structures](@ref) section.
+More details on yield curves and model parameter term structures are documented in the [Term Structures](https://frame-consulting.github.io/DiffFusion.jl/dev/termstructures/termstructures/#Term-Structures) section.
 
 A context links available payoff keys with models and term structures.
 
@@ -112,7 +112,7 @@ And a path combines simulation, term structures and context.
 path = DiffFusion.path(sim, ts, ctx)
 ```
 
-`Context` and `Path` objects are further documented in the [Paths](@ref) section.
+`Context` and `Path` objects are further documented in the [Paths](https://frame-consulting.github.io/DiffFusion.jl/dev/paths/paths/#Paths) section.
 
 ### Financial Instrument Setup
 
@@ -175,7 +175,7 @@ fixed_leg = DiffFusion.cashflow_leg(
 
 A financial instrument is a list of one or more cash flow legs.
 
-More details on available cash flows and cash flow legs are documented in the [Products](@ref) section.
+More details on available cash flows and cash flow legs are documented in the [Products](https://frame-consulting.github.io/DiffFusion.jl/dev/products/products/#Products) section.
 
 ### Scenario Valuation
 
@@ -218,7 +218,7 @@ display(ee)
 #  0.0  7.98524  9.44371  147.817  148.527  0.0  0.0
 ```
 
-Scenario valuations are further documented in the [Analytics](@ref) section.
+Scenario valuations are further documented in the [Analytics](https://frame-consulting.github.io/DiffFusion.jl/dev/analytics/analytics/#Analytics) section.
 
 ## Further Examples
 
