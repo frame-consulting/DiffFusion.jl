@@ -19,5 +19,6 @@ using Test
     include("amc_payoffs.jl")
     include("nodes_and_leafs.jl")
     include("rates_payoffs.jl")
+    include("rates_options.jl")
 
 end

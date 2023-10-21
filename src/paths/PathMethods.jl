@@ -295,3 +295,43 @@ function future_index(p::Path, t::ModelTime, T::ModelTime, key::String)
     return future_index * exp.(y)
 end
 
+
+"""
+    forward_rate_variance(
+    p::Path,
+    t::ModelTime,
+    T::ModelTime,
+    T0::ModelTime,
+    T1::ModelTime,
+    key::String,
+    )
+
+Calculate the lognormal variance for a compounding factor of a forward-looking
+or backward-looking forward rate.
+
+"""
+function forward_rate_variance(
+    p::Path,
+    t::ModelTime,
+    T::ModelTime,
+    T0::ModelTime,
+    T1::ModelTime,
+    key::String,
+    )
+    #
+    (context_key, ts_key_1, ts_key_2, op) = context_keys(key)
+    entry = p.context.rates[context_key]
+    #
+    if isnothing(entry.model_alias)
+        return zeros(length(p))  # deterministic model
+    end
+    #
+    return ones(length(p)) * forward_rate_variance(
+        p.sim.model,
+        entry.model_alias,
+        t,
+        T,
+        T0,
+        T1,
+    )
+end

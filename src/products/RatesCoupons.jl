@@ -223,3 +223,132 @@ function forward_rate(cf::CompoundedRateCoupon, obs_time::ModelTime)
     end
     return R
 end
+
+"""
+    struct OptionletCoupon <: Coupon
+        expiry_time::ModelTime
+        coupon::Union{SimpleRateCoupon, CompoundedRateCoupon}
+        strike_rate::ModelValue
+        call_put::ModelValue
+        coupon_type::DataType  # distinguish constructors
+    end
+
+A caplet or floorlet coupon on a forward-looking or backward-looking rate.
+"""
+struct OptionletCoupon <: Coupon
+    expiry_time::ModelTime
+    coupon::Union{SimpleRateCoupon, CompoundedRateCoupon}
+    strike_rate::ModelValue
+    call_put::ModelValue
+    coupon_type::DataType  # distinguish constructors
+end
+
+"""
+    OptionletCoupon(
+        expiry_time::ModelTime,
+        coupon::Union{SimpleRateCoupon, CompoundedRateCoupon},
+        strike_rate::ModelValue,
+        call_put::ModelValue,
+        )
+
+Create an `OptionletCoupon` object from an underlying `SimpleRateCoupon` or
+`CompoundedRateCoupon`.
+
+Option `expiry_time` is specified by user.
+"""
+function OptionletCoupon(
+    expiry_time::ModelTime,
+    coupon::Union{SimpleRateCoupon, CompoundedRateCoupon},
+    strike_rate::ModelValue,
+    call_put::ModelValue,
+    )
+    #
+    @assert isnothing(coupon.spread_rate)
+    @assert (typeof(coupon) != SimpleRateCoupon) || (expiry_time ≤ coupon.start_time)
+    @assert (typeof(coupon) != CompoundedRateCoupon) || (expiry_time == coupon.period_times[end])
+    @assert call_put in (+1.0, -1.0)
+    return OptionletCoupon(expiry_time, coupon, strike_rate, call_put, typeof(coupon))
+end
+
+"""
+    OptionletCoupon(
+        expiry_time::ModelTime,
+        coupon::Union{SimpleRateCoupon, CompoundedRateCoupon},
+        strike_rate::ModelValue,
+        call_put::ModelValue,
+        )
+
+Create an `OptionletCoupon` object from an underlying `SimpleRateCoupon` or
+`CompoundedRateCoupon`.
+
+Option `expiry_time` is determined from underlying coupon.
+"""
+function OptionletCoupon(
+    coupon::Union{SimpleRateCoupon, CompoundedRateCoupon},
+    strike_rate::ModelValue,
+    call_put::ModelValue,
+    )
+    #
+    if typeof(coupon) == SimpleRateCoupon
+        expiry_time = coupon.fixing_time
+    end
+    if typeof(coupon) == CompoundedRateCoupon
+        expiry_time = coupon.period_times[end]
+    end
+    return OptionletCoupon(expiry_time, coupon, strike_rate, call_put)
+end
+
+
+"""
+    pay_time(cf::OptionletCoupon)
+
+Return the payment time for a OptionletCoupon.
+
+This coincides with the payment time of the underlying coupon.
+"""
+pay_time(cf::OptionletCoupon) = pay_time(cf.coupon)
+
+
+"""
+    year_fraction(cf::OptionletCoupon)
+
+Return OptionletCoupon year_fraction.
+"""
+year_fraction(cf::OptionletCoupon) = year_fraction(cf.coupon)
+
+
+"""
+    coupon_rate(cf::OptionletCoupon)
+
+Return OptionletCoupon rate.
+"""
+function coupon_rate(cf::OptionletCoupon)
+    R = coupon_rate(cf.coupon)
+    return Max(cf.call_put*(R - cf.strike_rate), 0.0)
+end
+
+
+"""
+    forward_rate(cf::OptionletCoupon, obs_time::ModelTime)
+
+Return OptionletCoupon forward rate.
+"""
+function forward_rate(cf::OptionletCoupon, obs_time::ModelTime)
+    if (typeof(cf.coupon) == SimpleRateCoupon) && (obs_time ≥ cf.expiry_time)
+        return coupon_rate(cf)
+    end
+    if (typeof(cf.coupon) == CompoundedRateCoupon) && (obs_time ≥ cf.coupon.period_times[end])
+        return coupon_rate(cf)
+    end
+    if (typeof(cf.coupon) == CompoundedRateCoupon) &&
+       (obs_time ≥ cf.coupon.period_times[end-1]) &&
+       (cf.coupon.period_times[end-1] < 0.0)
+        # this case is a bit tricky...
+        # with this methodology we may look a day (period) into the future
+        # this is a model limitation of the continuous rate approximation
+        return coupon_rate(cf)
+    end
+    R = forward_rate(cf.coupon, obs_time)
+    K = Fixed(cf.strike_rate)
+    return Optionlet(obs_time, cf.expiry_time, R, K, cf.call_put)
+end
