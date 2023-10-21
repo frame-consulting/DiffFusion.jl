@@ -79,6 +79,38 @@ function log_future(m::CompositeModel, alias::String, t::ModelTime, T::ModelTime
 end
 
 """
+    forward_rate_variance(
+        m::CompositeModel,
+        alias::String,
+        t::ModelTime,
+        T::ModelTime,
+        T0::ModelTime,
+        T1::ModelTime,
+        )
+
+Calculate the lognormal variance for a compounding factor of a forward-looking
+or backward-looking forward rate.
+"""
+function forward_rate_variance(
+    m::CompositeModel,
+    alias::String,
+    t::ModelTime,
+    T::ModelTime,
+    T0::ModelTime,
+    T1::ModelTime,
+    )
+    #
+    return forward_rate_variance(
+        m.models[m.model_dict[alias]],
+        alias,
+        t,
+        T,
+        T0,
+        T1,
+    )
+end
+
+"""
     state_dependent_Theta(m::CompositeModel)
 
 Return whether Theta requires a state vector input X.

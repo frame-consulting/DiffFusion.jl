@@ -187,8 +187,9 @@ end
     key::String,
     )
 
-Calculate the lognormal model variance of a forward looking or
-backward looking forward rate.
+Calculate the lognormal variance for a compounding factor of a forward-looking
+or backward-looking forward rate.
+
 """
 function forward_rate_variance(
     p::AbstractPath,

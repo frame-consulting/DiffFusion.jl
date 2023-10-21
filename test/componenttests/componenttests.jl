@@ -6,6 +6,7 @@ using Test
 @testset verbose=true "componenttests.jl" begin
 
     include("scenarios/scenarios.jl")
+    include("scenarios/rates_option.jl")
 
     include("sensitivities/forwards_deltas.jl")
     include("sensitivities/option_deltas.jl")

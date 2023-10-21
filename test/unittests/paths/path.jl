@@ -290,6 +290,10 @@ end
         fut_idx = DiffFusion.future_index(p, 4.0, 8.0, "NIK")
         @test isapprox(fut_idx, 23840.87131543661 * ones(5), atol=1.0e-15)
         #
+        v1 = DiffFusion.forward_rate_variance(p, 1.0, 4.0, 4.0, 5.0, "EUR")
+        v2 = DiffFusion.forward_rate_variance(p.sim.model, "EUR", 1.0, 4.0, 4.0, 5.0)
+        @test v1 == ones(5) * v2
+        #
     end
 
     @testset "Deterministic modelling." begin
@@ -340,5 +344,6 @@ end
         #
         @test DiffFusion.fixing(p, -1.0, "SOFR") == 0.0123 * ones(1)
         #
+        @test DiffFusion.forward_rate_variance(p, 1.0, 2.0, 2.0, 3.0, "USD") == zeros(1)
     end
 end

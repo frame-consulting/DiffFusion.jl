@@ -11,6 +11,7 @@ using Printf
 using ProgressBars
 using QuadGK
 using Random
+using Roots
 using Sobol
 using SparseArrays
 using Zygote
@@ -41,6 +42,7 @@ include("models/hybrid/CompositeModel.jl")
 include("models/hybrid/SimpleModel.jl")
 include("models/rates/SeparableHjmModel.jl")
 include("models/rates/GaussianHjmModel.jl")
+include("models/rates/ForwardRateVolatility.jl")
 include("models/futures/MarkovFutureModels.jl")
 
 include("simulations/RandomNumbers.jl")
@@ -56,6 +58,7 @@ include("payoffs/Leafs.jl")
 include("payoffs/UnaryNodes.jl")
 include("payoffs/BinaryNodes.jl")
 include("payoffs/RatesPayoffs.jl")
+include("payoffs/RatesOptions.jl")
 include("payoffs/AmcPayoffs.jl")
 
 include("products/Cashflows.jl")
@@ -64,6 +67,8 @@ include("products/CashFlowLeg.jl")
 include("products/MtMCashFlowLeg.jl")
 include("products/CashAndAssetLegs.jl")
 
+include("utils/Bachelier.jl")
+include("utils/Black.jl")
 include("utils/Gradients.jl")
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
