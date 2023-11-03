@@ -297,6 +297,52 @@ end
 
 
 """
+    swap_rate_variance(
+        p::Path,
+        t::ModelTime,
+        T::ModelTime,
+        swap_times::AbstractVector,
+        yf_weights::AbstractVector,
+        key::String,
+        )
+
+Calculate the normal model variance of a swap rate via Gaussian
+swap rate approximation.
+"""
+function swap_rate_variance(
+    p::Path,
+    t::ModelTime,
+    T::ModelTime,
+    swap_times::AbstractVector,
+    yf_weights::AbstractVector,
+    key::String,
+    )
+    #
+    (context_key, ts_key_1, ts_key_2, op) = context_keys(key)
+    entry = p.context.rates[context_key]
+    ts_alias_1 = entry.termstructure_dict[ts_key_1]
+    @assert op in (_empty_context_key,)  # we just want a single discount curve
+    #
+    if isnothing(entry.model_alias)
+        return zeros(length(p))  # deterministic model
+    end
+    #
+    X = state_variable(p.sim, t, p.interpolation)
+    SX = model_state(X, p.state_alias_dict)
+    return swap_rate_variance(
+        p.sim.model,
+        entry.model_alias,
+        p.ts_dict[ts_alias_1],
+        t,
+        T,
+        swap_times,
+        yf_weights,
+        SX,
+    )
+end
+
+
+"""
     forward_rate_variance(
     p::Path,
     t::ModelTime,
