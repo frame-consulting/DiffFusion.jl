@@ -8,5 +8,6 @@ using Test
     include("cashflow_leg.jl")
     include("mtm_cashflow_leg.jl")
     include("cash_and_asset_legs.jl")
+    include("swaption_leg.jl")
 
 end

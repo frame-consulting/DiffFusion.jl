@@ -144,6 +144,54 @@ using UnicodePlots
         plot_scens(mv3, "market value - OIS vs Libor options")
     end
 
+    times = 0.0:1.0/12:10.0
+    n_paths = 2^10
+    sim = DiffFusion.simple_simulation(hjm_model_dom, ch_full, times, n_paths, with_progress_bar = true)
+    path = DiffFusion.path(sim, ts, ctx, DiffFusion.LinearPathInterpolation)
+
+    @testset "Libor swaption simulation" begin
+        start_time = 5.0
+        end_time = 10.0
+        float_times = start_time:0.5:end_time
+        lib_float_coupons = [
+            DiffFusion.SimpleRateCoupon(s, s, e, e, e-s, "EUR:E6M", nothing, nothing)
+            for (s, e) in zip(float_times[1:end-1], float_times[2:end])
+        ]
+        fixed_rate = 0.02
+        fixed_times = start_time:1.0:end_time
+        fixed_coupons = [
+            DiffFusion.FixedRateCoupon(e, fixed_rate, e-s)
+            for (s, e) in zip(fixed_times[1:end-1], fixed_times[2:end])
+        ]
+        lib_leg = DiffFusion.SwaptionLeg("lib/5x10", start_time, start_time, lib_float_coupons, fixed_coupons, 1.0, "EUR:OIS", DiffFusion.SwaptionPhysicalSettlement, 100.0)
+        scens = DiffFusion.scenarios([lib_leg, ], times, path, "")
+        mv = DiffFusion.aggregate(scens)
+        ee = DiffFusion.expected_exposure(scens)
+        plot_scens(mv, "market value - Libor swaption")
+        plot_scens(ee, "EE - Libor swaption")
+    end
+
+    @testset "OIS swaption simulation" begin
+        start_time = 5.0
+        end_time = 10.0
+        float_times = start_time:0.5:end_time
+        lib_float_coupons = [
+            DiffFusion.CompoundedRateCoupon([s, e], [e-s], e, "EUR:E6M", nothing, nothing)
+            for (s, e) in zip(float_times[1:end-1], float_times[2:end])
+        ]
+        fixed_rate = 0.02
+        fixed_times = start_time:1.0:end_time
+        fixed_coupons = [
+            DiffFusion.FixedRateCoupon(e, fixed_rate, e-s)
+            for (s, e) in zip(fixed_times[1:end-1], fixed_times[2:end])
+        ]
+        lib_leg = DiffFusion.SwaptionLeg("ois/5x10", start_time, start_time, lib_float_coupons, fixed_coupons, 1.0, "EUR:OIS", DiffFusion.SwaptionPhysicalSettlement, 100.0)
+        scens = DiffFusion.scenarios([lib_leg, ], times, path, "")
+        mv = DiffFusion.aggregate(scens)
+        ee = DiffFusion.expected_exposure(scens)
+        plot_scens(mv, "market value - OIS swaption")
+        plot_scens(ee, "EE - OIS swaption")
+    end
 
 end
 

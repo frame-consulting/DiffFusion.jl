@@ -113,6 +113,8 @@ using Test
         @test DiffFusion.log_zero_bond(m, "EUR", 5.0, 7.0, SX) == X[6:7,:]'*G_f .+ 0.5*G_f'*y_f*G_f
         @test DiffFusion.log_future(m, "NIK", 5.0, 10.0, SX) == DiffFusion.log_future(mkv_model, "NIK", 5.0, 10.0, SX)
         #
+        yts = DiffFusion.flat_forward(0.01)
+        @test DiffFusion.swap_rate_variance(m, "EUR", yts, 1.0, 8.0, [8.0, 9.0, 10.0], [1.0, 1.0], SX) == DiffFusion.swap_rate_variance(hjm_model_for, "EUR", yts, 1.0, 8.0, [8.0, 9.0, 10.0], [1.0, 1.0], SX)
         @test DiffFusion.forward_rate_variance(m, "USD", 1.0, 8.0, 8.0, 9.0) == DiffFusion.forward_rate_variance(hjm_model_dom, "USD", 1.0, 8.0, 8.0, 9.0)
         #
         @test_throws KeyError DiffFusion.log_asset(m, "WrongAlias", 1.0, SX)

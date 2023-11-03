@@ -79,6 +79,44 @@ function log_future(m::CompositeModel, alias::String, t::ModelTime, T::ModelTime
 end
 
 """
+    swap_rate_variance(
+        m::CompositeModel,
+        alias::String,
+        yts::YieldTermstructure,
+        t::ModelTime,
+        T::ModelTime,
+        swap_times::AbstractVector,
+        yf_weights::AbstractVector,
+        X::ModelState,
+        )
+
+Calculate the normal model variance of a swap rate via Gaussian
+swap rate approximation.
+"""
+function swap_rate_variance(
+    m::CompositeModel,
+    alias::String,
+    yts::YieldTermstructure,
+    t::ModelTime,
+    T::ModelTime,
+    swap_times::AbstractVector,
+    yf_weights::AbstractVector,
+    X::ModelState,
+    )
+    #
+    return swap_rate_variance(
+        m.models[m.model_dict[alias]],
+        alias,
+        yts,
+        t,
+        T,
+        swap_times,
+        yf_weights,
+        X,
+    )
+end
+
+"""
     forward_rate_variance(
         m::CompositeModel,
         alias::String,
