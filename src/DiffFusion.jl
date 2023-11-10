@@ -6,6 +6,7 @@ using Distributions
 using ForwardDiff
 using Interpolations
 using LinearAlgebra
+using LsqFit
 using OrderedCollections
 using Printf
 using ProgressBars
@@ -44,6 +45,7 @@ include("models/rates/SeparableHjmModel.jl")
 include("models/rates/GaussianHjmModel.jl")
 include("models/rates/ForwardRateVolatility.jl")
 include("models/rates/SwapRateVolatility.jl")
+include("models/rates/SwapRateCalibration.jl")
 include("models/futures/MarkovFutureModels.jl")
 
 include("simulations/RandomNumbers.jl")

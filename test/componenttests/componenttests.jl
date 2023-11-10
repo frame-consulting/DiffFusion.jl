@@ -5,6 +5,8 @@ using Test
 
 @testset verbose=true "componenttests.jl" begin
 
+    include("calibration/swap_rate_calibration.jl")
+
     include("scenarios/scenarios.jl")
     include("scenarios/rates_option.jl")
 
