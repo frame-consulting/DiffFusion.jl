@@ -10,6 +10,7 @@
         swap_rate_volatilities::AbstractMatrix,
         yts::YieldTermstructure;
         max_iter::Integer = 5,
+        volatility_regularisation::ModelValue = 0.0,
         )
 
 Calibrate a model with flat volatilities and mean reversion
@@ -23,6 +24,7 @@ function gaussian_hjm_model(
     swap_rate_volatilities::AbstractMatrix,
     yts::YieldTermstructure;
     max_iter::Integer = 5,
+    volatility_regularisation::ModelValue = 0.0,
     )
     #
     # check inputs first
@@ -35,6 +37,9 @@ function gaussian_hjm_model(
         @assert swap_maturities[j] > swap_maturities[j-1]
     end
     @assert size(swap_rate_volatilities) == (length(option_times), length(swap_maturities))
+    #
+    @assert volatility_regularisation ≥ 0.0
+    @assert volatility_regularisation ≤ 1.0
     #
     delta = flat_parameter(swap_maturities)
     d = length(swap_maturities)
@@ -59,20 +64,30 @@ function gaussian_hjm_model(
     function obj_F(x::AbstractVector)
         m = model(x)
         σ = model_implied_volatilties(yts, m, option_times, swap_maturities, SX)
-        return σ - swap_rate_volatilities
+        obj = vec(σ - swap_rate_volatilities)
+        if volatility_regularisation > 0.0
+            model_vol = m.sigma_T.sigma_f.values[:,1]
+            obj_vol = model_vol[begin+1:end] - model_vol[begin:end-1]
+            obj = vcat(
+                (1.0 - volatility_regularisation) * obj,
+                volatility_regularisation * obj_vol,
+            )
+        end
+        return obj
     end
     #
-    obj_model(p, x) = vec(obj_F(x))
+    obj_model(p, x) = obj_F(x)
+    y0 = obj_F(x0)
     res = LsqFit.curve_fit(
         obj_model,
-        zeros(length(swap_rate_volatilities)),
-        zeros(length(swap_rate_volatilities)),
+        zeros(length(y0)),
+        zeros(length(y0)),
         x0,
         maxIter  = max_iter,
         autodiff = :forwarddiff)
     #
     m1 = model(res.param)
-    fit = obj_F(res.param)
+    fit = model_implied_volatilties(yts, m1, option_times, swap_maturities, SX) - swap_rate_volatilities
     return (model=m1, fit=fit)
 end
 
@@ -88,6 +103,7 @@ end
         swap_rate_volatilities::AbstractMatrix,
         yts::YieldTermstructure;
         max_iter::Integer = 5,
+        volatility_regularisation::ModelValue = 0.0,
         )
 
 
@@ -106,6 +122,7 @@ function gaussian_hjm_model(
     swap_rate_volatilities::AbstractMatrix,
     yts::YieldTermstructure;
     max_iter::Integer = 5,
+    volatility_regularisation::ModelValue = 0.0,
     )
     #
     # check inputs first
@@ -120,6 +137,9 @@ function gaussian_hjm_model(
         @assert swap_maturities[j] > swap_maturities[j-1]
     end
     @assert size(swap_rate_volatilities) == (length(option_times), length(swap_maturities))
+    #
+    @assert volatility_regularisation ≥ 0.0
+    @assert volatility_regularisation ≤ 1.0
     #
     d = length(delta())
     function model(x::AbstractVector, m::GaussianHjmModel, idx::Integer)
@@ -145,15 +165,25 @@ function gaussian_hjm_model(
     function obj_F(x::AbstractVector, m::GaussianHjmModel, idx::Integer)
         m = model(x, m, idx)
         σ = model_implied_volatilties(yts, m, option_times[idx:idx], swap_maturities, SX)
-        return σ - swap_rate_volatilities[idx:idx,:]
+        obj = vec(σ - swap_rate_volatilities[idx:idx,:])
+        if volatility_regularisation > 0.0
+            model_vol = m.sigma_T.sigma_f.values[:,idx]
+            obj_vol = model_vol[begin+1:end] - model_vol[begin:end-1]
+            obj = vcat(
+                (1.0 - volatility_regularisation) * obj,
+                volatility_regularisation * obj_vol,
+            )
+        end
+        return obj
     end
     #
     for idx in eachindex(option_times)
-        obj_model(p, x) = vec(obj_F(x, m0, idx))
+        obj_model(p, x) = obj_F(x, m0, idx)
+        y0 = obj_F(x0, m0, idx)
         res = LsqFit.curve_fit(
             obj_model,
-            zeros(length(swap_maturities)),
-            zeros(length(swap_maturities)),
+            zeros(length(y0)),
+            zeros(length(y0)),
             x0,
             maxIter  = max_iter,
             autodiff = :forwarddiff)

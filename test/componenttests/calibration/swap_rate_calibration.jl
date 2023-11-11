@@ -31,8 +31,17 @@ using Test
             ] * 1.0e-4
         op_idx = [ 2, 4, 6 ]
         sw_idx = [ 2, 3, 4 ]
-        res = DiffFusion.gaussian_hjm_model("EUR", ch, option_times[op_idx], swap_maturities[sw_idx], vols[op_idx, sw_idx], yts, max_iter = 5)
-        @test all(res.fit .> -13.5e-4)
+        res = DiffFusion.gaussian_hjm_model(
+            "EUR",
+            ch,
+            option_times[op_idx],
+            swap_maturities[sw_idx],
+            vols[op_idx, sw_idx],
+            yts,
+            max_iter = 5,
+            volatility_regularisation = 0.1,
+        )
+        @test all(res.fit .> -13.6e-4)
         @test all(res.fit .<   8.2e-4)
         println("")
         println("Global model calibration results 1:")
@@ -52,8 +61,16 @@ using Test
             ]  * 1.0e-4
         op_idx = [ 2, 4, 6 ]
         sw_idx = [ 2, 3, 4 ]
-        res = DiffFusion.gaussian_hjm_model("EUR", ch, option_times[op_idx], swap_maturities[sw_idx], vols[op_idx, sw_idx], yts, max_iter = 5)
-        @test all(res.fit .> -18.5e-4)
+        res = DiffFusion.gaussian_hjm_model(
+            "EUR",
+            ch,
+            option_times[op_idx],
+            swap_maturities[sw_idx],
+            vols[op_idx, sw_idx],
+            yts, max_iter = 5,
+            volatility_regularisation = 0.3,
+        )
+        @test all(res.fit .> -18.9e-4)
         @test all(res.fit .<  13.5e-4)
         println("")
         println("Global model calibration results 2:")
@@ -73,7 +90,16 @@ using Test
             ] * 1.0e-4
         op_idx = [ 2, 4, 6 ]
         sw_idx = [ 2, 3, 4 ]
-        res = DiffFusion.gaussian_hjm_model("EUR", ch, option_times[op_idx], swap_maturities[sw_idx], vols[op_idx, sw_idx], yts, max_iter = 5)
+        res = DiffFusion.gaussian_hjm_model(
+            "EUR",
+            ch,
+            option_times[op_idx],
+            swap_maturities[sw_idx],
+            vols[op_idx, sw_idx],
+            yts,
+            max_iter = 5,
+            volatility_regularisation = 0.1,
+        )
         @test all(res.fit .> -12.2e-4)
         @test all(res.fit .<  12.4e-4)
         println("")
@@ -112,8 +138,19 @@ using Test
             ] * 1.0e-4
         op_idx = [ 1, 2, 4, 6 ]
         sw_idx = [ 2, 3, 4 ]
-        res = DiffFusion.gaussian_hjm_model("EUR", delta, chi, ch, option_times[op_idx], swap_maturities[sw_idx], vols[op_idx, sw_idx], yts, max_iter = 5)
-        @test all(res.fit .> -6.4e-4)
+        res = DiffFusion.gaussian_hjm_model(
+            "EUR",
+            delta,
+            chi,
+            ch,
+            option_times[op_idx],
+            swap_maturities[sw_idx],
+            vols[op_idx, sw_idx],
+            yts,
+            max_iter = 5,
+            volatility_regularisation = 0.1,
+        )
+        @test all(res.fit .> -6.8e-4)
         @test all(res.fit .<  7.4e-4)
         println("")
         println("Piece-wise model calibration results 1:")
@@ -137,8 +174,18 @@ using Test
             ] * 1.0e-4
         op_idx = [ 1, 2, 4, 6 ]
         sw_idx = [ 2, 3, 4 ]
-        res = DiffFusion.gaussian_hjm_model("EUR", delta, chi, ch, option_times[op_idx], swap_maturities[sw_idx], vols[op_idx, sw_idx], yts, max_iter = 5)
-        @test all(res.fit .> -4.1e-4)
+        res = DiffFusion.gaussian_hjm_model(
+            "EUR",
+            delta,
+            chi,
+            ch,
+            option_times[op_idx],
+            swap_maturities[sw_idx],
+            vols[op_idx, sw_idx],
+            yts, max_iter = 5,
+            volatility_regularisation = 0.1,
+        )
+        @test all(res.fit .> -7.4e-4)
         @test all(res.fit .<  6.8e-4)
         println("")
         println("Piece-wise model calibration results 2:")
@@ -162,7 +209,18 @@ using Test
             ] * 1.0e-4
         op_idx = [ 1, 2, 4, 6 ]
         sw_idx = [ 2, 3, 4 ]
-        res = DiffFusion.gaussian_hjm_model("EUR", delta, chi, ch, option_times[op_idx], swap_maturities[sw_idx], vols[op_idx, sw_idx], yts, max_iter = 5)
+        res = DiffFusion.gaussian_hjm_model(
+            "EUR",
+            delta,
+            chi,
+            ch,
+            option_times[op_idx],
+            swap_maturities[sw_idx],
+            vols[op_idx, sw_idx],
+            yts,
+            max_iter = 5,
+            volatility_regularisation = 0.01,
+        )
         @test all(res.fit .> -0.1e-4)
         @test all(res.fit .<  0.1e-4)
         println("")
