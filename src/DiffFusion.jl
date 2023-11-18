@@ -70,6 +70,7 @@ include("products/CashFlowLeg.jl")
 include("products/SwaptionLeg.jl")
 include("products/MtMCashFlowLeg.jl")
 include("products/CashAndAssetLegs.jl")
+include("products/BermudanSwaptionLeg.jl")
 
 include("utils/Bachelier.jl")
 include("utils/Black.jl")
