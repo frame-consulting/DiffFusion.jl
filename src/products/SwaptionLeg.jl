@@ -119,7 +119,7 @@ function SwaptionLeg(
         # methodology here.
     end
     #
-    payer_receiver in (+1.0, -1.0)
+    @assert payer_receiver in (+1.0, -1.0)
     #
     @assert notional > 0.0  # no degenerated leg
     @assert swpt_long_short in (+1.0, -1.0)
