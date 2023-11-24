@@ -101,6 +101,7 @@ module Examples
     using YAML
     #
     include("examples/csv/csv.jl")
+    include("examples/yaml/yaml.jl")
     include("examples/Examples.jl")
     include("examples/Models.jl")
     include("examples/Products.jl")
