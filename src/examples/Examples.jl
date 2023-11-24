@@ -12,7 +12,7 @@ Return a list of dictionaries representing a DiffFusion example.
 Example details can be modified by changing the dictionary entries.
 """
 function load(name::String)
-    file_name = joinpath(@__DIR__, "yamls", name * ".yaml")
+    file_name = joinpath(_yaml_path, name * ".yaml")
     dict_list = YAML.load_file(file_name; dicttype=OrderedDict{String,Any})
     return dict_list
 end
