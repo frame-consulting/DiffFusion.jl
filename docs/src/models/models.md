@@ -33,7 +33,14 @@ DiffFusion.GaussianHjmModel
 ```
 
 ```@docs
-DiffFusion.gaussian_hjm_model
+DiffFusion.gaussian_hjm_model(
+    alias::String,
+    delta::DiffFusion.ParameterTermstructure,
+    chi::DiffFusion.ParameterTermstructure,
+    sigma_f::DiffFusion.BackwardFlatVolatility,
+    correlation_holder::Union{DiffFusion.CorrelationHolder, Nothing},
+    quanto_model::Union{DiffFusion.AssetModel, Nothing},
+    )
 ```
 
 ```@docs
@@ -120,6 +127,10 @@ DiffFusion.log_future
 DiffFusion.forward_rate_variance
 ```
 
+```@docs
+DiffFusion.swap_rate_variance
+```
+
 ## Model Functions for Simulation
 
 ```@docs
@@ -188,64 +199,3 @@ DiffFusion.quanto_drift
 DiffFusion.asset_variance
 ```
 
-## Additional Rates Model Functions
-
-```@docs
-DiffFusion.func_y
-```
-
-```@docs
-DiffFusion.chi_hjm
-```
-
-```@docs
-DiffFusion.benchmark_times
-```
-
-```@docs
-DiffFusion.H_hjm
-```
-
-```@docs
-DiffFusion.G_hjm
-```
-
-```@docs
-DiffFusion.benchmark_times_scaling
-```
-
-```@docs
-DiffFusion.func_Theta_x
-```
-
-```@docs
-DiffFusion.func_Theta_x_integrate_y
-```
-
-```@docs
-DiffFusion.func_Theta_s
-```
-
-```@docs
-DiffFusion.func_Theta
-```
-
-```@docs
-DiffFusion.func_H_T
-```
-
-```@docs
-DiffFusion.func_H_T_dense
-```
-
-```@docs
-DiffFusion.func_Sigma_T
-```
-
-```@docs
-DiffFusion.GaussianHjmModelVolatility
-```
-
-```@docs
-DiffFusion.swap_rate_variance
-```

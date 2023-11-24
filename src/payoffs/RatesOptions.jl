@@ -30,6 +30,18 @@ struct Optionlet <: Payoff
     call_put::ModelValue
 end
 
+"""
+    Optionlet(
+        obs_time_::ModelTime,
+        expiry_time::ModelTime,
+        forward_rate::Union{LiborRate, CompoundedRate},
+        strike_rate::Payoff,
+        call_put::ModelValue,
+        gearing_factor::Payoff = Fixed(1.0),
+        )
+
+Create an `Optionlet` payoff.
+"""
 function Optionlet(
     obs_time_::ModelTime,
     expiry_time::ModelTime,
@@ -155,6 +167,21 @@ struct Swaption <: Payoff
 end
 
 
+"""
+    Swaption(
+        obs_time_::ModelTime,
+        expiry_time::ModelTime,
+        settlement_time::ModelTime,
+        forward_rates::AbstractVector,
+        fixed_times::AbstractVector,
+        fixed_weights::AbstractVector,
+        fixed_rate::ModelValue,
+        payer_receiver::ModelValue,
+        disc_key::String,
+        )
+
+Create a `Swaption` payoff.
+"""
 function Swaption(
     obs_time_::ModelTime,
     expiry_time::ModelTime,

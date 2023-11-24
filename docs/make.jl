@@ -28,6 +28,7 @@ makedocs(
         "analytics/analytics.md",
         "examples/examples.md",
         "models/models.md",
+        "models/rates_models.md",
         "paths/paths.md",
         "payoffs/payoffs.md",
         "products/products.md",
