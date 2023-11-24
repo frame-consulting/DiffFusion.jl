@@ -21,6 +21,28 @@ i.e. physical price at expiry.
 
 
 """
+    struct SwaptionLeg <: CashFlowLeg
+        alias::String
+        #
+        expiry_time::ModelTime
+        settlement_time::ModelTime
+        float_coupons::AbstractVector
+        fixed_coupons::AbstractVector
+        payer_receiver::ModelValue
+        swap_disc_curve_key::String
+        settlement_type::SwaptionSettlement
+        #
+        notional::ModelValue
+        swpt_disc_curve_key::String
+        swpt_fx_key::Union{String, Nothing}
+        swpt_long_short::ModelValue
+        #
+        fixed_times::AbstractVector
+        fixed_weights::AbstractVector
+        fixed_rate::ModelValue
+        exercise_indicator::Payoff
+    end
+
 A European swaption referencing a Vanilla swap with forward looking or
 backward looking rates.
 """
@@ -48,6 +70,23 @@ end
 
 
 """
+    SwaptionLeg(
+        alias::String,
+        #
+        expiry_time::ModelTime,
+        settlement_time::ModelTime,
+        float_coupons::AbstractVector,
+        fixed_coupons::AbstractVector,
+        payer_receiver::ModelValue,
+        swap_disc_curve_key::String,
+        settlement_type::SwaptionSettlement,
+        #
+        notional::ModelValue,
+        swpt_disc_curve_key::String = swap_disc_curve_key,
+        swpt_fx_key::Union{String, Nothing} = nothing,
+        swpt_long_short::ModelValue = +1.0,
+        )
+
 Create a swaption object.
 """
 function SwaptionLeg(
