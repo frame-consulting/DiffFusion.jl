@@ -22,6 +22,13 @@ function serialise(o::ZeroCurve)
 end
 
 """
+    serialise(o::LinearZeroCurve)
+
+    Serialise LinearZeroCurve.
+"""
+serialise(o::LinearZeroCurve) = serialise_struct(o)
+
+"""
     serialise(o::BackwardFlatVolatility)
 
 Serialise BackwardFlatVolatility.

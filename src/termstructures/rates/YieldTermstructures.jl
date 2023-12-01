@@ -140,3 +140,88 @@ function discount(ts::ZeroCurve, t::ModelTime)
     z = ts.interpolation(t)
     return exp(-z * t)
 end
+
+
+"""
+    struct LinearZeroCurve <: YieldTermstructure
+        alias::String
+        times::AbstractVector
+        values::AbstractVector
+    end
+
+A yield term structure based on continuous compounded zero rates
+with linear interpolation and flat extrapolation.
+
+This curve aims at mitigating limitations of Zygote and ZeroCurve.
+"""
+struct LinearZeroCurve <: YieldTermstructure
+    alias::String
+    times::AbstractVector
+    values::AbstractVector
+end
+
+
+"""
+    linear_zero_curve(
+        alias::String,
+        times::AbstractVector,
+        values::AbstractVector,
+        )
+
+Create a LinearZeroCurve.
+"""
+function linear_zero_curve(
+    alias::String,
+    times::AbstractVector,
+    values::AbstractVector,
+    )
+    return LinearZeroCurve(alias, times, values)
+end
+
+
+"""
+    linear_zero_curve(
+        times::AbstractVector,
+        values::AbstractVector,
+        )
+
+Create a LinearZeroCurve with empty alias.
+"""
+function linear_zero_curve(
+    times::AbstractVector,
+    values::AbstractVector,
+    )
+    return linear_zero_curve("", times, values)
+end
+
+
+"""
+    _interpole(ts::LinearZeroCurve, t::ModelTime)
+
+Linear  interpolation with flat exrapolation.
+"""
+function _interpole(ts::LinearZeroCurve, t::ModelTime)
+    idx = searchsortedfirst(ts.times, t)
+     # left flat extrapolation
+    if idx == 1
+        return ts.values[idx]
+    end
+    # right flat extrapolation
+    if idx > length(ts.times)
+        return ts.values[idx-1]
+    end
+    # linear interpolation
+    rho = (t - ts.times[idx-1]) / ((ts.times[idx] - ts.times[idx-1]))
+    return rho * ts.values[idx] + (1.0 - rho) * ts.values[idx-1]
+end
+
+
+"""
+    discount(ts::LinearZeroCurve, t::ModelTime)
+
+Calculate discount factor.
+"""
+function discount(ts::LinearZeroCurve, t::ModelTime)
+    z = _interpole(ts, t)
+    return exp(-z * t)
+end

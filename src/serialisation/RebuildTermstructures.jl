@@ -41,6 +41,22 @@ end
 
 
 """
+    _get_labels_and_values(ts::LinearZeroCurve)
+
+Extract labels and values from LinearZeroCurve.
+"""
+function _get_labels_and_values(ts::LinearZeroCurve)
+    param_labels = [
+        alias(ts) * _split_alias_identifyer *
+        string(typeof(ts)) * _split_alias_identifyer *
+        (@sprintf("%.2f", t))
+        for t in ts.times
+    ]
+    return ( param_labels, ts.values )
+end
+
+
+"""
     _get_labels_and_values(ts::PiecewiseFlatParameter)
 
 Extract labels and values from PiecewiseFlatParameter.
@@ -100,6 +116,10 @@ function termstructure_dictionary!(
         end
         if isa(ts_dict[ts_alias], ZeroCurve)
             ts_dict[ts_alias] = zero_curve(ts_dict[ts_alias].alias, ts_dict[ts_alias].times, values)
+            continue
+        end
+        if isa(ts_dict[ts_alias], LinearZeroCurve)
+            ts_dict[ts_alias] = linear_zero_curve(ts_dict[ts_alias].alias, ts_dict[ts_alias].times, values)
             continue
         end
         if isa(ts_dict[ts_alias], BackwardFlatParameter)

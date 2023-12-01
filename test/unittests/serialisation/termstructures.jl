@@ -22,6 +22,15 @@ using Test
             "values" => [0.02, 0.03]
         )
         #
+        d = DiffFusion.serialise(DiffFusion.linear_zero_curve("USD", [0.0, 10.0], [0.02, 0.03]))
+        @test d == OrderedDict{String, Any}(
+            "typename" => "DiffFusion.LinearZeroCurve",
+            "constructor" => "LinearZeroCurve",
+            "alias" => "USD",
+            "times" => [0.0, 10.0],
+            "values" => [0.02, 0.03]
+        )
+        #
         times =  [  1.,  2.,  5., 10. ]
         values = [ 50.  60.  70.  80. ;
                    50.  50.  50.  50. ;
