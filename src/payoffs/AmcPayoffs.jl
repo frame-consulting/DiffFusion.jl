@@ -76,11 +76,11 @@ end
 
 
 """
-    calibrate_regression!(links::AmcPayoffLinks, regr::AmcPayoffRegression)
+    calibrate_regression(links::AmcPayoffLinks, regr::AmcPayoffRegression)
 
 Calibrate the regression for an AMC payoff.
 """
-function calibrate_regression!(links::AmcPayoffLinks, regr::AmcPayoffRegression)
+function calibrate_regression(links::AmcPayoffLinks, regr::AmcPayoffRegression)
     if length(links.z) > 0 && !isnothing(regr.path) && !isnothing(regr.make_regression)
         T = zeros(length(regr.path))
         for x in links.x
@@ -92,10 +92,9 @@ function calibrate_regression!(links::AmcPayoffLinks, regr::AmcPayoffRegression)
         T = T .* numeraire(regr.path, links.obs_time, links.curve_key)
         Z = hcat([ z(regr.path) for z in links.z ]...)'
         #
-        regr.regression = regr.make_regression(Z, T)
-        return true
+        return regr.make_regression(Z, T)
     end
-    return false  # cannot do calibration
+    return nothing  # cannot calibrate
 end
 
 """
@@ -105,7 +104,7 @@ Calculate the common components of AMC payoffs for a given valuation path.
 """
 function at(links::AmcPayoffLinks, regr::AmcPayoffRegression, path::AbstractPath)
     if isnothing(regr.regression)  # try to calibrate
-        calibrate_regression!(links, regr)
+        regr.regression = calibrate_regression(links, regr)
     end
     if length(links.z) > 0 && !isnothing(regr.regression)
         # use regression to calculate payoff

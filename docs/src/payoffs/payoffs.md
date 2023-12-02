@@ -263,5 +263,5 @@ DiffFusion.string
 ```
 
 ```@docs
-DiffFusion.calibrate_regression!
+DiffFusion.calibrate_regression
 ```
