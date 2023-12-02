@@ -51,10 +51,10 @@ using Test
         p3 = DiffFusion.AmcOne(5.0, x, y, z, path, make_regression, "Std")
         p4 = DiffFusion.AmcSum(5.0, x, z, path, make_regression, "Std")
         #
-        @test DiffFusion.calibrate_regression!(p1.links, p1.regr) == true
-        @test DiffFusion.calibrate_regression!(p2.links, p2.regr) == true
-        @test DiffFusion.calibrate_regression!(p3.links, p3.regr) == true
-        @test DiffFusion.calibrate_regression!(p4.links, p4.regr) == true
+        @test !isnothing(DiffFusion.calibrate_regression(p1.links, p1.regr))
+        @test !isnothing(DiffFusion.calibrate_regression(p2.links, p2.regr))
+        @test !isnothing(DiffFusion.calibrate_regression(p3.links, p3.regr))
+        @test !isnothing(DiffFusion.calibrate_regression(p4.links, p4.regr))
         #
         DiffFusion.reset_regression!(p1, path, make_regression)
         DiffFusion.reset_regression!(p2, path, make_regression)
