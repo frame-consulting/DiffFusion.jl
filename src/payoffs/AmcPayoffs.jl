@@ -275,10 +275,12 @@ end
         make_regression::Union{Function, Nothing}  = nothing,
         )
 
-Ignore resetting the regression properties for Leaf payoffs.
+Ignore resetting the regression properties for Leaf and similar payoffs.
+
+Note that some rates payoffs and rates options are no Leafs.
 """
 function reset_regression!(
-    p::Leaf,
+    p::Union{Leaf, CompoundedRate, Optionlet, Swaption},
     path::Union{AbstractPath, Nothing} = nothing,
     make_regression::Union{Function, Nothing}  = nothing,
     )
@@ -299,7 +301,7 @@ function reset_regression!(
     path::Union{AbstractPath, Nothing} = nothing,
     make_regression::Union{Function, Nothing}  = nothing,
     )
-    error("Payoff needs to implement reset_regression! method.")
+    error("Payoff " * string(typeof(p)) *  " needs to implement reset_regression! method.")
 end
 
 
