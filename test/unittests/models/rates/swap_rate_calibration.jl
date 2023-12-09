@@ -126,7 +126,7 @@ using Test
         # display(res)
         @test all(res.fit .> -2.9e-4)
         @test all(res.fit .<  3.0e-4)
-        display(res.model.chi)
+        # display(res.model.chi)
         # display(res.model.sigma_T.sigma_f.times)
         # display(res.model.sigma_T.sigma_f.values)
         # display(res.fit * 1e+4)
