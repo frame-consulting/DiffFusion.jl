@@ -16,6 +16,7 @@ using Test
     include("sensitivities/option_deltas.jl")
     include("sensitivities/swap_deltas.jl")
     include("sensitivities/option_vegas.jl")
+    include("sensitivities/swaptions_delta_vega.jl")
 
 
 end

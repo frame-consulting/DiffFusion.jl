@@ -38,6 +38,29 @@ using Test
         @test string(p4) == "AmcSum(5.00, [S(Std, 6.00), S(Std, 7.00)], [], [S(Std, 3.00), S(Std, 4.00)])"
     end
 
+    @testset "Has AMC property" begin
+        x = [ DiffFusion.Asset(6.0, "Std"), DiffFusion.Asset(7.0, "Std") ]
+        y = [ DiffFusion.Asset(8.0, "Std"), DiffFusion.Asset(9.0, "Std") ]
+        z = [ DiffFusion.Asset(3.0, "Std"), DiffFusion.Asset(4.0, "Std") ]
+        #
+        p1 = DiffFusion.AmcMax(5.0, x, y, z, nothing, nothing, "Std")
+        p2 = DiffFusion.AmcMin(5.0, x, y, z, nothing, nothing, "Std")
+        p3 = DiffFusion.AmcOne(5.0, x, y, z, nothing, nothing, "Std")
+        p4 = DiffFusion.AmcSum(5.0, x, z, nothing, nothing, "Std")
+        #
+        @test DiffFusion.has_amc_payoff(x) == false
+        #
+        @test DiffFusion.has_amc_payoff(p1) == true
+        @test DiffFusion.has_amc_payoff(p2) == true
+        @test DiffFusion.has_amc_payoff(p3) == true
+        @test DiffFusion.has_amc_payoff(p4) == true
+        #
+        @test DiffFusion.has_amc_payoff(p1 + x[1]) == true
+        @test DiffFusion.has_amc_payoff(p1 + p2) == true
+        @test DiffFusion.has_amc_payoff(DiffFusion.Pay(p1, 5.0)) == true
+        @test DiffFusion.has_amc_payoff([p1, p2, p3, p4]) == true
+    end
+
     @testset "Payoff calibration." begin
         x = [ DiffFusion.Asset(6.0, "Std"), DiffFusion.Asset(7.0, "Std") ]
         y = [ DiffFusion.Asset(8.0, "Std"), DiffFusion.Asset(9.0, "Std") ]

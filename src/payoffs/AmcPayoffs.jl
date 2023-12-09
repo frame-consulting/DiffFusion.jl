@@ -206,6 +206,58 @@ function obs_times(p::AmcPayoff)
     return times
 end
 
+
+"""
+    has_amc_payoff(p::AmcPayoff)
+
+Determine whether a payoff is or contains an AMC payoff.
+
+AMC payoffs require special treatment e.g. for sensitivity calculation.
+"""
+has_amc_payoff(p::AmcPayoff) = true
+
+
+"""
+    has_amc_payoff(p::UnaryNode)
+
+Determine whether a payoff is or contains an AMC payoff.
+"""
+has_amc_payoff(p::UnaryNode) = has_amc_payoff(p.x)
+
+"""
+    has_amc_payoff(p::BinaryNode)
+
+Determine whether a payoff is or contains an AMC payoff.
+"""
+has_amc_payoff(p::BinaryNode) = has_amc_payoff(p.x) || has_amc_payoff(p.y)
+
+"""
+    has_amc_payoff(p::Union{Leaf, CompoundedRate, Optionlet, Swaption})
+
+Determine whether a payoff is or contains an AMC payoff.
+"""
+has_amc_payoff(p::Union{Leaf, CompoundedRate, Optionlet, Swaption}) = false
+
+"""
+    has_amc_payoff(p::Payoff)
+
+Determine whether a payoff is or contains an AMC payoff.
+"""
+has_amc_payoff(p::Payoff) = begin
+    error("Payoff " * string(typeof(p)) *  " needs to implement has_amc_payoff method.")
+    return false
+end
+
+"""
+    has_amc_payoff(payoffs::AbstractVector)
+
+Determine whether any payoff is or contains an AMC payoff.
+"""
+has_amc_payoff(payoffs::AbstractVector) = begin
+    return any([ has_amc_payoff(p) for p in payoffs ])
+end
+
+
 """
     reset_regression!(
         p::AmcPayoff,
@@ -269,7 +321,7 @@ end
 
 """
     reset_regression!(
-        p::Leaf,
+        p::Union{Leaf, CompoundedRate, Optionlet, Swaption},
         path::Union{AbstractPath, Nothing} = nothing,
         make_regression::Union{Function, Nothing}  = nothing,
         )
@@ -303,6 +355,17 @@ function reset_regression!(
     error("Payoff " * string(typeof(p)) *  " needs to implement reset_regression! method.")
 end
 
+
+"""
+    _is_larger_zero(T::AbstractArray)
+
+Implement a differentiable version of the indicator (T>0).
+"""
+function _is_larger_zero(T::AbstractArray)
+    # return 1.0 * (T .> 0.0)
+    scaling = 1.0e+8
+    return 0.5 .+ 0.5 .* tanh.(scaling .* T)
+end
 
 """
     struct AmcMax <: AmcPayoff
@@ -370,8 +433,8 @@ function at(p::AmcMax, path::AbstractPath)
         end
         Y = Y .* N
     end
-    use_X = (T .> 0.0)
-    return use_X .* X + (.!use_X) .* Y
+    use_X = _is_larger_zero(T)
+    return use_X .* X .+ (1.0 .- use_X) .* Y
 end
 
 """
@@ -450,8 +513,8 @@ function at(p::AmcMin, path::AbstractPath)
         end
         Y = Y .* N
     end
-    use_X = (T .<= 0.0)
-    return use_X .* X + (.!use_X) .* Y
+    use_Y = _is_larger_zero(T)
+    return (1.0 .- use_Y) .* X .+ use_Y .* Y
 end
 
 """
@@ -516,7 +579,7 @@ Evaluate an AmcOne payoff at a given path.
 """
 function at(p::AmcOne, path::AbstractPath)
     (X, Y, T) = at(p.links, p.regr, path)
-    return (T .> 0.0)
+    return _is_larger_zero(T)
 end
 
 """

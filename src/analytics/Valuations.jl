@@ -79,8 +79,11 @@ function model_price_and_deltas(
     payoffs::AbstractVector,
     path_obj::Path,
     pay_time::Union{ModelTime, Nothing} = nothing,
-    discount_curve_key::Union{String,Nothing} = nothing
+    discount_curve_key::Union{String,Nothing} = nothing,
     )
+    if has_amc_payoff(payoffs)
+        @warn "Zygote cannot properly handle AMC payoffs."
+    end
     #
     pay_time = _effective_pay_time(payoffs, pay_time, discount_curve_key)
     #
@@ -97,7 +100,7 @@ function model_price_and_deltas(
         return mean( X )
     end
     # res = obj_function(path_obj.ts_dict)
-    (v, g) = _function_value_and_gradient(obj_function, path_obj.ts_dict)
+    (v, g) = _function_value_and_gradient(obj_function, path_obj.ts_dict, Zygote)
     return (v, g)
 end
 
@@ -108,7 +111,7 @@ end
         path_obj::Path,
         pay_time::Union{ModelTime, Nothing} = nothing,
         discount_curve_key::Union{String,Nothing} = nothing,
-        ad_module::Module = Zygote,
+        ad_module::Module = ForwardDiff,
         )
 
 Calculate model price and curve sensitivities. Sensitivities are
@@ -120,14 +123,22 @@ Here, payoffs is a vector of `Payoff` objects and `path_obj` is a simulated `Pat
 numeraire calculation.
 
 `ad_module` can be `Zygote` or `ForwardDiff`.
+
+For AMC payoffs we need to update the regression path and trigger a
+recalibration. For sensitivity calculation, we impose the constraint that
+regression calibration uses the same paths as valuation.
 """
 function model_price_and_deltas_vector(
     payoffs::AbstractVector,
     path_obj::Path,
     pay_time::Union{ModelTime, Nothing} = nothing,
     discount_curve_key::Union{String,Nothing} = nothing,
-    ad_module::Module = Zygote,
+    ad_module::Module = ForwardDiff,
     )
+    #
+    if has_amc_payoff(payoffs) && (ad_module == Zygote)
+        @warn "Zygote cannot properly handle AMC payoffs."
+    end
     #
     pay_time = _effective_pay_time(payoffs, pay_time, discount_curve_key)
     ts_dict = deepcopy(path_obj.ts_dict)  # maybe we don't want (or need) this
@@ -136,6 +147,11 @@ function model_price_and_deltas_vector(
     obj_function(ts_values_) = begin
         termstructure_dictionary!(ts_dict, ts_labels, ts_values_)
         path_ = path(path_obj.sim, ts_dict, path_obj.context, path_obj.interpolation)
+        # we need to update regression paths for AMC payoffs
+        for p in payoffs
+            reset_regression!(p, path_)
+        end
+        #
         X = zeros(length(path_))
         if length(payoffs) > 0
             X += sum(( p(path_) for p in payoffs ))
@@ -185,6 +201,9 @@ function model_price_and_vegas(
     pay_time::Union{ModelTime, Nothing} = nothing,
     discount_curve_key::Union{String,Nothing} = nothing
     )
+    if has_amc_payoff(payoffs)
+        @warn "Zygote cannot properly handle AMC payoffs."
+    end
     #
     pay_time = _effective_pay_time(payoffs, pay_time, discount_curve_key)
     #
@@ -220,7 +239,7 @@ function model_price_and_vegas(
         return price
     end
     # res = obj_function(param_dict)
-    (v, g) = _function_value_and_gradient(obj_function, param_dict)
+    (v, g) = _function_value_and_gradient(obj_function, param_dict, Zygote)
     return (v, g)
 end
 
@@ -234,7 +253,7 @@ end
         context::Context,
         pay_time::Union{ModelTime, Nothing} = nothing,
         discount_curve_key::Union{String,Nothing} = nothing,
-        ad_module::Module = Zygote,
+        ad_module::Module = ForwardDiff,
         )
 
 Calculate model price and model sensitivities. Sensitivities are
@@ -252,6 +271,10 @@ signature `simulation(model::Model, ch::CorrelationHolder)`.
 numeraire calculation.
 
 `ad_module` can be `Zygote` or `ForwardDiff`.
+
+For AMC payoffs we need to update the regression path and trigger a
+recalibration. For sensitivity calculation, we impose the constraint that
+regression calibration uses the same paths as valuation.
 """
 function model_price_and_vegas_vector(
     payoffs::AbstractVector,
@@ -261,8 +284,12 @@ function model_price_and_vegas_vector(
     context::Context,
     pay_time::Union{ModelTime, Nothing} = nothing,
     discount_curve_key::Union{String,Nothing} = nothing,
-    ad_module::Module = Zygote,
+    ad_module::Module = ForwardDiff,
     )
+    #
+    if has_amc_payoff(payoffs) && (ad_module == Zygote)
+        @warn "Zygote cannot properly handle AMC payoffs."
+    end
     #
     pay_time = _effective_pay_time(payoffs, pay_time, discount_curve_key)
     #
@@ -287,6 +314,10 @@ function model_price_and_vegas_vector(
         end
         sim = simulation(mdl, ch)
         path_ = path(sim, ts_list, context, LinearPathInterpolation)
+        # we need to update regression paths for AMC payoffs
+        for p in payoffs
+            reset_regression!(p, path_)
+        end
         #
         X = zeros(length(path_))
         if length(payoffs) > 0

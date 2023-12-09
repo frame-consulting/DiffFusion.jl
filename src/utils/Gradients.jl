@@ -12,7 +12,7 @@ tuning AD routines.
     _function_value_and_gradient(
         f::Function,
         x::Any,
-        m::Module = Zygote,
+        m::Module = ForwardDiff,
         )
 
 Calculate the function value and gradient of a function.
@@ -20,18 +20,24 @@ Calculate the function value and gradient of a function.
 function _function_value_and_gradient(
     f::Function,
     x::Any,
-    m::Module = Zygote,
+    m::Module = ForwardDiff,
     )
     #
+    if m == ForwardDiff
+        v = f(x)
+        g = ForwardDiff.gradient(f, x)
+        return (v, g)
+    end
     if m == Zygote
         (v, g) = withgradient(f, x)
         @assert length(g) == 1
         return (v, g[1])
     end
-    if m == ForwardDiff
+    if m == FiniteDifferences
         v = f(x)
-        g = ForwardDiff.gradient(f, x)
-        return (v, g)
+        m = central_fdm(3, 1)
+        g = grad(m, f, x)
+        return (v, g[1])
     end
     error("Unknown module " * string(m) * ".")
 end
