@@ -3,6 +3,7 @@ module DiffFusion
 using ChainRulesCore
 using DelimitedFiles
 using Distributions
+using FiniteDifferences
 using ForwardDiff
 using Interpolations
 using LinearAlgebra
