@@ -18,6 +18,7 @@ using Test
     include("sensitivities/option_vegas.jl")
     include("sensitivities/swaptions_delta_vega.jl")
 
+    include("sensitivities/gradients.jl")
 
 end
 
