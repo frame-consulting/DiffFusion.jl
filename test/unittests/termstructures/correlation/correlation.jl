@@ -26,6 +26,10 @@ using LinearAlgebra
               -0.3  1.0  0.0;
                0.0  0.0  1.0]
         @test DiffFusion.correlation(ch, ["1", "2", "3"]) == Matrix{Float64}(I, 3, 3)
+        #
+        # correlation holder from dictionary
+        ch2 = DiffFusion.correlation_holder("Std", ch.correlations)
+        @test ch2 == ch
     end
 
     @testset "Additional correlation calls" begin

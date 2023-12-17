@@ -118,7 +118,7 @@
 #
 # Correlations
 - typename: "DiffFusion.CorrelationHolder"
-  constructor: "CorrelationHolder"
+  constructor: "correlation_holder"
   alias: "ch/STD"
   correlations:
     md/EUR_f_1<>md/USD_f_1: 0.3
