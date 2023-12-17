@@ -2,25 +2,57 @@
 """
     struct CorrelationHolder <: CorrelationTermstructure
         alias::String
-        correlations::Dict
+        correlations::Dict{String, ModelValue}
         sep::String
+        value_type::Type
     end
 
 A container holding correlation values.
 
 A CorrelationHolder allows to calculate correlation matrices
 based on `String` alias keys (identifiers).
+
+`value_type` specifies the type of correlation entries. This ensures that
+all values are of consistent type. This feature is required for correlation
+sensitivity calculation.
 """
 struct CorrelationHolder <: CorrelationTermstructure
     alias::String
-    correlations::Dict
+    correlations::Dict{String, ModelValue}
     sep::String
+    value_type::Type
 end
+
+
+"""
+    correlation_holder(
+        alias::String,
+        correlations::Dict,
+        sep = "<>",
+        value_type = ModelValue,
+        )
+
+Create a CorrelationHolder object from dictionary.
+"""
+function correlation_holder(
+    alias::String,
+    correlations::Dict,
+    sep = "<>",
+    value_type = ModelValue,
+    )
+    for (key, value) in correlations
+        @assert isa(value, value_type)
+    end
+    return CorrelationHolder(alias, correlations, sep, value_type)
+end
+
+
 
 """
     correlation_holder(
         alias::String,
         sep = "<>",
+        value_type = ModelValue,
         )
 
 Create an empty CorrelationHolder object.
@@ -28,8 +60,9 @@ Create an empty CorrelationHolder object.
 function correlation_holder(
     alias::String,
     sep = "<>",
+    value_type = ModelValue,
     )
-    return CorrelationHolder(alias, Dict{String, Float64}(), sep)
+    return correlation_holder(alias, Dict{String, value_type}(), sep, value_type)
 end
 
 """
@@ -63,6 +96,7 @@ function set_correlation!(
     alias2::String,
     value::ModelValue
     )
+    @assert isa(value, ch.value_type)
     ch.correlations[correlation_key(ch,alias1,alias2)] = value
 end
 
@@ -73,13 +107,13 @@ Implement methodology to obtain a scalar correlation from a `CorrelationHolder`.
 """
 function get(ch::CorrelationHolder, alias1::String, alias2::String)
     if alias1 == alias2
-        return 1.0
+        return ch.value_type(1.0)
     end
     key = correlation_key(ch, alias1, alias2)
     if haskey(ch.correlations, key)
         return ch.correlations[key]
     end
-    return 0.0
+    return ch.value_type(0.0)
 end
 
 """

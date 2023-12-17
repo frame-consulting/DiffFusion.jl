@@ -45,6 +45,14 @@ serialise(o::PiecewiseFlatParameter) = serialise_struct(o)
 """
     serialise(o::CorrelationHolder)
 
-Serialise PiecewiseFlatParameter.
+Serialise CorrelationHolder.
 """
-serialise(o::CorrelationHolder) = serialise_struct(o)
+function serialise(o::CorrelationHolder)
+    d = OrderedDict{String, Any}()
+    d["typename"]     = string(typeof(o))
+    d["constructor"]  = "correlation_holder"
+    d["alias"]        = serialise(o.alias)
+    d["correlations"] = serialise(o.correlations)
+    d["sep"]          = serialise(o.sep)
+    return d
+end
