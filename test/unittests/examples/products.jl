@@ -32,7 +32,7 @@ using YAML
     """
     config/instruments:
       seed: 123456
-      types:
+      swap_types:
         - USD
         - EUR
         - GBP
@@ -188,7 +188,7 @@ using YAML
 
     @testset "Test swap generation" begin
         example = YAML.load(yaml_string, dicttype=OrderedDict{String,Any})
-        for type_key in example["config/instruments"]["types"]
+        for type_key in example["config/instruments"]["swap_types"]
             swap = DiffFusion.Examples.random_swap(example, type_key)
             @test length(swap) == 2
             @test swap[1].payer_receiver * swap[2].payer_receiver == -1
