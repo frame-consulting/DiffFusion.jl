@@ -39,6 +39,10 @@ using YAML
         - EUR-USD
         - GBP-USD
         - EUR6M-USD3M
+      swaption_types:
+        - SOFR_SWPN
+        - EURIBOR6M_SWPN
+        - SONIA_SWPN
       USD:
         type: VANILLA
         discount_curve_key: USD:SOFR
@@ -162,6 +166,69 @@ using YAML
           #
           discount_curve_key: EUR:XCCY
           fx_key: EUR-USD
+      SOFR_SWPN:
+        setlement_type: CASH
+        #
+        type: VANILLA
+        discount_curve_key: USD:SOFR
+        fx_key:
+        min_start: 1.0
+        max_start: 10.0
+        min_maturity: 1.0
+        max_maturity: 10.0
+        min_notional: 1.0e+7
+        max_notional: 1.0e+8
+        fixed_leg:
+          coupons_per_year: 4
+          min_rate: 0.01
+          max_rate: 0.04
+        float_leg:
+          coupon_type: COMPOUNDED
+          coupons_per_year: 4
+          forward_curve_key: USD:SOFR
+          fixing_key: USD:SOFR
+      EURIBOR6M_SWPN:
+        setlement_type: CASH
+        #
+        type: VANILLA
+        discount_curve_key: EUR:XCCY
+        fx_key: EUR-USD
+        min_start: 1.0
+        max_start: 10.0
+        min_maturity: 1.0
+        max_maturity: 10.0
+        min_notional: 1.0e+7
+        max_notional: 1.0e+8
+        fixed_leg:
+          coupons_per_year: 1
+          min_rate: 0.01
+          max_rate: 0.04
+        float_leg:
+          coupon_type: SIMPLE
+          coupons_per_year: 2
+          forward_curve_key: EUR:EURIBOR6M
+          fixing_key: EUR:EURIBOR6M
+      SONIA_SWPN:
+        setlement_type: CASH
+        #
+        type: VANILLA
+        discount_curve_key: GBP:XCCY
+        fx_key: GBP-USD
+        min_start: 1.0
+        max_start: 10.0
+        min_maturity: 1.0
+        max_maturity: 10.0
+        min_notional: 1.0e+7
+        max_notional: 1.0e+8
+        fixed_leg:
+          coupons_per_year: 4
+          min_rate: 0.01
+          max_rate: 0.04
+        float_leg:
+          coupon_type: COMPOUNDED
+          coupons_per_year: 4
+          forward_curve_key: GBP:SONIA
+          fixing_key: GBP:SONIA
     """
 
     @testset "Test leg generation" begin
@@ -213,4 +280,22 @@ using YAML
     end
 
 
-end
+    @testset "Test swaption generation" begin
+        set_zero_subnormals
+        example = YAML.load(yaml_string, dicttype=OrderedDict{String,Any})
+        for type_key in example["config/instruments"]["swaption_types"]
+            swaption = DiffFusion.Examples.random_swaption(example, type_key)[1]
+            @test isa(swaption, DiffFusion.SwaptionLeg)
+          end
+          Random.seed!(example["config/instruments"]["seed"])
+          for k in 1:10
+              swaption = DiffFusion.Examples.random_swaption(example)[1]
+              @test isa(swaption, DiffFusion.SwaptionLeg)
+              println(swaption.alias * ": " *
+                  string(swaption.expiry_time) * "x" *
+                  string(swaption.fixed_coupons[end].pay_time - swaption.expiry_time)
+              )
+          end
+    end
+
+  end

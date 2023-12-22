@@ -252,12 +252,93 @@ function random_swap(example::OrderedDict{String,Any}, type_key::Union{String,No
     end
 end
 
-"""
-    portfolio!(example::OrderedDict{String,Any}, n_swaps::Int = 10)
 
-Create a portfolio of swaps and store it in the dictionary.
 """
-function portfolio!(example::OrderedDict{String,Any}, n_swaps::Int = 10)
+    random_swaption(
+        example::OrderedDict{String,Any},
+        type_key::Union{String,Nothing} = nothing,
+        )
+
+Sample a random swap.
+"""
+function random_swaption(
+    example::OrderedDict{String,Any},
+    type_key::Union{String,Nothing} = nothing,
+    )
+    #
+    config = example["config/instruments"]
+    if isnothing(type_key)
+        type_key = config["swaption_types"][rand(1:length(config["swaption_types"]))]
+    end
+    inst_dict = config[type_key]
+    @assert inst_dict["type"] in ("VANILLA", )  # supported types
+    swaption_alias = type_key * "-" * randstring(6)
+    #
+    swap = random_swap(example, type_key)
+    #
+    first_float_coupon = swap[2].cashflows[1]
+    settlement_time = nothing
+    if isa(first_float_coupon, DiffFusion.SimpleRateCoupon)
+        settlement_time = first_float_coupon.fixing_time
+    end
+    if isa(first_float_coupon, DiffFusion.CompoundedRateCoupon)
+        settlement_time = first_float_coupon.period_times[begin]
+    end
+    @assert !isnothing(settlement_time)  # wrong coupon type
+    expiry_time = settlement_time
+    #
+    float_coupons = swap[2].cashflows
+    fixed_coupons = swap[1].cashflows
+    swaption_payer_receiver = swap[2].payer_receiver  # call/put
+    swap_disc_curve_key = swap[1].curve_key
+    #
+    settlement_type = nothing
+    if inst_dict["setlement_type"] == "CASH"
+        settlement_type = DiffFusion.SwaptionCashSettlement
+    end
+    if inst_dict["setlement_type"] == "PHYSICAL"
+        settlement_type = DiffFusion.SwaptionPhysicalSettlement
+    end
+    @assert !isnothing(settlement_type)
+    #
+    notional = swap[1].notionals[begin]
+    swpt_disc_curve_key = swap_disc_curve_key
+    swpt_fx_key = swap[1].fx_key
+    swpt_long_short = rand(-1:2:1)
+    #
+    swaption = DiffFusion.SwaptionLeg(
+        swaption_alias,
+        expiry_time,
+        settlement_time,
+        float_coupons,
+        fixed_coupons,
+        swaption_payer_receiver,
+        swap_disc_curve_key,
+        settlement_type,
+        notional,
+        swpt_disc_curve_key,
+        swpt_fx_key,
+        swpt_long_short,
+    )
+    return [ swaption ]
+end
+
+
+"""
+    portfolio!(
+        example::OrderedDict{String,Any},
+        n_swaps::Int = 10,
+        n_swaptions::Int = 0,
+        )
+
+Create a portfolio of swaps and swaptions and store it in the dictionary.
+"""
+function portfolio!(
+    example::OrderedDict{String,Any},
+    n_swaps::Int = 10,
+    n_swaptions::Int = 0,
+    )
+    #
     if haskey(example, "portfolio")
         return example["portfolio"]
     end
@@ -265,10 +346,18 @@ function portfolio!(example::OrderedDict{String,Any}, n_swaps::Int = 10)
     if haskey(config, "seed")
         Random.seed!(config["seed"])
     end
-    portfolio = [
+    swap_portfolio = [
         random_swap(example)
         for k in 1:n_swaps
     ]
+    swaption_portfolio = [
+        random_swaption(example)
+        for k in 1:n_swaptions
+    ]
+    portfolio = vcat(
+        swap_portfolio,
+        swaption_portfolio,
+    )
     example["portfolio"] = portfolio
     return portfolio
 end
