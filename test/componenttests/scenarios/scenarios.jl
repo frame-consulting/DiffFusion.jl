@@ -14,7 +14,7 @@ using YAML
     """
     config/instruments:
       seed: 123456
-      types:
+      swap_types:
         - USD
         - EUR
         - GBP

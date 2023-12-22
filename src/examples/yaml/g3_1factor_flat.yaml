@@ -364,7 +364,7 @@
     stop: 10.0
   with_progress_bar: true
   discount_curve_key: ""
-  types:
+  swap_types:
     - USD
     - EUR
     - GBP

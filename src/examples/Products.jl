@@ -137,16 +137,23 @@ Sample a random swap.
 function random_swap(example::OrderedDict{String,Any}, type_key::Union{String,Nothing} = nothing)
     config = example["config/instruments"]
     if isnothing(type_key)
-        type_key = config["types"][rand(1:length(config["types"]))]
+        type_key = config["swap_types"][rand(1:length(config["swap_types"]))]
     end
     inst_dict = config[type_key]
     @assert inst_dict["type"] in ("VANILLA", "BASIS-MTM")  # supported types
     swap_alias = type_key * "-" * randstring(6)
-    if inst_dict["type"] == "VANILLA"
+    # common swap properties
+    if haskey(inst_dict, "min_start") && haskey(inst_dict, "max_start")
+        # forward-starting
+        effective_time = rand(inst_dict["min_start"]:1.0:inst_dict["max_start"])
+    else
+        # (more-or-less) spot starting
         effective_time = rand(-1.0:1/360:1.0)
-        maturity_time = effective_time + rand(inst_dict["min_maturity"]:1.0:inst_dict["max_maturity"])
-        notional = rand(inst_dict["min_notional"]:inst_dict["min_notional"]:inst_dict["max_notional"])
-        #
+    end
+    maturity_time = effective_time + rand(inst_dict["min_maturity"]:1.0:inst_dict["max_maturity"])
+    notional = rand(inst_dict["min_notional"]:inst_dict["min_notional"]:inst_dict["max_notional"])
+    #
+    if inst_dict["type"] == "VANILLA"
         fixed_leg_dict = inst_dict["fixed_leg"]
         fixed_rate = rand(fixed_leg_dict["min_rate"]:fixed_leg_dict["min_rate"]:fixed_leg_dict["max_rate"])
         payer_receiver = rand(-1:2:1)
@@ -187,10 +194,6 @@ function random_swap(example::OrderedDict{String,Any}, type_key::Union{String,No
         return [fixed_leg, float_leg]
     end
     if inst_dict["type"] == "BASIS-MTM"
-        effective_time = rand(-1.0:1/360:1.0)
-        maturity_time = effective_time + rand(inst_dict["min_maturity"]:1.0:inst_dict["max_maturity"])
-        notional = rand(inst_dict["min_notional"]:inst_dict["min_notional"]:inst_dict["max_notional"])
-        #
         for_leg_dict = inst_dict["for_leg"]
         spread_rate = rand(for_leg_dict["min_spread"]:for_leg_dict["min_spread"]:for_leg_dict["max_spread"])
         payer_receiver = rand(-1:2:1)
