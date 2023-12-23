@@ -12,12 +12,17 @@ using Test
         @test DiffFusion.forward_rate(C, 1.0) === DiffFusion.Fixed(0.05)
         @test DiffFusion.amount(C) === DiffFusion.Fixed(0.05) * DiffFusion.Fixed(0.5)
         @test DiffFusion.expected_amount(C, 1.0) === DiffFusion.Fixed(0.05) * DiffFusion.Fixed(0.5)
+        #
+        @test_throws ErrorException DiffFusion.first_time(C)
+        C = DiffFusion.FixedRateCoupon(2.0, 0.05, 0.5, 1.5)
+        @test DiffFusion.first_time(C) == 1.5
     end
 
     @testset "SimpleRateCoupon test" begin
         C = DiffFusion.SimpleRateCoupon(1.8, 2.0, 3.0, 3.2, 1.0, "EUR6M", nothing, nothing)
         @test DiffFusion.pay_time(C) == 3.2
         @test DiffFusion.year_fraction(C) == 1.0
+        @test DiffFusion.first_time(C) == 1.8
         @test string(DiffFusion.amount(C))               == "L(EUR6M, 1.80; 2.00, 3.00) * 1.0000"
         @test string(DiffFusion.expected_amount(C, 1.0)) == "L(EUR6M, 1.00; 2.00, 3.00) * 1.0000"
         @test string(DiffFusion.expected_amount(C, 1.9)) == "L(EUR6M, 1.80; 2.00, 3.00) * 1.0000"
@@ -48,6 +53,7 @@ using Test
         C = DiffFusion.CompoundedRateCoupon(period_times, period_year_fractions, period_times[end], "USD:SOFR", nothing, nothing)
         @test DiffFusion.pay_time(C) == 2.0
         @test DiffFusion.year_fraction(C) == 1.0
+        @test DiffFusion.first_time(C) == 1.0
         @test string(DiffFusion.amount(C))               == "R(USD:SOFR, 2.00; 1.00, 2.00) * 1.0000"
         @test string(DiffFusion.expected_amount(C, 0.5)) == "R(USD:SOFR, 0.50; 1.00, 2.00) * 1.0000"
         @test string(DiffFusion.expected_amount(C, 1.0)) == "R(USD:SOFR, 1.00; 1.00, 2.00) * 1.0000"

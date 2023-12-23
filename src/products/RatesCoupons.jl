@@ -12,7 +12,23 @@ struct FixedRateCoupon <: Coupon
     pay_time::ModelTime
     fixed_rate::ModelValue
     year_fraction::ModelValue
+    first_time::Union{ModelTime,Nothing}
 end
+
+
+function FixedRateCoupon(
+    pay_time::ModelTime,
+    fixed_rate::ModelValue,
+    year_fraction::ModelValue,
+    )
+    return FixedRateCoupon(
+        pay_time,
+        fixed_rate,
+        year_fraction,
+        nothing,
+    )
+end
+
 
 """
     year_fraction(cf::FixedRateCoupon)
@@ -34,6 +50,19 @@ coupon_rate(cf::FixedRateCoupon) = Fixed(cf.fixed_rate)
 Return FixedRateCoupon forward rate.
 """
 forward_rate(cf::FixedRateCoupon, obs_time::ModelTime) = Fixed(cf.fixed_rate)
+
+
+"""
+    first_time(cf::FixedRateCoupon)
+
+Derive the first event time of the `FixedRateCoupon`.
+"""
+function first_time(cf::FixedRateCoupon)
+    if isnothing(cf.first_time)
+        error("FixedRateCoupon has no specified first_time.")
+    end
+    return cf.first_time
+end
 
 
 """
@@ -102,6 +131,16 @@ function forward_rate(cf::SimpleRateCoupon, obs_time::ModelTime)
         L = L + cf.spread_rate
     end
     return L
+end
+
+
+"""
+    first_time(cf::SimpleRateCoupon)
+
+Derive the first event time of the `SimpleRateCoupon`.
+"""
+function first_time(cf::SimpleRateCoupon)
+    return cf.fixing_time
 end
 
 
@@ -223,6 +262,17 @@ function forward_rate(cf::CompoundedRateCoupon, obs_time::ModelTime)
     end
     return R
 end
+
+
+"""
+    first_time(cf::CompoundedRateCoupon)
+
+Derive the first event time of the `CompoundedRateCoupon`.
+"""
+function first_time(cf::CompoundedRateCoupon)
+    return cf.period_times[begin]
+end
+
 
 """
     struct OptionletCoupon <: Coupon

@@ -16,6 +16,7 @@ using Test
         @test_throws ErrorException DiffFusion.year_fraction(NoCoupon())
         @test_throws ErrorException DiffFusion.coupon_rate(NoCoupon())
         @test_throws ErrorException DiffFusion.forward_rate(NoCoupon(), 1.0)
+        @test_throws ErrorException DiffFusion.first_time(NoCoupon())
         struct SimpleCoupon <: DiffFusion.Coupon
             pay_time::DiffFusion.ModelTime
         end
