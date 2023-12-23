@@ -7,10 +7,10 @@ using Test
     make_regression_variables(t) = [ DiffFusion.LiborRate(t, t, 5.0, "EURIBOR12M"), ]
 
     fixed_flows = [
-        DiffFusion.FixedRateCoupon(2.0, 0.03, 1.0),
-        DiffFusion.FixedRateCoupon(3.0, 0.03, 1.0),
-        DiffFusion.FixedRateCoupon(4.0, 0.03, 1.0),
-        DiffFusion.FixedRateCoupon(5.0, 0.03, 1.0),
+        DiffFusion.FixedRateCoupon(2.0, 0.03, 1.0, 1.0),
+        DiffFusion.FixedRateCoupon(3.0, 0.03, 1.0, 2.0),
+        DiffFusion.FixedRateCoupon(4.0, 0.03, 1.0, 3.0),
+        DiffFusion.FixedRateCoupon(5.0, 0.03, 1.0, 4.0),
         ]
 
     libor_flows = [
@@ -335,6 +335,50 @@ berm_45 = "((1.0000 - {({"*option_10*"} > {"*underl_10*"})} * {({"*option_20*"} 
         @test berm.hold_values[begin].x.x.x.regr.make_regression == no_make_regression
         @test DiffFusion.discounted_cashflows(berm, 0.0)[1].regr.path == NoPath()
         @test DiffFusion.discounted_cashflows(berm, 0.0)[1].regr.make_regression == no_make_regression
+    end
+
+
+    @testset "Test convenient constructors" begin
+        fixed_leg = DiffFusion.cashflow_leg("leg_1",fixed_flows[1:end], notionals[1:end], "EUR:OIS", nothing,  1.0)  # receiver
+        float_leg = DiffFusion.cashflow_leg("leg_2",libor_flows[1:end], notionals[1:end], "EUR:OIS", nothing, -1.0)  # payer
+        exercises = DiffFusion.make_bermudan_exercises(
+            fixed_leg,
+            float_leg,
+            [ 1.0, 2.0, 3.0, 3.5 ],
+        )
+        #
+        @test [ e.exercise_time for e in exercises ] == [ 1.0, 2.0, 3.0, 3.5 ]
+        @test [ length(e.cashflow_legs) for e in exercises ] == [ 2, 2, 2, 2 ]
+        @test length(exercises[1].cashflow_legs[1].cashflows) == 4
+        @test length(exercises[1].cashflow_legs[2].cashflows) == 4
+        @test length(exercises[2].cashflow_legs[1].cashflows) == 3
+        @test length(exercises[2].cashflow_legs[2].cashflows) == 3
+        @test length(exercises[3].cashflow_legs[1].cashflows) == 2
+        @test length(exercises[3].cashflow_legs[2].cashflows) == 2
+        @test length(exercises[4].cashflow_legs[1].cashflows) == 1
+        @test length(exercises[4].cashflow_legs[2].cashflows) == 1
+        #
+        r = exercises[1].make_regression_variables(1.0)
+        @test length(r) == 1
+        @test string(r[1]) == "L(EURIBOR12M, 1.00; 1.00, 5.00)"
+        r = exercises[4].make_regression_variables(3.5)
+        @test length(r) == 1
+        @test string(r[1]) == "L(EURIBOR12M, 3.50; 4.00, 5.00)"
+        #
+        @test_throws AssertionError DiffFusion.make_bermudan_exercises(
+            fixed_leg,
+            float_leg,
+            [ 4.5 ],
+        )
+        #
+        berm = DiffFusion.bermudan_swaption_leg(
+            "berm",
+            fixed_leg,
+            float_leg,
+            [ 1.0, 2.0, 3.0, 3.5 ],
+            -1.0,
+        )
+        @test isa(berm, DiffFusion.BermudanSwaptionLeg)
     end
 
 end
