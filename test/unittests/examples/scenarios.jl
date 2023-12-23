@@ -51,8 +51,9 @@ using Test
         path_ = DiffFusion.Examples.path!(example)
         portfolio_ = DiffFusion.Examples.portfolio!(
             example,
-            16,  # swap
-            16,  # swaptions
+            8,  # swap
+            8,  # swaptions
+            8,  # berms
         )
         legs = vcat(portfolio_...)
         #
@@ -64,6 +65,12 @@ using Test
         with_progress_bar = config["with_progress_bar"]
         discount_curve_key = config["discount_curve_key"]
         #
+        for leg in legs
+            if isa(leg, DiffFusion.BermudanSwaptionLeg)
+                DiffFusion.reset_regression!(leg, path_, leg.regression_data.make_regression)
+            end
+        end
+        #
         scens = DiffFusion.scenarios(
             legs,
             obs_times,
@@ -71,7 +78,7 @@ using Test
             discount_curve_key,
             with_progress_bar=with_progress_bar
         )
-        @test size(scens.X) == (8, 11, 48)
+        @test size(scens.X) == (8, 11, 32)
         println(size(scens.X))
     end
 
