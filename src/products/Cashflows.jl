@@ -106,6 +106,17 @@ Calculate expected payment amount for a Coupon.
 """
 expected_amount(cf::Coupon, obs_time::ModelTime) = forward_rate(cf, obs_time) * year_fraction(cf)
 
+"""
+    first_time(cf::Coupon)
+
+Derive the first event time of the `Coupon`.
+
+This time is used in conjunction with call rights to determine whether
+a coupon period is already broken.
+"""
+function first_time(cf::Coupon)
+    error("Coupon needs to implement first_time method.")
+end
 
 """
     struct FixedCashFlow <: CashFlow
