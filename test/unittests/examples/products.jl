@@ -43,6 +43,10 @@ using YAML
         - SOFR_SWPN
         - EURIBOR6M_SWPN
         - SONIA_SWPN
+      bermudan_types:
+        - SOFR_SWPN
+        - EURIBOR6M_SWPN
+        - SONIA_SWPN
       USD:
         type: VANILLA
         discount_curve_key: USD:SOFR
@@ -189,6 +193,7 @@ using YAML
           fixing_key: USD:SOFR
       EURIBOR6M_SWPN:
         setlement_type: CASH
+        bermudan_time: 2
         #
         type: VANILLA
         discount_curve_key: EUR:XCCY
@@ -281,7 +286,6 @@ using YAML
 
 
     @testset "Test swaption generation" begin
-        set_zero_subnormals
         example = YAML.load(yaml_string, dicttype=OrderedDict{String,Any})
         for type_key in example["config/instruments"]["swaption_types"]
             swaption = DiffFusion.Examples.random_swaption(example, type_key)[1]
@@ -298,4 +302,26 @@ using YAML
           end
     end
 
+
+    @testset "Test Bermudan generation" begin
+      example = YAML.load(yaml_string, dicttype=OrderedDict{String,Any})
+      for type_key in example["config/instruments"]["bermudan_types"]
+          berm = DiffFusion.Examples.random_bermudan(example, type_key)[1]
+          @test isa(berm, DiffFusion.BermudanSwaptionLeg)
+        end
+        Random.seed!(example["config/instruments"]["seed"])
+        berm = DiffFusion.Examples.random_bermudan(example, "SOFR_SWPN")[1]
+        if length(berm.bermudan_exercises) > 1
+            @test berm.bermudan_exercises[2].exercise_time - berm.bermudan_exercises[1].exercise_time == 1.0
+        end
+        berm = DiffFusion.Examples.random_bermudan(example, "EURIBOR6M_SWPN")[1]
+        if length(berm.bermudan_exercises) > 1
+            @test berm.bermudan_exercises[2].exercise_time - berm.bermudan_exercises[1].exercise_time == 2.0
+        end
+        for k in 1:10
+          berm = DiffFusion.Examples.random_bermudan(example)[1]
+            @test isa(berm, DiffFusion.BermudanSwaptionLeg)
+        end
   end
+
+end

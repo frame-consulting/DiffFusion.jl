@@ -375,6 +375,10 @@
     - SOFR_SWPN
     - EURIBOR6M_SWPN
     - SONIA_SWPN
+  bermudan_types:
+    - SOFR_SWPN
+    - EURIBOR6M_SWPN
+    - SONIA_SWPN
   USD:
     type: VANILLA
     discount_curve_key: USD:SOFR

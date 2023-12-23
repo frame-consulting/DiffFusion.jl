@@ -28,7 +28,7 @@ function fixed_rate_leg(
     #
     schedule = effective_time:1.0/coupons_per_year:maturity_time
     coupons = [
-        DiffFusion.FixedRateCoupon(e, fixed_rate, e-s)
+        DiffFusion.FixedRateCoupon(e, fixed_rate, e-s, s)
         for (s,e) in zip(schedule[begin:end-1], schedule[begin+1:end])
     ]
     #
@@ -259,7 +259,7 @@ end
         type_key::Union{String,Nothing} = nothing,
         )
 
-Sample a random swap.
+Sample a random European swaption.
 """
 function random_swaption(
     example::OrderedDict{String,Any},
@@ -325,6 +325,51 @@ end
 
 
 """
+    random_bermudan(
+        example::OrderedDict{String,Any},
+        type_key::Union{String,Nothing} = nothing,
+        )
+
+Sample a random Bermudan swaption.
+"""
+function random_bermudan(
+    example::OrderedDict{String,Any},
+    type_key::Union{String,Nothing} = nothing,
+    )
+    #
+    config = example["config/instruments"]
+    if isnothing(type_key)
+        type_key = config["bermudan_types"][rand(1:length(config["bermudan_types"]))]
+    end
+    inst_dict = config[type_key]
+    @assert inst_dict["type"] in ("VANILLA", )  # supported types
+    swaption_alias = type_key * "-" * randstring(6)
+    #
+    swap = random_swap(example, type_key)
+    #
+    first_float_coupon = swap[2].cashflows[begin]
+    first_expiry_time = DiffFusion.first_time(first_float_coupon)
+    maturity_time = swap[1].cashflows[end].pay_time
+    bermudan_time = 1.0  # default
+    if haskey(inst_dict, "bermudan_time")
+        bermudan_time = inst_dict["bermudan_time"]
+    end
+    last_expiry_time = max(first_expiry_time, maturity_time - bermudan_time)
+    exercise_times = first_expiry_time:bermudan_time:last_expiry_time
+    swpt_long_short = rand(-1:2:1)
+    #
+    berm = DiffFusion.bermudan_swaption_leg(
+        swaption_alias,
+        swap[1],
+        swap[2],
+        exercise_times,
+        swpt_long_short,
+    )
+    return [ berm ]
+end
+
+
+"""
     portfolio!(
         example::OrderedDict{String,Any},
         n_swaps::Int = 10,
@@ -337,6 +382,7 @@ function portfolio!(
     example::OrderedDict{String,Any},
     n_swaps::Int = 10,
     n_swaptions::Int = 0,
+    n_bermudans::Int = 0,
     )
     #
     if haskey(example, "portfolio")
@@ -354,9 +400,14 @@ function portfolio!(
         random_swaption(example)
         for k in 1:n_swaptions
     ]
+    bermudan_portfolio = [
+        random_bermudan(example)
+        for k in 1:n_bermudans
+    ]
     portfolio = vcat(
         swap_portfolio,
         swaption_portfolio,
+        bermudan_portfolio,
     )
     example["portfolio"] = portfolio
     return portfolio
