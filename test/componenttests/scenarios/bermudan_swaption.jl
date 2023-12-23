@@ -8,10 +8,10 @@ using Test
     make_regression_variables(t) = [ DiffFusion.LiborRate(t, t, 5.0, "EUR:EURIBOR12M"), ]
 
     fixed_flows = [
-        DiffFusion.FixedRateCoupon(2.0, 0.03, 1.0),
-        DiffFusion.FixedRateCoupon(3.0, 0.03, 1.0),
-        DiffFusion.FixedRateCoupon(4.0, 0.03, 1.0),
-        DiffFusion.FixedRateCoupon(5.0, 0.03, 1.0),
+        DiffFusion.FixedRateCoupon(2.0, 0.03, 1.0, 1.0),
+        DiffFusion.FixedRateCoupon(3.0, 0.03, 1.0, 2.0),
+        DiffFusion.FixedRateCoupon(4.0, 0.03, 1.0, 3.0),
+        DiffFusion.FixedRateCoupon(5.0, 0.03, 1.0, 4.0),
         ]
 
     libor_flows = [
@@ -108,6 +108,28 @@ using Test
         # serialize(".sandbox/T.data", times)
         # serialize(".sandbox/X.data", X)
         # serialize(".sandbox/B.data", B)
+
+        # test convenient constructor
+        fixed_leg = DiffFusion.cashflow_leg("leg_1",fixed_flows[1:end], notionals[1:end], "EUR:ESTR", nothing,  1.0)  # receiver
+        float_leg = DiffFusion.cashflow_leg("leg_2",libor_flows[1:end], notionals[1:end], "EUR:ESTR", nothing, -1.0)  # payer
+        berm2 = DiffFusion.bermudan_swaption_leg(
+            "berm2",
+            fixed_leg,
+            float_leg,
+            [ 1.0, 2.0, 3.0 ],
+            1.0,
+        )
+        DiffFusion.reset_regression!(berm2, path, make_regression)
+        scens2 = DiffFusion.scenarios([berm2], times, path, "")
+        @test maximum(abs.(scens.X - scens2.X)) == 0.0
+
+        # different regression method
+        DiffFusion.reset_regression!(berm2, path, nothing)
+        scens3 = DiffFusion.scenarios([berm2], times, path, "")
+        #
+        scens2_agg = DiffFusion.aggregate(scens2)
+        scens3_agg = DiffFusion.aggregate(scens3)
+        @test maximum(abs.(scens3_agg.X - scens2_agg.X)) < 1.7e-4
     end
 
 end

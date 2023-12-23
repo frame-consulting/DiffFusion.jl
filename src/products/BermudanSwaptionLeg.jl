@@ -299,7 +299,115 @@ function reset_regression!(
         reset_regression!(payoff, path, make_regression)
     end
     # update regression details for new payoff creation
+    # below methodology follows AmcPayoff methodology
     leg.regression_data.regression = nothing
-    leg.regression_data.path = path
-    leg.regression_data.make_regression = make_regression
+    if !isnothing(path)
+        leg.regression_data.path = path
+    end
+    if !isnothing(make_regression)
+        leg.regression_data.make_regression = make_regression
+    end
+end
+
+
+"""
+    make_bermudan_exercises(
+        fixed_leg::DeterministicCashFlowLeg,
+        float_leg::DeterministicCashFlowLeg,
+        exercise_time::AbstractVector,
+        )
+
+Create a list of `BermudanExercise`s from Vanilla swap legs.
+"""
+function make_bermudan_exercises(
+    fixed_leg::DeterministicCashFlowLeg,
+    float_leg::DeterministicCashFlowLeg,
+    exercise_times::AbstractVector,
+    )
+    #
+    @assert length(fixed_leg.cashflows) > 0
+    @assert length(float_leg.cashflows) > 0
+    @assert length(exercise_times) > 0
+    @assert exercise_times[begin] > 0
+    if length(exercise_times) > 1
+        @assert exercise_times[begin:end-1] < exercise_times[begin+1:end]
+    end
+    #
+    curve_key = float_leg.cashflows[begin].curve_key
+    strike_rate = fixed_leg.cashflows[begin].fixed_rate
+    call_put = float_leg.payer_receiver
+    #
+    fixed_first_times = [ first_time(cp) for cp in fixed_leg.cashflows ]
+    float_first_times = [ first_time(cp) for cp in float_leg.cashflows ]
+    #
+    bermudan_exercises = BermudanExercise[]
+    for exercise_time in exercise_times
+        fixed_leg_ = DeterministicCashFlowLeg(
+            fixed_leg.alias,
+            fixed_leg.cashflows[fixed_first_times .≥ exercise_time],
+            fixed_leg.notionals[fixed_first_times .≥ exercise_time],
+            fixed_leg.curve_key,
+            fixed_leg.fx_key,
+            fixed_leg.payer_receiver,
+        )
+        float_leg_ = DeterministicCashFlowLeg(
+            float_leg.alias,
+            float_leg.cashflows[float_first_times .≥ exercise_time],
+            float_leg.notionals[float_first_times .≥ exercise_time],
+            float_leg.curve_key,
+            float_leg.fx_key,
+            float_leg.payer_receiver,
+        )
+        # avoid degenerated exercises
+        @assert length(fixed_leg_.cashflows) > 0
+        @assert length(float_leg_.cashflows) > 0
+        #
+        start_time = first_time(fixed_leg_.cashflows[begin])
+        maturity_time = fixed_leg_.cashflows[end].pay_time
+        make_regression_variables_ = (t) -> begin
+            L = LiborRate(exercise_time, start_time, maturity_time, curve_key)
+            O = Max(call_put*(L-strike_rate), strike_rate)
+            LO = L * O
+            O2 = O * O
+            return [ L ]  # most basic approach
+            # return [ L, O, LO, O2 ]  # for linear regression
+        end
+        bermudan_exercise = BermudanExercise(
+            exercise_time,
+            [ fixed_leg_, float_leg_ ],
+            make_regression_variables_,
+        )
+        push!(bermudan_exercises, bermudan_exercise)
+    end
+    return bermudan_exercises
+end
+
+
+function bermudan_swaption_leg(
+    alias::String,
+    fixed_leg::DeterministicCashFlowLeg,
+    float_leg::DeterministicCashFlowLeg,
+    exercise_times::AbstractVector,
+    option_long_short::ModelValue,
+    )
+    #
+    bermudan_exercises = make_bermudan_exercises(fixed_leg, float_leg, exercise_times)
+    numeraire_curve_key = "" # default discounting
+    #
+    curve_key = float_leg.cashflows[begin].curve_key
+    maturity_time = fixed_leg.cashflows[end].pay_time
+    make_regression_variables_ = (t::ModelValue) -> [ LiborRate(t, t, maturity_time, curve_key) ]
+    #
+    path_ = nothing
+    make_regression_ = (C, O) -> DiffFusion.polynomial_regression(C, O, 3)
+    #
+    return bermudan_swaption_leg(
+        alias,
+        bermudan_exercises,
+        option_long_short,
+        numeraire_curve_key,
+        make_regression_variables_,
+        path_,
+        make_regression_,
+    )
 end
