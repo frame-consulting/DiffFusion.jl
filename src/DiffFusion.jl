@@ -83,6 +83,7 @@ include("utils/PiecewiseRegression.jl")
 
 include("analytics/Scenarios.jl")
 include("analytics/Analytics.jl")
+include("analytics/Collateral.jl")
 include("analytics/Valuations.jl")
 
 include("serialisation/Serialisations.jl")
