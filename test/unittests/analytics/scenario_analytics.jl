@@ -1,5 +1,6 @@
 
 using DiffFusion
+using Random
 using StatsBase
 using Test
 
@@ -173,6 +174,75 @@ using Test
         pfe = DiffFusion.potential_future_exposure(scens, 0.9)
         @test pfe.X == 9.0 * ones(1, 6, 1)
         @test pfe.leg_aliases == ["Q_0.90[EE[OneTo(10)]]"]
+    end
+
+    @testset "XVA calculation" begin
+        times = 0.0:2.0:10.0
+        X = reshape(hcat((0.0:1.0:10 for k in 1:6)...), (11, 6, 1)) .- 3.0
+        scens = DiffFusion.ScenarioCube(X, times, ["OneTo(10)"], "", nothing)
+        # display(scens.X)
+        ts = DiffFusion.flat_spread_curve(0.03)
+        # CVA
+        cva = DiffFusion.valuation_adjustment(
+            ts,
+            0.4,
+            1.0,
+            scens,
+            false, false, false,
+            0.2
+        )
+        cva_X = sum(cva.X, dims=(2,3))
+        # display(cva_X)
+        cva_X_ref = [ 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 ] * (1.0 - exp(-0.3)) * 0.6
+        # display(cva_X_ref)
+        @test maximum(abs.(cva_X - cva_X_ref)) < 1.0e-14
+        @test cva.leg_aliases == ["CVA[OneTo(10)]"]
+        # DVA
+        dva = DiffFusion.valuation_adjustment(
+            ts,
+            0.4,
+            -1.0,
+            scens,
+            false, false, false,
+            0.2
+        )
+        dva_X = sum(dva.X, dims=(2,3))
+        # display(dva_X)
+        dva_X_ref = [ -3.0, -2.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ] * (1.0 - exp(-0.3)) * 0.6
+        # display(dva_X_ref)
+        @test maximum(abs.(dva_X - dva_X_ref)) < 1.0e-14
+        @test dva.leg_aliases == ["DVA[OneTo(10)]"]
+    end
+
+    @testset "XVA aggregation" begin
+        times = 0.0:2.0:10.0
+        Random.seed!(1234)
+        X = rand(10, 6, 4) .- 0.5
+        scens = DiffFusion.ScenarioCube(X, times, ["A", "B", "C", "D"], "", nothing)
+        ts = DiffFusion.flat_spread_curve(0.03)
+        rr = 0.4
+        rho = 0.5
+        # CVA
+        cva = DiffFusion.valuation_adjustment(
+            ts,
+            rr,
+            1.0,
+            scens,
+            false, true, true,
+            rho
+        )
+        # display(cva.X)
+        scens_agg = DiffFusion.expected_exposure(scens, false, true, true,)
+        cva_agg = DiffFusion.valuation_adjustment(
+            ts,
+            rr,
+            1.0,
+            scens_agg,
+            true, false, false,
+            rho
+        )
+        # display(cva_agg.X)
+        @test maximum(abs.(cva_agg.X - cva.X)) < 1.0e-14
     end
 
 end
