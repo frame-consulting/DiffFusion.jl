@@ -33,6 +33,7 @@ ModelValue = Number
 
 include("termstructures/Termstructures.jl")
 include("termstructures/correlation/CorrelationHolder.jl")
+include("termstructures/credit/CreditDefaultTermstructures.jl")
 include("termstructures/parameter/ParameterTermstructures.jl")
 include("termstructures/rates/YieldTermstructures.jl")
 include("termstructures/volatility/VolatilityTermstructures.jl")
