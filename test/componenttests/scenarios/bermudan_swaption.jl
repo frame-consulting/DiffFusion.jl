@@ -1,5 +1,5 @@
 using DiffFusion
-using Serialization
+# using Serialization
 using Test
 
 @testset "Test Bermudan swaption simulation" begin
