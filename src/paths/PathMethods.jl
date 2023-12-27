@@ -64,7 +64,7 @@ function numeraire(p::Path, t::ModelTime, curve_key::String)
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
     s = log_bank_account(p.sim.model, p.context.numeraire.model_alias, t, SX)
-    return (1.0/df) * exp.(s)
+    return (1.0/df) .* exp.(s)
 end
 
 
@@ -93,7 +93,7 @@ function bank_account(p::Path, t::ModelTime, key::String)
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
     s = log_bank_account(p.sim.model, entry.model_alias, t, SX)
-    return (1.0/df) * exp.(s)
+    return (1.0/df) .* exp.(s)
 end
 
 
@@ -117,13 +117,13 @@ function zero_bond(p::Path, t::ModelTime, T::ModelTime, key::String)
     df1 = discount(t, p.ts_dict, ts_alias_1, ts_alias_2, op)
     df2 = discount(T, p.ts_dict, ts_alias_1, ts_alias_2, op)
     if isnothing(entry.model_alias)
-        return (df2/df1) * ones(size(p.sim.X)[2])
+        return (df2/df1) .* ones(size(p.sim.X)[2])
     end
     #
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
     s = log_zero_bond(p.sim.model, entry.model_alias, t, T, SX)
-    return (df2/df1) * exp.(-s)
+    return (df2/df1) .* exp.(-s)
 end
 
 
@@ -148,7 +148,7 @@ function asset(p::Path, t::ModelTime, key::String)
         isnothing(entry.foreign_model_alias) &&
         isnothing(entry.domestic_model_alias)
         # we can take a short-cut for fully deterministic models
-        return (spot*df) * ones(size(p.sim.X)[2])
+        return (spot*df) .* ones(size(p.sim.X)[2])
     end
     #
     X = state_variable(p.sim, t, p.interpolation)
@@ -163,7 +163,7 @@ function asset(p::Path, t::ModelTime, key::String)
     if !isnothing(entry.foreign_model_alias)
         y -= log_bank_account(p.sim.model, entry.foreign_model_alias, t, SX)
     end
-    return (spot*df) * exp.(y)
+    return (spot*df) .* exp.(y)
 end
 
 
@@ -189,7 +189,7 @@ function forward_asset(p::Path, t::ModelTime, T::ModelTime, key::String)
         isnothing(entry.foreign_model_alias) &&
         isnothing(entry.domestic_model_alias)
         # we can take a short-cut for fully deterministic models
-        return (spot*df) * ones(size(p.sim.X)[2])
+        return (spot*df) .* ones(size(p.sim.X)[2])
     end
     #
     X = state_variable(p.sim, t, p.interpolation)
@@ -206,7 +206,7 @@ function forward_asset(p::Path, t::ModelTime, T::ModelTime, key::String)
         y -= log_bank_account(p.sim.model, entry.foreign_model_alias, t, SX)
         y -= log_zero_bond(p.sim.model, entry.foreign_model_alias, t, T, SX)
     end
-    return (spot*df) * exp.(y)
+    return (spot*df) .* exp.(y)
 end
 
 
@@ -222,7 +222,7 @@ function fixing(p::Path, t::ModelTime, key::String)
     #
     ts_alias = entry.termstructure_alias
     fixing = p.ts_dict[ts_alias](t, TermstructureScalar)
-    return fixing * ones(length(p))
+    return fixing .* ones(length(p))
 end
 
 
@@ -266,7 +266,7 @@ function forward_index(p::Path, t::ModelTime, T::ModelTime, key::String)
             y -= log_zero_bond(p.sim.model, entry.foreign_model_alias, t, T, SX)
         end
     end
-    return forward_index * exp.(y)
+    return forward_index .* exp.(y)
 end
 
 
@@ -292,7 +292,7 @@ function future_index(p::Path, t::ModelTime, T::ModelTime, key::String)
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
     y = log_future(p.sim.model, entry.future_model_alias, t, T, SX)
-    return future_index * exp.(y)
+    return future_index .* exp.(y)
 end
 
 

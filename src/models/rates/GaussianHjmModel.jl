@@ -282,7 +282,7 @@ function log_zero_bond(m::GaussianHjmModel, model_alias::String, t::ModelTime, T
     G = G_hjm(m, t, T)
     y = func_y(m, t)
     X_ = X.X[idx:idx+(d-1),:]
-    return X_' * G .+ 0.5*G'*y*G
+    return X_' * G .+ 0.5 * (G'*y*G)
 end
 
 

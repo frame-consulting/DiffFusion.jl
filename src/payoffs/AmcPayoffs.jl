@@ -125,7 +125,7 @@ function at(links::AmcPayoffLinks, regr::AmcPayoffRegression, path::AbstractPath
         Y += at(y, path) ./ numeraire(path, obs_time(y), links.curve_key)
     end
     Y = Y .* N
-    T = X - Y
+    T = X .- Y
     return (X, Y, T)
 end
 

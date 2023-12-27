@@ -97,10 +97,10 @@ end
 """
 
 "Addition."
-at(p::Add, path::AbstractPath) = at(p.x, path) + at(p.y, path)
+at(p::Add, path::AbstractPath) = at(p.x, path) .+ at(p.y, path)
 
 "Subtraction."
-at(p::Sub, path::AbstractPath) = at(p.x, path) - at(p.y, path)
+at(p::Sub, path::AbstractPath) = at(p.x, path) .- at(p.y, path)
 
 "Multiplication."
 at(p::Mul, path::AbstractPath) = at(p.x, path) .* at(p.y, path)

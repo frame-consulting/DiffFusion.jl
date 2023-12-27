@@ -97,8 +97,8 @@ Evaluate a `Optionlet` at a given `path`, *X(omega)*.
 function at(p::Optionlet, path::AbstractPath)
     τ = p.forward_rate.year_fraction
     fac = at(p.gearing_factor, path) ./ τ
-    C = 1.0 .+ τ * at(p.forward_rate, path)
-    K = (1.0 .+ τ * at(p.strike_rate, path)) ./ at(p.gearing_factor, path)
+    C = 1.0 .+ τ .* at(p.forward_rate, path)
+    K = (1.0 .+ τ .* at(p.strike_rate, path)) ./ at(p.gearing_factor, path)
     ν² = forward_rate_variance(
         path,
         p.obs_time,
@@ -109,7 +109,7 @@ function at(p::Optionlet, path::AbstractPath)
     )
     if all(ν² .≤ 0.0)
         # calculate intrinsic value
-        return fac .* max.(p.call_put*(C - K), 0.0)
+        return fac .* max.(p.call_put .* (C .- K), 0.0)
     end
     V = black_price(K, C, sqrt.(ν²), p.call_put)
     return fac .* V
@@ -252,8 +252,8 @@ end
 Evaluate a `Swaption` at a given `path`, *X(omega)*.
 """
 function at(p::Swaption, path::AbstractPath)
-    float_leg = sum(((L(path) * L.year_fraction) .* zero_bond(path, p.obs_time, L.end_time, p.disc_key) for L in p.forward_rates))
-    annuity = sum((τ * zero_bond(path, p.obs_time, T, p.disc_key) for (τ, T) in zip(p.fixed_weights, p.fixed_times[2:end])))
+    float_leg = sum(((L(path) .* L.year_fraction) .* zero_bond(path, p.obs_time, L.end_time, p.disc_key) for L in p.forward_rates))
+    annuity = sum((τ .* zero_bond(path, p.obs_time, T, p.disc_key) for (τ, T) in zip(p.fixed_weights, p.fixed_times[2:end])))
     swap_rate = float_leg ./ annuity
     df = zero_bond(path, p.obs_time, p.settlement_time, p.disc_key)
     ν² = swap_rate_variance(path, p.obs_time, p.expiry_time, p.fixed_times, p.fixed_weights, p.disc_key)

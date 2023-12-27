@@ -13,10 +13,10 @@ annualised normal volatility σ, we have `ν = σ √T`. Finally, `call_put`
 is the call (+1) or put (-1) option flag.
 """
 function bachelier_price(strike, forward, nu, call_put)
-    intrinsic_value = max.(call_put * (forward .- strike), 0.0)
-    h = call_put * (forward .- strike) ./ nu
+    intrinsic_value = max.(call_put .* (forward .- strike), 0.0)
+    h = call_put .* (forward .- strike) ./ nu
     option_value = nu .* (h .* cdf.(Normal(), h) .+ pdf.(Normal(), h))
-    return (nu .> 0.0) .* option_value + (nu .<= 0.0) .* intrinsic_value
+    return (nu .> 0.0) .* option_value .+ (nu .<= 0.0) .* intrinsic_value
 end
 
 """

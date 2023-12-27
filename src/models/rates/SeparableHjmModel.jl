@@ -100,11 +100,11 @@ function func_y(
     )
     # better exploit symmetry and update in-place
     chi_i_p_chi_j = [ (chi_i + chi_j) for chi_i in chi, chi_j in chi ]
-    H_i_j = exp.(-chi_i_p_chi_j * (t-s))
+    H_i_j = exp.(-chi_i_p_chi_j .* (t-s))
     V = sigmaT * transpose(sigmaT)
     # this is unsafe, better use Taylor expansion
     G_i_j = (1. .- H_i_j) ./ chi_i_p_chi_j
-    return y0 .* H_i_j + V .* G_i_j
+    return y0 .* H_i_j .+ V .* G_i_j
 end
 
 """
