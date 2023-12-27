@@ -29,10 +29,10 @@ function black_price(strike, forward, nu, call_put)
     d1 = _d_1(strike, forward, nu)
     d2 = d1 .- nu
     option_value = call_put * (
-        forward .* cdf.(Normal(), call_put * d1) -
-        strike  .* cdf.(Normal(), call_put * d2)
+        forward .* cdf.(Normal(), call_put .* d1) .-
+        strike  .* cdf.(Normal(), call_put .* d2)
         )
-    return (nu .> 0.0) .* option_value + (nu .<= 0.0) .* intrinsic_value
+    return (nu .> 0.0) .* option_value .+ (nu .<= 0.0) .* intrinsic_value
 end
 
 """
@@ -51,7 +51,7 @@ Calculate Vanilla option Delta in Black model.
 function black_delta(strike, forward, nu, call_put)
     intrinsic_value = call_put * (forward .- strike) .> 0.0
     d1 = _d_1(strike, forward, nu)
-    option_value = call_put * cdf.(Normal(), call_put * d1)
+    option_value = call_put .* cdf.(Normal(), call_put .* d1)
     return (nu .> 0.0) .* option_value + (nu .<= 0.0) .* intrinsic_value
 end
 
@@ -87,7 +87,7 @@ black_gamma(strike, forward, σ, T) = black_gamma(strike, forward, σ * sqrt(T))
 Calculate Vanilla option Theta in Black model.
 """
 function black_theta(strike, forward, σ, T)
-    return -0.5 * (σ .* forward).^2 .* black_gamma(strike, forward, σ, T)
+    return -0.5 .* (σ .* forward).^2 .* black_gamma(strike, forward, σ, T)
 end
 
 

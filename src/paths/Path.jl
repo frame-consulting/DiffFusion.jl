@@ -182,7 +182,7 @@ function state_variable(sim::Simulation, t::ModelTime, ip::PathInterpolation)
     # now we have 1 < idx <= length(sim.times)
     if ip == LinearPathInterpolation
         rho = (t - sim.times[idx-1]) / (sim.times[idx] - sim.times[idx-1])
-        return rho * @view(sim.X[:,:,idx]) + (1.0-rho) * @view(sim.X[:,:,idx-1])
+        return rho .* @view(sim.X[:,:,idx]) .+ (1.0-rho) .* @view(sim.X[:,:,idx-1])
     end
     error("Unknown PathInterpolation.")
 end
