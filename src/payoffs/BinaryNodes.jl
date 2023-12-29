@@ -165,59 +165,59 @@ string(p::Logical) = @sprintf("(%s %s %s)", string(p.x), p.op, string(p.y))
 
 import Base.+ 
 (+)(x::Payoff,y::Payoff) = Add(x,y)
-(+)(x::Payoff,y) = Add(x,Fixed(y))
-(+)(x,y::Payoff) = Add(Fixed(x),y)
+(+)(x::Payoff,y) = Add(x,ScalarValue(y))
+(+)(x,y::Payoff) = Add(ScalarValue(x),y)
 
 import Base.-
 (-)(x::Payoff,y::Payoff) = Sub(x,y)
-(-)(x::Payoff,y) = Sub(x,Fixed(y))
-(-)(x,y::Payoff) = Sub(Fixed(x),y)
+(-)(x::Payoff,y) = Sub(x,ScalarValue(y))
+(-)(x,y::Payoff) = Sub(ScalarValue(x),y)
 
 import Base.*
 (*)(x::Payoff,y::Payoff) = Mul(x,y)
-(*)(x::Payoff,y) = Mul(x,Fixed(y))
-(*)(x,y::Payoff) = Mul(Fixed(x),y)
+(*)(x::Payoff,y) = Mul(x,ScalarValue(y))
+(*)(x,y::Payoff) = Mul(ScalarValue(x),y)
 
 import Base./
 (/)(x::Payoff,y::Payoff) = Div(x,y)
-(/)(x::Payoff,y) = Div(x,Fixed(y))
-(/)(x,y::Payoff) = Div(Fixed(x),y)
+(/)(x::Payoff,y) = Div(x,ScalarValue(y))
+(/)(x,y::Payoff) = Div(ScalarValue(x),y)
 
 #import Base.%
 #(%)(x::Payoff,t) = Pay(x,t)
 
 import Base.<
 (<)(x::Payoff,y::Payoff) = Logical(x,y,"<")
-(<)(x::Payoff,y) = Logical(x,Fixed(y),"<")
-(<)(x,y::Payoff) = Logical(Fixed(x),y,"<")
+(<)(x::Payoff,y) = Logical(x,ScalarValue(y),"<")
+(<)(x,y::Payoff) = Logical(ScalarValue(x),y,"<")
 
 import Base.<=
 (<=)(x::Payoff,y::Payoff) = Logical(x,y,"<=")
-(<=)(x::Payoff,y) = Logical(x,Fixed(y),"<=")
-(<=)(x,y::Payoff) = Logical(Fixed(x),y,"<=")
+(<=)(x::Payoff,y) = Logical(x,ScalarValue(y),"<=")
+(<=)(x,y::Payoff) = Logical(ScalarValue(x),y,"<=")
 
 import Base.==
 (==)(x::Payoff,y::Payoff) = Logical(x,y,"==")
-(==)(x::Payoff,y) = Logical(x,Fixed(y),"==")
-(==)(x,y::Payoff) = Logical(Fixed(x),y,"==")
+(==)(x::Payoff,y) = Logical(x,ScalarValue(y),"==")
+(==)(x,y::Payoff) = Logical(ScalarValue(x),y,"==")
 
 import Base.!=
 (!=)(x::Payoff,y::Payoff) = Logical(x,y,"!=")
-(!=)(x::Payoff,y) = Logical(x,Fixed(y),"!=")
-(!=)(x,y::Payoff) = Logical(Fixed(x),y,"!=")
+(!=)(x::Payoff,y) = Logical(x,ScalarValue(y),"!=")
+(!=)(x,y::Payoff) = Logical(ScalarValue(x),y,"!=")
 
 import Base.>=
 (>=)(x::Payoff,y::Payoff) = Logical(x,y,">=")
-(>=)(x::Payoff,y) = Logical(x,Fixed(y),">=")
-(>=)(x,y::Payoff) = Logical(Fixed(x),y,">=")
+(>=)(x::Payoff,y) = Logical(x,ScalarValue(y),">=")
+(>=)(x,y::Payoff) = Logical(ScalarValue(x),y,">=")
 
 import Base.>
 (>)(x::Payoff,y::Payoff) = Logical(x,y,">")
-(>)(x::Payoff,y) = Logical(x,Fixed(y),">")
-(>)(x,y::Payoff) = Logical(Fixed(x),y,">")
+(>)(x::Payoff,y) = Logical(x,ScalarValue(y),">")
+(>)(x,y::Payoff) = Logical(ScalarValue(x),y,">")
 
 
-Max(x::Payoff,y) = Max(x,Fixed(y))
-Max(x,y::Payoff) = Max(Fixed(x),y)
-Min(x::Payoff,y) = Min(x,Fixed(y))
-Min(x,y::Payoff) = Min(Fixed(x),y)
+Max(x::Payoff,y) = Max(x,ScalarValue(y))
+Max(x,y::Payoff) = Max(ScalarValue(x),y)
+Min(x::Payoff,y) = Min(x,ScalarValue(y))
+Min(x,y::Payoff) = Min(ScalarValue(x),y)

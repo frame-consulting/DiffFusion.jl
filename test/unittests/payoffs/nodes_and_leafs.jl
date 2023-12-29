@@ -65,6 +65,13 @@ using Test
         @test p(path) == 3.5 * ones(5)
         @test string(p) == "3.5000"
         #
+        p = DiffFusion.ScalarValue(3.5)
+        @test DiffFusion.obs_time(p) == 0.0
+        @test DiffFusion.obs_times(p) == Set(0.0)
+        @test DiffFusion.at(p, path) == 3.5
+        @test p(path) == 3.5
+        @test string(p) == "3.5000"
+        #
     end
 
     @testset "Unary nodes" begin

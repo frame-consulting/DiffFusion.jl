@@ -37,7 +37,7 @@ end
         forward_rate::Union{LiborRate, CompoundedRate},
         strike_rate::Payoff,
         call_put::ModelValue,
-        gearing_factor::Payoff = Fixed(1.0),
+        gearing_factor::Payoff = ScalarValue(1.0),
         )
 
 Create an `Optionlet` payoff.
@@ -48,7 +48,7 @@ function Optionlet(
     forward_rate::Union{LiborRate, CompoundedRate},
     strike_rate::Payoff,
     call_put::ModelValue,
-    gearing_factor::Payoff = Fixed(1.0),
+    gearing_factor::Payoff = ScalarValue(1.0),
     )
     #
     @assert obs_time(forward_rate) == obs_time_  # consistent forward rate

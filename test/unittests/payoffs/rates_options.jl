@@ -41,7 +41,7 @@ using Test
         @test_throws AssertionError DiffFusion.Optionlet(1.0, 3.0, L, K, +1.0)
         @test_throws AssertionError DiffFusion.Optionlet(1.0, 2.0, L, K, +2.0)
         Cp = DiffFusion.Optionlet(1.0, 2.0, L, K, 1.0)
-        Cp2 = DiffFusion.Optionlet(1.0, 2.0, L, K, 1.0, DiffFusion.Fixed(1.0))
+        Cp2 = DiffFusion.Optionlet(1.0, 2.0, L, K, 1.0, DiffFusion.ScalarValue(1.0))
         @test Cp === Cp2
         @test DiffFusion.obs_time(Cp) == 1.0
         @test DiffFusion.obs_times(Cp) == Set([0.0, 1.0])
@@ -92,7 +92,7 @@ using Test
         @test_throws AssertionError DiffFusion.Optionlet(1.0, 2.0, L, K, +1.0)
         @test_throws AssertionError DiffFusion.Optionlet(1.0, 3.0, L, K, +2.0)
         Cp = DiffFusion.Optionlet(1.0, 3.0, L, K, 1.0)
-        Cp2 = DiffFusion.Optionlet(1.0, 3.0, L, K, 1.0, DiffFusion.Fixed(1.0))
+        Cp2 = DiffFusion.Optionlet(1.0, 3.0, L, K, 1.0, DiffFusion.ScalarValue(1.0))
         @test Cp === Cp2
         @test DiffFusion.obs_time(Cp) == 1.0
         @test DiffFusion.obs_times(Cp) == Set([0.0, 1.0])

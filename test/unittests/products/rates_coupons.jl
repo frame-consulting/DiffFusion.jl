@@ -8,10 +8,10 @@ using Test
         C = DiffFusion.FixedRateCoupon(2.0, 0.05, 0.5)
         @test DiffFusion.pay_time(C) == 2.0
         @test DiffFusion.year_fraction(C) == 0.5
-        @test DiffFusion.coupon_rate(C) === DiffFusion.Fixed(0.05)
-        @test DiffFusion.forward_rate(C, 1.0) === DiffFusion.Fixed(0.05)
-        @test DiffFusion.amount(C) === DiffFusion.Fixed(0.05) * DiffFusion.Fixed(0.5)
-        @test DiffFusion.expected_amount(C, 1.0) === DiffFusion.Fixed(0.05) * DiffFusion.Fixed(0.5)
+        @test DiffFusion.coupon_rate(C) === DiffFusion.ScalarValue(0.05)
+        @test DiffFusion.forward_rate(C, 1.0) === DiffFusion.ScalarValue(0.05)
+        @test DiffFusion.amount(C) === DiffFusion.ScalarValue(0.05) * DiffFusion.ScalarValue(0.5)
+        @test DiffFusion.expected_amount(C, 1.0) === DiffFusion.ScalarValue(0.05) * DiffFusion.ScalarValue(0.5)
         #
         @test_throws ErrorException DiffFusion.first_time(C)
         C = DiffFusion.FixedRateCoupon(2.0, 0.05, 0.5, 1.5)

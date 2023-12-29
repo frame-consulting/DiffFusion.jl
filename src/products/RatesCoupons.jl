@@ -42,14 +42,14 @@ year_fraction(cf::FixedRateCoupon) = cf.year_fraction
 
 Return FixedRateCoupon rate.
 """
-coupon_rate(cf::FixedRateCoupon) = Fixed(cf.fixed_rate)
+coupon_rate(cf::FixedRateCoupon) = ScalarValue(cf.fixed_rate)
 
 """
     forward_rate(cf::FixedRateCoupon, obs_time::ModelTime)
 
 Return FixedRateCoupon forward rate.
 """
-forward_rate(cf::FixedRateCoupon, obs_time::ModelTime) = Fixed(cf.fixed_rate)
+forward_rate(cf::FixedRateCoupon, obs_time::ModelTime) = ScalarValue(cf.fixed_rate)
 
 
 """
@@ -399,6 +399,6 @@ function forward_rate(cf::OptionletCoupon, obs_time::ModelTime)
         return coupon_rate(cf)
     end
     R = forward_rate(cf.coupon, obs_time)
-    K = Fixed(cf.strike_rate)
+    K = ScalarValue(cf.strike_rate)
     return Optionlet(obs_time, cf.expiry_time, R, K, cf.call_put)
 end
