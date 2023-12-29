@@ -8,6 +8,7 @@ using Test
     DiffFusion.numeraire(p::ConstantPath, t::DiffFusion.ModelTime, curve_key::String) = t * ones(5)
     DiffFusion.bank_account(p::ConstantPath, t::DiffFusion.ModelTime, key::String) = t * ones(5)
     DiffFusion.zero_bond(p::ConstantPath, t::DiffFusion.ModelTime, T::DiffFusion.ModelTime, key::String) = 1.0 * ones(5)
+    DiffFusion.compounding_factor(p::ConstantPath, t::DiffFusion.ModelTime, T1::DiffFusion.ModelTime, T2::DiffFusion.ModelTime, key::String) = 1.0 * ones(5)
     DiffFusion.length(p::ConstantPath) = 5
 
     @testset "Libor Rate payoff" begin

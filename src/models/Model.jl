@@ -188,7 +188,36 @@ Calculate the zero bond term [G(t,T)' x(t) + 0.5 G(t,T)' y(t) G(t,T)]' from rate
 Returns a vector of size (p,) for X with size (n,p).
 """
 function log_zero_bond(m::Model, alias::String, t::ModelTime, T::ModelTime, X::ModelState)
-    error("Model needs to implement log_bank_account method.")
+    error("Model needs to implement log_compounding_factor method.")
+end
+
+"""
+    log_compounding_factor(
+        m::Model,
+        model_alias::String,
+        t::ModelTime,
+        T1::ModelTime,
+        T2::ModelTime,
+        X::ModelState,
+        )
+
+Calculate the forward compounding factor term
+[G(t,T2) - G(t,T1)]' x(t) + 0.5 * [G(t,T2)' y(t) G(t,T2) - G(t,T1)' y(t) G(t,T1)].
+
+This is used for Libor forward rate calculation.
+
+Returns a vector of size (p,) for X with size (n,p).
+"""
+function log_compounding_factor(
+    m::Model,
+    model_alias::String,
+    t::ModelTime,
+    T1::ModelTime,
+    T2::ModelTime,
+    X::ModelState,
+    )
+    #
+    error("Model needs to implement log_compounding_factor method.")
 end
 
 """

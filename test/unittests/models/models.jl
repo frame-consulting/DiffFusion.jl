@@ -49,6 +49,7 @@ using Test
         @test_throws ErrorException DiffFusion.log_asset(m, "alias", 1.0, SX)
         @test_throws ErrorException DiffFusion.log_bank_account(m, "alias", 1.0, SX)
         @test_throws ErrorException DiffFusion.log_zero_bond(m, "alias", 1.0, 2.0, SX)
+        @test_throws ErrorException DiffFusion.log_compounding_factor(m, "alias", 1.0, 2.0, 3.0, SX)
         @test_throws ErrorException DiffFusion.log_asset_convexity_adjustment(m, "dom", "for", "ast", 1.0, 2.0, 3.0, 4.0)
         @test_throws ErrorException DiffFusion.log_future(m, "alias", 1.0, 2.0, SX)
         @test_throws ErrorException DiffFusion.swap_rate_variance(m, "alias", DiffFusion.flat_forward(0.01), 1.0, 2.0, [ 2.0, 3.0, 4.0 ], [1.0, 1.0], SX)

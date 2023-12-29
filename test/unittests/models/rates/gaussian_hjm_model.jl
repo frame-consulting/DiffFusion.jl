@@ -254,6 +254,12 @@ using LinearAlgebra
         @test DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 8.0, SX) == X[1:3,:]' * G .+ 0.5 * G'*y*G
         @test_throws AssertionError DiffFusion.log_zero_bond(m, "WrongAlias", 4.0, 8.0, SX)
         #
+        df1 = DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 8.0, SX)
+        df2 = DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 10.0, SX)
+        cmp = DiffFusion.log_compounding_factor(m, DiffFusion.alias(m), 4.0, 8.0, 10.0, SX)
+        @test cmp == df2 - df1
+        @test_throws AssertionError DiffFusion.log_compounding_factor(m, "WrongAlias", 4.0, 8.0, 10.0, SX)
+        #
         X = [ 0., 0., 1., 2., 3., 4., 0. ] * [ 1., 2., 3.]'
         s_alias = [ "1", "2", "Theta_3F_x_1", "Theta_3F_x_2", "Theta_3F_x_3", "Theta_3F_s", "7" ]
         dict = DiffFusion.alias_dictionary(s_alias)
@@ -261,11 +267,17 @@ using LinearAlgebra
         @test DiffFusion.log_bank_account(m, "Theta_3F", 1.0, SX) == [ 4., 8., 12. ]
         @test DiffFusion.log_zero_bond(m, "Theta_3F", 4.0, 8.0, SX) == X[3:5,:]' * G .+ 0.5 * G'*y*G
         #
+        df1 = DiffFusion.log_zero_bond(m, "Theta_3F", 4.0, 8.0, SX)
+        df2 = DiffFusion.log_zero_bond(m, "Theta_3F", 4.0, 10.0, SX)
+        cmp = DiffFusion.log_compounding_factor(m, "Theta_3F", 4.0, 8.0, 10.0, SX)
+        @test cmp == df2 - df1
+        #
         s_alias = [ "1", "2", "Theta_3F_x_0", "Theta_3F_x_2", "Theta_3F_x_3", "Theta_3F_t", "7" ]
         dict = DiffFusion.alias_dictionary(s_alias)
         SX = DiffFusion.model_state(X, dict)
         @test_throws KeyError DiffFusion.log_bank_account(m, "Theta_3F", 1.0, SX)
         @test_throws KeyError DiffFusion.log_zero_bond(m, "Theta_3F", 4.0, 8.0, SX)
+        @test_throws KeyError DiffFusion.log_compounding_factor(m, "Theta_3F", 4.0, 8.0, 10.0, SX)
     end
 
 end

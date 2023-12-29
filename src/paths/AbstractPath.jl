@@ -56,6 +56,16 @@ end
 
 
 """
+    compounding_factor(p::AbstractPath, t::ModelTime, T1::ModelTime, T2::ModelTime, key::String)
+
+Calculate a compounding factor P(t,T1) / P(t,T2).
+"""
+function compounding_factor(p::AbstractPath, t::ModelTime, T1::ModelTime, T2::ModelTime, key::String)
+    error("AbstractPath needs to implement compounding_factor method.")
+end
+
+
+"""
     asset(p::AbstractPath, t::ModelTime, key::String)
 
 Calculate asset price.

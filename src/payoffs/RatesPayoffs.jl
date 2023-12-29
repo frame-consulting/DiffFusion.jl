@@ -43,9 +43,12 @@ end
 Derive the forward Libor rate at a given path.
 """
 function at(p::LiborRate, path::AbstractPath)
-    df1 = zero_bond(path, p.obs_time, p.start_time, p.key)
-    df2 = zero_bond(path, p.obs_time, p.end_time, p.key)
-    return (df1 ./ df2 .- 1.0) ./ p.year_fraction
+    if p.obs_time == p.start_time
+        df1_df2 = 1.0 ./ zero_bond(path, p.obs_time, p.end_time, p.key)
+    else
+        df1_df2 = compounding_factor(path, p.obs_time, p.start_time, p.end_time, p.key)
+    end
+    return (df1_df2 .- 1.0) ./ p.year_fraction
 end
 
 """
@@ -156,9 +159,12 @@ function at(p::CompoundedRate, path::AbstractPath)
         fixed_cmp = at(p.fixed_compounding, path)
     end
     if p.obs_time ≤ p.start_time
-        df1 = zero_bond(path, p.obs_time, p.start_time, p.key)
-        df2 = zero_bond(path, p.obs_time, p.end_time, p.key)
-        return (fixed_cmp .* df1 ./ df2 .- 1.0) ./ p.year_fraction
+        if p.obs_time == p.start_time
+            df1_df2 = 1.0 ./ zero_bond(path, p.obs_time, p.end_time, p.key)
+        else
+            df1_df2 = compounding_factor(path, p.obs_time, p.start_time, p.end_time, p.key)
+        end
+        return (fixed_cmp .* df1_df2 .- 1.0) ./ p.year_fraction
     end
     if p.obs_time < p.end_time
         cmp = bank_account(path, p.obs_time, p.key) ./ bank_account(path, p.start_time, p.key)
