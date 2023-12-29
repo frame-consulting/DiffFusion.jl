@@ -257,6 +257,15 @@ end
         @test isapprox(DiffFusion.zero_bond(p, t, T, "EUR"), zb0 * exp(-0.02*(T-t)), atol=5.0e-15)
         @test isapprox(DiffFusion.zero_bond(p, t, T, "SXE50"), ones(5) * exp(-0.01*(T-t)), atol=5.0e-15)
         #
+        df1 = DiffFusion.zero_bond(p, 2.0, 5.0, "USD")
+        df2 = DiffFusion.zero_bond(p, 2.0, 7.0, "USD")
+        cmp = DiffFusion.compounding_factor(p, 2.0, 5.0, 7.0, "USD")
+        @test maximum(abs.(cmp - df1 ./ df2)) < 1.0e-13
+        df1 = DiffFusion.zero_bond(p, 2.0, 5.0, "EUR")
+        df2 = DiffFusion.zero_bond(p, 2.0, 7.0, "EUR")
+        cmp = DiffFusion.compounding_factor(p, 2.0, 5.0, 7.0, "EUR")
+        @test maximum(abs.(cmp - df1 ./ df2)) < 1.0e-13
+        #
         @test_throws KeyError DiffFusion.zero_bond(p, t, T, "GBP")
         @test_throws KeyError DiffFusion.zero_bond(p, t, T, "USD:LIB")
         @test_throws KeyError DiffFusion.zero_bond(p, t, T, "USD:OIS-LIB3M")

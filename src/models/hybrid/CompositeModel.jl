@@ -70,6 +70,35 @@ function log_zero_bond(m::CompositeModel, alias::String, t::ModelTime, T::ModelT
 end
 
 """
+    log_compounding_factor(
+        m::CompositeModel,
+        alias::String,
+        t::ModelTime,
+        T1::ModelTime,
+        T2::ModelTime,
+        X::ModelState,
+        )
+
+Calculate the forward compounding factor term
+[G(t,T2) - G(t,T1)]' x(t) + 0.5 * [G(t,T2)' y(t) G(t,T2) - G(t,T1)' y(t) G(t,T1)].
+
+This is used for Libor forward rate calculation.
+
+Returns a vector of size (p,) for X with size (n,p).
+"""
+function log_compounding_factor(
+    m::CompositeModel,
+    alias::String,
+    t::ModelTime,
+    T1::ModelTime,
+    T2::ModelTime,
+    X::ModelState,
+    )
+    #
+    return log_compounding_factor(m.models[m.model_dict[alias]], alias, t, T1, T2, X)
+end
+
+"""
     log_future(m::CompositeModel, alias::String, t::ModelTime, T::ModelTime, X::ModelState)
 
 Calculate the Future price term h(t,T)'[x(t) + 0.5y(t)(1 - h(t,T))].

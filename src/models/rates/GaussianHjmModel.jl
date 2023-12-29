@@ -285,6 +285,40 @@ function log_zero_bond(m::GaussianHjmModel, model_alias::String, t::ModelTime, T
     return X_' * G .+ 0.5 * (G'*y*G)
 end
 
+"""
+    log_compounding_factor(
+        m::GaussianHjmModel,
+        model_alias::String,
+        t::ModelTime,
+        T1::ModelTime,
+        T2::ModelTime,
+        X::ModelState,
+        )
+
+Calculate the forward compounding factor term
+[G(t,T2) - G(t,T1)]' x(t) + 0.5 * [G(t,T2)' y(t) G(t,T2) - G(t,T1)' y(t) G(t,T1)].
+
+This is used for Libor forward rate calculation.
+"""
+function log_compounding_factor(
+    m::GaussianHjmModel,
+    model_alias::String,
+    t::ModelTime,
+    T1::ModelTime,
+    T2::ModelTime,
+    X::ModelState,
+    )
+    #
+    @assert alias(m) == model_alias
+    idx = X.idx[state_alias(m)[1]]
+    d = length(state_alias(m)) - 1  # exclude s-variable
+    G1 = G_hjm(m, t, T1)
+    G2 = G_hjm(m, t, T2)
+    y = func_y(m, t)
+    X_ = @view(X.X[idx:idx+(d-1),:])
+    return X_' * (G2 .- G1) .+ 0.5 * ((G2'*y*G2) - (G1'*y*G1))
+end
+
 
 """
     simulation_parameters(

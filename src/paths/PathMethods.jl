@@ -128,6 +128,36 @@ end
 
 
 """
+    compounding_factor(p::Path, t::ModelTime, T1::ModelTime, T2::ModelTime, key::String)
+
+Calculate a compounding factor P(t,T1) / P(t,T2).
+"""
+function compounding_factor(p::Path, t::ModelTime, T1::ModelTime, T2::ModelTime, key::String)
+    (context_key, ts_key_1, ts_key_2, op) = context_keys(key)
+    entry = p.context.rates[context_key]
+    ts_alias_1 = entry.termstructure_dict[ts_key_1]
+    if ts_key_2 == _empty_context_key || op == _empty_context_key
+        # This is some business logic that overlaps with context_keys(...).
+        # However, the logic is different e.g. for assets. So it makes
+        # sense to leave it here.
+        ts_alias_2 = nothing
+    else
+        ts_alias_2 = entry.termstructure_dict[ts_key_2]
+    end
+    df1 = discount(T1, p.ts_dict, ts_alias_1, ts_alias_2, op)
+    df2 = discount(T2, p.ts_dict, ts_alias_1, ts_alias_2, op)
+    if isnothing(entry.model_alias)
+        return (df1/df2) .* ones(size(p.sim.X)[2])
+    end
+    #
+    X = state_variable(p.sim, t, p.interpolation)
+    SX = model_state(X, p.state_alias_dict)
+    s = log_compounding_factor(p.sim.model, entry.model_alias, t, T1, T2, SX)
+    return (df1/df2) .* exp.(s)
+end
+
+
+"""
     asset(p::Path, t::ModelTime, key::String)
 
 Calculate asset price.
