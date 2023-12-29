@@ -59,7 +59,7 @@ function numeraire(p::Path, t::ModelTime, curve_key::String)
     ts_alias_1 = entry.termstructure_dict[ts_key_1]
     df = discount(t, p.ts_dict, ts_alias_1)
     if isnothing(p.context.numeraire.model_alias)
-        return (1.0/df) * ones(size(p.sim.X)[2]) 
+        return (1.0/df) * ones(length(p)) 
     end
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
@@ -87,7 +87,7 @@ function bank_account(p::Path, t::ModelTime, key::String)
     end
     df = discount(t, p.ts_dict, ts_alias_1, ts_alias_2, op)
     if isnothing(entry.model_alias)
-        return (1.0/df) * ones(size(p.sim.X)[2]) 
+        return (1.0/df) * ones(length(p)) 
     end
     #
     X = state_variable(p.sim, t, p.interpolation)
@@ -117,13 +117,43 @@ function zero_bond(p::Path, t::ModelTime, T::ModelTime, key::String)
     df1 = discount(t, p.ts_dict, ts_alias_1, ts_alias_2, op)
     df2 = discount(T, p.ts_dict, ts_alias_1, ts_alias_2, op)
     if isnothing(entry.model_alias)
-        return (df2/df1) .* ones(size(p.sim.X)[2])
+        return (df2/df1) .* ones(length(p))
     end
     #
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
     s = log_zero_bond(p.sim.model, entry.model_alias, t, T, SX)
     return (df2/df1) .* exp.((-1.0) .* s)
+end
+
+
+"""
+    zero_bonds(p::Path, t::ModelTime, T::AbstractVector, key::String)
+
+Calculate zero coupon bond prices.
+"""
+function zero_bonds(p::Path, t::ModelTime, T::AbstractVector, key::String)
+    (context_key, ts_key_1, ts_key_2, op) = context_keys(key)
+    entry = p.context.rates[context_key]
+    ts_alias_1 = entry.termstructure_dict[ts_key_1]
+    if ts_key_2 == _empty_context_key || op == _empty_context_key
+        # This is some business logic that overlaps with context_keys(...).
+        # However, the logic is different e.g. for assets. So it makes
+        # sense to leave it here.
+        ts_alias_2 = nothing
+    else
+        ts_alias_2 = entry.termstructure_dict[ts_key_2]
+    end
+    df1 = discount(t, p.ts_dict, ts_alias_1, ts_alias_2, op)
+    df2 = [ discount(T_, p.ts_dict, ts_alias_1, ts_alias_2, op) for T_ in T ]
+    if isnothing(entry.model_alias)
+        return (df2./df1)' .* ones(length(p))
+    end
+    #
+    X = state_variable(p.sim, t, p.interpolation)
+    SX = model_state(X, p.state_alias_dict)
+    s = log_zero_bonds(p.sim.model, entry.model_alias, t, T, SX)
+    return (df2./df1)' .* exp.((-1.0) .* s)
 end
 
 
@@ -147,7 +177,7 @@ function compounding_factor(p::Path, t::ModelTime, T1::ModelTime, T2::ModelTime,
     df1 = discount(T1, p.ts_dict, ts_alias_1, ts_alias_2, op)
     df2 = discount(T2, p.ts_dict, ts_alias_1, ts_alias_2, op)
     if isnothing(entry.model_alias)
-        return (df1/df2) .* ones(size(p.sim.X)[2])
+        return (df1/df2) .* ones(length(p))
     end
     #
     X = state_variable(p.sim, t, p.interpolation)
@@ -178,7 +208,7 @@ function asset(p::Path, t::ModelTime, key::String)
         isnothing(entry.foreign_model_alias) &&
         isnothing(entry.domestic_model_alias)
         # we can take a short-cut for fully deterministic models
-        return (spot*df) .* ones(size(p.sim.X)[2])
+        return (spot*df) .* ones(length(p))
     end
     #
     X = state_variable(p.sim, t, p.interpolation)
@@ -216,7 +246,7 @@ function asset(p::Path, t::ModelTime, key::String)
         )
     end
     # all other cases are handled via default methodology
-    y = zeros(size(p.sim.X)[2])
+    y = zeros(length(p))
     if !isnothing(entry.asset_model_alias)
         y += log_asset(p.sim.model, entry.asset_model_alias, t, SX)
     end
@@ -252,7 +282,7 @@ function forward_asset(p::Path, t::ModelTime, T::ModelTime, key::String)
         isnothing(entry.foreign_model_alias) &&
         isnothing(entry.domestic_model_alias)
         # we can take a short-cut for fully deterministic models
-        return (spot*df) .* ones(size(p.sim.X)[2])
+        return (spot*df) .* ones(length(p))
     end
     #
     X = state_variable(p.sim, t, p.interpolation)
@@ -295,7 +325,7 @@ function forward_asset(p::Path, t::ModelTime, T::ModelTime, key::String)
         )
     end
     # all other cases are handled via default methodology
-    y = zeros(size(p.sim.X)[2])
+    y = zeros(length(p))
     if !isnothing(entry.asset_model_alias)
         y += log_asset(p.sim.model, entry.asset_model_alias, t, SX)
     end
@@ -346,12 +376,12 @@ function forward_index(p::Path, t::ModelTime, T::ModelTime, key::String)
         isnothing(entry.foreign_model_alias) &&
         isnothing(entry.domestic_model_alias)
         # we can take a short-cut for fully deterministic models
-        return forward_index * ones(size(p.sim.X)[2])
+        return forward_index * ones(length(p))
     end
     #
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
-    y = zeros(size(p.sim.X)[2])
+    y = zeros(length(p))
     if !isnothing(entry.asset_model_alias)
         y += log_asset(p.sim.model, entry.asset_model_alias, t, SX)
     end
@@ -387,7 +417,7 @@ function future_index(p::Path, t::ModelTime, T::ModelTime, key::String)
     #
     if isnothing(entry.future_model_alias)
         # we can take a short-cut for fully deterministic models
-        return future_index * ones(size(p.sim.X)[2])
+        return future_index * ones(length(p))
     end
     #
     X = state_variable(p.sim, t, p.interpolation)

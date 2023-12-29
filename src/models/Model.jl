@@ -192,6 +192,15 @@ function log_zero_bond(m::Model, alias::String, t::ModelTime, T::ModelTime, X::M
 end
 
 """
+    log_zero_bonds(m::Model, alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+
+Calculate the zero bond terms [G(t,T)' x(t) + 0.5 G(t,T)' y(t) G(t,T)]' from rates model.
+"""
+function log_zero_bonds(m::Model, alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+    error("Model needs to implement log_zero_bonds method.")
+end
+
+"""
     log_compounding_factor(
         m::Model,
         model_alias::String,

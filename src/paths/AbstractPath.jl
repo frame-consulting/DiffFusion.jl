@@ -56,6 +56,16 @@ end
 
 
 """
+    zero_bond(p::AbstractPath, t::ModelTime, T::ModelTime, key::String)
+
+Calculate a zero coupon bond prices.
+"""
+function zero_bonds(p::AbstractPath, t::ModelTime, T::AbstractVector, key::String)
+    error("AbstractPath needs to implement zero_bonds method.")
+end
+
+
+"""
     compounding_factor(p::AbstractPath, t::ModelTime, T1::ModelTime, T2::ModelTime, key::String)
 
 Calculate a compounding factor P(t,T1) / P(t,T2).

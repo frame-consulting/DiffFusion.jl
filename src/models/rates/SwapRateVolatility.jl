@@ -1,10 +1,10 @@
 
 """
-    zero_bond(
+    zero_bonds(
         yts::YieldTermstructure,
         m::GaussianHjmModel,
         t::ModelTime,
-        T::ModelTime,
+        T::AbstractVector,
         SX::ModelState,
         )
 
@@ -12,18 +12,18 @@ Zero bond price reconstruction.
 
 Returns a vector of length p where p is the number of paths in SX.
 """
-function zero_bond(
+function zero_bonds(
     yts::YieldTermstructure,
     m::GaussianHjmModel,
     t::ModelTime,
-    T::ModelTime,
+    T::AbstractVector,
     SX::ModelState,
     )
     #
     df1 = discount(yts, t)
-    df2 = discount(yts, T)
-    s = log_zero_bond(m, alias(m), t, T, SX)
-    zb = (df2/df1) .* exp.((-1.0) .* s)
+    df2 = [ discount(yts, T_) for T_ in T ]
+    s = log_zero_bonds(m, alias(m), t, T, SX)
+    zb = (df2./df1)' .* exp.((-1.0) .* s)
     return zb
 end
 
@@ -69,8 +69,8 @@ function swap_rate_gradient(
     @assert length(swap_times) == length(yf_weights) + 1
     @assert t <= swap_times[1]
     #
-    P = hcat([ zero_bond(yts, m, t, T, SX) for T in swap_times ]...)
-    G = hcat([ G_hjm(m, t, T) for T in swap_times ]...)
+    P = zero_bonds(yts, m, t, swap_times, SX)
+    G = G_hjm(m, t, swap_times)
     w = yf_weights # abbreviation
     @views begin
         An = sum(( w[i] * P[:,i+1] for i in eachindex(w) ))

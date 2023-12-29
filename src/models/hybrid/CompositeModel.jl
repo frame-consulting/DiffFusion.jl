@@ -70,6 +70,16 @@ function log_zero_bond(m::CompositeModel, alias::String, t::ModelTime, T::ModelT
 end
 
 """
+    log_zero_bonds(m::CompositeModel, alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+
+Calculate the zero bond terms [G(t,T)' x(t) + 0.5 G(t,T)' y(t) G(t,T)]' from rates model.
+"""
+function log_zero_bonds(m::CompositeModel, alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+    return log_zero_bonds(m.models[m.model_dict[alias]], alias, t, T, X)
+end
+
+
+"""
     log_compounding_factor(
         m::CompositeModel,
         alias::String,

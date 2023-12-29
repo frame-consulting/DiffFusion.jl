@@ -113,6 +113,15 @@ using Test
         @test DiffFusion.log_zero_bond(m, "EUR", 5.0, 7.0, SX) == X[6:7,:]'*G_f .+ 0.5*G_f'*y_f*G_f
         @test DiffFusion.log_future(m, "NIK", 5.0, 10.0, SX) == DiffFusion.log_future(mkv_model, "NIK", 5.0, 10.0, SX)
         #
+        dfT = DiffFusion.log_zero_bonds(m, "USD", 4.0, [4.0, 8.0], SX)
+        @test size(dfT) == (3,2)
+        @test maximum(abs.(dfT[:,1] - DiffFusion.log_zero_bond(m, "USD", 4.0, 4.0, SX))) < 1.0e-13
+        @test maximum(abs.(dfT[:,2] - DiffFusion.log_zero_bond(m, "USD", 4.0, 8.0, SX))) < 1.0e-13
+        dfT = DiffFusion.log_zero_bonds(m, "EUR", 4.0, [4.0, 8.0], SX)
+        @test size(dfT) == (3,2)
+        @test maximum(abs.(dfT[:,1] - DiffFusion.log_zero_bond(m, "EUR", 4.0, 4.0, SX))) < 1.0e-13
+        @test maximum(abs.(dfT[:,2] - DiffFusion.log_zero_bond(m, "EUR", 4.0, 8.0, SX))) < 1.0e-13
+        #
         df1 = DiffFusion.log_zero_bond(m, "USD", 4.0, 8.0, SX)
         df2 = DiffFusion.log_zero_bond(m, "USD", 4.0, 10.0, SX)
         cmp = DiffFusion.log_compounding_factor(m, "USD", 4.0, 8.0, 10.0, SX)

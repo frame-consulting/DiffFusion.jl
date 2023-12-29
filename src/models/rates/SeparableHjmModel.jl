@@ -36,7 +36,7 @@ end
 Diagonal entries of ``H(s,t)``.
 """
 function H_hjm(chi::AbstractVector, s::ModelTime, t::ModelTime)
-    return exp.(-chi * (t-s))
+    return exp.(-chi .* (t-s))
 end
 
 """
@@ -55,7 +55,7 @@ Vector function ``G(s,t)``.
 """
 function G_hjm(chi::AbstractVector, s::ModelTime, t::ModelTime)
     # This is an unsafe implementation. Better use Taylor expansion.
-    return (1.0 .- exp.(-chi * (t-s))) ./ chi
+    return (1.0 .- exp.(-chi .* (t-s))) ./ chi
 end
 
 """
@@ -65,6 +65,26 @@ Vector function ``G(s,t)``.
 """
 function G_hjm(m::SeparableHjmModel, s::ModelTime, t::ModelTime)
     return G_hjm(chi_hjm(m), s, t)
+end
+
+"""
+    G_hjm(chi::AbstractVector, s::ModelTime, T::AbstractVector)
+
+Vector function ``G(s,t)`` as matrix of size (d,k) where
+k = length(T)
+"""
+function G_hjm(chi::AbstractVector, s::ModelTime, T::AbstractVector)
+    # This is an unsafe implementation. Better use Taylor expansion.
+    return (1.0 .- exp.(-chi .* (T' .- s))) ./ chi
+end
+
+"""
+    G_hjm(m::SeparableHjmModel, s::ModelTime, T::AbstractVector)
+
+Vector function ``G(s,t)``.
+"""
+function G_hjm(m::SeparableHjmModel, s::ModelTime, T::AbstractVector)
+    return G_hjm(chi_hjm(m), s, T)
 end
 
 """
