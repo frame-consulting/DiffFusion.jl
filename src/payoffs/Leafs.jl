@@ -216,3 +216,39 @@ Formatted (and shortened) output for deterministic payoff.
 """
 string(p::Fixed) = @sprintf("%.4f", p.value)
 
+
+"""
+    struct ScalarValue <: Leaf
+        value::ModelValue
+    end
+
+A scalar deterministic quantity.
+"""
+struct ScalarValue <: Leaf
+    value::ModelValue
+end
+
+"""
+    obs_time(p::ScalarValue)
+
+Observation time for ScalarValue payoffs is zero because they are
+deterministic.
+"""
+obs_time(p::ScalarValue) = 0.0
+
+"""
+    at(p::ScalarValue, path::AbstractPath)
+
+Return the deterministic scalar value.
+
+This aims at avoiding some unnecessary allocations.
+"""
+at(p::ScalarValue, path::AbstractPath) = p.value
+
+"""
+    string(p::ScalarValue)
+
+Formatted (and shortened) output for deterministic payoff.
+"""
+string(p::ScalarValue) = @sprintf("%.4f", p.value)
+
