@@ -36,11 +36,11 @@ function forward_rate_variance(
     y_t = func_y(m, t_min)
     y_T = func_y(m, T_min)
     H = H_hjm(m, t_min, T_min)
-    y = y_T - Diagonal(H) * y_t * Diagonal(H)  # Cov[x_T | x_t]
+    y = y_T .- Diagonal(H) * y_t * Diagonal(H)  # Cov[x_T | x_t]
     #
     G1 = G_hjm(m, min(T, T0), T1)
     G0 = G_hjm(m, min(T, T0), T0)
-    G = G1 - G0
+    G = G1 .- G0
     ν² = G' * y * G
     #
     if T ≤ T0
@@ -48,7 +48,7 @@ function forward_rate_variance(
     end
     #
     cov = covariance(m, m.correlation_holder, max(t, T0), T1, nothing)[end,end]  # z variable variance
-    return ν² + cov
+    return ν² .+ cov
 end
 
 """

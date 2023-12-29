@@ -23,7 +23,7 @@ function zero_bond(
     df1 = discount(yts, t)
     df2 = discount(yts, T)
     s = log_zero_bond(m, alias(m), t, T, SX)
-    zb = (df2/df1) * exp.(-s)
+    zb = (df2/df1) .* exp.((-1.0) .* s)
     return zb
 end
 
@@ -72,11 +72,13 @@ function swap_rate_gradient(
     P = hcat([ zero_bond(yts, m, t, T, SX) for T in swap_times ]...)
     G = hcat([ G_hjm(m, t, T) for T in swap_times ]...)
     w = yf_weights # abbreviation
-    An = sum(( w[i] * P[:,i+1] for i in eachindex(w) ))
-    S = (P[:,1] - P[:,end]) ./ An
-    # see AP10, sec. 12.1.6.2, p. 506; note the typo in the sign!
-    q = -(P[:,1] * G[:,1]' - P[:,end] * G[:,end]') ./ An
-    q = q + S .* sum(( w[i] * P[:,i+1] * G[:,i+1]' for i in eachindex(w) )) ./ An
+    @views begin
+        An = sum(( w[i] * P[:,i+1] for i in eachindex(w) ))
+        S = (P[:,1] - P[:,end]) ./ An
+        # see AP10, sec. 12.1.6.2, p. 506; note the typo in the sign!
+        q = -(P[:,1] * G[:,1]' - P[:,end] * G[:,end]') ./ An
+        q = q + S .* sum(( w[i] * P[:,i+1] * G[:,i+1]' for i in eachindex(w) )) ./ An
+    end
     return q
 end
 
@@ -112,7 +114,7 @@ function swap_rate_instantaneous_covariance(
     σT = m.sigma_T(t)
     q1_σT = q1 * σT   # size (p, d)
     q2_σT = q2 * σT   # size (p, d)
-    cov = sum(q1_σT .* q2_σT, dims=2)[:,1]
+    cov = @view(sum(q1_σT .* q2_σT, dims=2)[:,1])
     return cov
 end
 
@@ -143,7 +145,7 @@ function swap_rate_volatility²(
     q = swap_rate_gradient(yts, m, t, swap_times, yf_weights, SX)
     σT = m.sigma_T(t)
     q_σT = q * σT   # size (p, d)
-    σ² = sum(q_σT.^2, dims=2)[:,1]
+    σ² = @view(sum(q_σT.^2, dims=2)[:,1])
     return σ²
 end
 

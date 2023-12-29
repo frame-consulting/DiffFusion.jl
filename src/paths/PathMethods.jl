@@ -123,7 +123,7 @@ function zero_bond(p::Path, t::ModelTime, T::ModelTime, key::String)
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
     s = log_zero_bond(p.sim.model, entry.model_alias, t, T, SX)
-    return (df2/df1) .* exp.(-s)
+    return (df2/df1) .* exp.((-1.0) .* s)
 end
 
 
@@ -153,6 +153,39 @@ function asset(p::Path, t::ModelTime, key::String)
     #
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
+    # We add some short-cuts for typical model settings
+    # FX model
+    if !isnothing(entry.asset_model_alias) &&
+        !isnothing(entry.domestic_model_alias) &&
+        !isnothing(entry.foreign_model_alias)
+        #
+        return (spot*df) .* exp.(
+            log_asset(p.sim.model, entry.asset_model_alias, t, SX) .+
+            log_bank_account(p.sim.model, entry.domestic_model_alias, t, SX) .-
+            log_bank_account(p.sim.model, entry.foreign_model_alias, t, SX)
+        )
+    end
+    # Equity model
+    if !isnothing(entry.asset_model_alias) &&
+        !isnothing(entry.domestic_model_alias) &&
+        isnothing(entry.foreign_model_alias)
+        #
+        return (spot*df) .* exp.(
+            log_asset(p.sim.model, entry.asset_model_alias, t, SX) .+
+            log_bank_account(p.sim.model, entry.domestic_model_alias, t, SX)
+        )
+    end
+    # DK model
+    if isnothing(entry.asset_model_alias) &&
+        !isnothing(entry.domestic_model_alias) &&
+        !isnothing(entry.foreign_model_alias)
+        #
+        return (spot*df) .* exp.(
+            log_bank_account(p.sim.model, entry.domestic_model_alias, t, SX) .-
+            log_bank_account(p.sim.model, entry.foreign_model_alias, t, SX)
+        )
+    end
+    # all other cases are handled via default methodology
     y = zeros(size(p.sim.X)[2])
     if !isnothing(entry.asset_model_alias)
         y += log_asset(p.sim.model, entry.asset_model_alias, t, SX)
@@ -194,6 +227,44 @@ function forward_asset(p::Path, t::ModelTime, T::ModelTime, key::String)
     #
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
+    # We add some short-cuts for typical model settings
+    # FX model
+    if !isnothing(entry.asset_model_alias) &&
+        !isnothing(entry.domestic_model_alias) &&
+        !isnothing(entry.foreign_model_alias)
+        #
+        return (spot*df) .* exp.(
+            log_asset(p.sim.model, entry.asset_model_alias, t, SX) .+
+            log_bank_account(p.sim.model, entry.domestic_model_alias, t, SX) .+
+            log_zero_bond(p.sim.model, entry.domestic_model_alias, t, T, SX) .-
+            log_bank_account(p.sim.model, entry.foreign_model_alias, t, SX) .-
+            log_zero_bond(p.sim.model, entry.foreign_model_alias, t, T, SX)
+        )
+    end
+    # Equity model
+    if !isnothing(entry.asset_model_alias) &&
+        !isnothing(entry.domestic_model_alias) &&
+        isnothing(entry.foreign_model_alias)
+        #
+        return (spot*df) .* exp.(
+            log_asset(p.sim.model, entry.asset_model_alias, t, SX) .+
+            log_bank_account(p.sim.model, entry.domestic_model_alias, t, SX) .+
+            log_zero_bond(p.sim.model, entry.domestic_model_alias, t, T, SX)
+        )
+    end
+    # DK model
+    if isnothing(entry.asset_model_alias) &&
+        !isnothing(entry.domestic_model_alias) &&
+        !isnothing(entry.foreign_model_alias)
+        #
+        return (spot*df) .* exp.(
+            log_bank_account(p.sim.model, entry.domestic_model_alias, t, SX) .+
+            log_zero_bond(p.sim.model, entry.domestic_model_alias, t, T, SX) .-
+            log_bank_account(p.sim.model, entry.foreign_model_alias, t, SX) .-
+            log_zero_bond(p.sim.model, entry.foreign_model_alias, t, T, SX)
+        )
+    end
+    # all other cases are handled via default methodology
     y = zeros(size(p.sim.X)[2])
     if !isnothing(entry.asset_model_alias)
         y += log_asset(p.sim.model, entry.asset_model_alias, t, SX)

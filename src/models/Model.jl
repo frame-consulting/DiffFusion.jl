@@ -116,6 +116,8 @@ struct ModelState
     params::Any
 end
 
+const _model_state_extra_safety_check = false
+
 """
     model_state(X::AbstractMatrix, idx::Dict{String,Int})
 
@@ -123,9 +125,11 @@ Create a ModelState object and make sure it is consistent.
 """
 function model_state(X::AbstractMatrix, idx::Dict{String,Int}, params = nothing)
     @assert size(X)[1] == length(idx)
-    values = sort([ v for (k,v) in idx ])
-    for k in 1:length(values)
-        @assert values[k] == k
+    if _model_state_extra_safety_check
+        values = sort([ v for (k,v) in idx ])
+        for k in 1:length(values)
+            @assert values[k] == k
+        end
     end
     return ModelState(X, idx, params)
 end
@@ -145,7 +149,7 @@ end
 
 Allow for indexed access to ModelState via alias
 """
-(V::ModelState)(alias::String) = V.X[V.idx[alias],:]
+(V::ModelState)(alias::String) = @view(V.X[V.idx[alias],:])
 
 """
     alias_dictionary(alias_list)

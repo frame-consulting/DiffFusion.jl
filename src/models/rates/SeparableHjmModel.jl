@@ -107,6 +107,35 @@ function func_y(
     return y0 .* H_i_j .+ V .* G_i_j
 end
 
+
+"""
+    _func_y(
+        chi::AbstractVector,
+        sigmaT::AbstractMatrix,
+        s::ModelTime,
+        t::ModelTime,
+        )
+
+Calculate variance/auxiliary state variable ``y(t)`` given ``y(s)=0``.
+
+In this function we assume that sigma is constant over the time interval ``(s,t)``.
+"""
+function _func_y(
+    chi::AbstractVector,
+    sigmaT::AbstractMatrix,
+    s::ModelTime,
+    t::ModelTime,
+    )
+    # better exploit symmetry and update in-place
+    chi_i_p_chi_j = [ (chi_i + chi_j) for chi_i in chi, chi_j in chi ]
+    H_i_j = exp.(-chi_i_p_chi_j .* (t-s))
+    V = sigmaT * transpose(sigmaT)
+    # this is unsafe, better use Taylor expansion
+    G_i_j = (1. .- H_i_j) ./ chi_i_p_chi_j
+    return V .* G_i_j
+end
+
+
 """
     func_Theta_x(
         chi::AbstractVector,
