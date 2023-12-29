@@ -222,8 +222,8 @@ function log_future(m::MarkovFutureModel, model_alias::String, t::ModelTime, T::
     @assert alias(m) == model_alias
     idx = X.idx[state_alias(m)[1]]
     d = length(state_alias(m))
-    x = X.X[idx:idx+(d-1),:]
+    x = @view(X.X[idx:idx+(d-1),:])
     y = func_y(m.hjm_model, t)
     h = H_hjm(m, t, T)
-    return (x .+ 0.5 * y * (1.0 .- h))' * h
+    return (x .+ 0.5 .* (y * (1.0 .- h)))' * h
 end

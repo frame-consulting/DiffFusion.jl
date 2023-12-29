@@ -175,13 +175,13 @@ function func_y(m::GaussianHjmModel, t::ModelTime)
     t_idx = time_idx(m.sigma_T.sigma_f, t)
     if t_idx == 1
         t0 = 0.0
-        y0 = zeros(d,d)
-    else
-        t0 = m.sigma_T.sigma_f.times[t_idx - 1]
-        y0 = m.y[:,:,t_idx - 1]
+        # y0 = 0.0
+        # use a short-cut
+        return _func_y(m.chi(), m.sigma_T((t0+t)/2), t0, t)
     end
-    y1 = func_y(y0,m.chi(),m.sigma_T((t0+t)/2),t0,t)
-    return y1
+    t0 = m.sigma_T.sigma_f.times[t_idx - 1]
+    y0 = @view(m.y[:,:,t_idx - 1])
+    return func_y(y0, m.chi(), m.sigma_T((t0+t)/2), t0, t)
 end
 
 
@@ -281,7 +281,7 @@ function log_zero_bond(m::GaussianHjmModel, model_alias::String, t::ModelTime, T
     d = length(state_alias(m)) - 1  # exclude s-variable
     G = G_hjm(m, t, T)
     y = func_y(m, t)
-    X_ = X.X[idx:idx+(d-1),:]
+    X_ = @view(X.X[idx:idx+(d-1),:])
     return X_' * G .+ 0.5 * (G'*y*G)
 end
 
