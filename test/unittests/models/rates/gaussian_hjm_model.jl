@@ -260,6 +260,13 @@ using LinearAlgebra
         @test cmp == df2 - df1
         @test_throws AssertionError DiffFusion.log_compounding_factor(m, "WrongAlias", 4.0, 8.0, 10.0, SX)
         #
+        dfT = DiffFusion.log_zero_bonds(m, DiffFusion.alias(m), 4.0, [4.0, 6.0, 8.0, 10.0], SX)
+        @test size(dfT) == (3, 4)
+        @test dfT[:,1] == DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 4.0, SX)
+        @test dfT[:,2] == DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 6.0, SX)
+        @test dfT[:,3] == DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 8.0, SX)
+        @test dfT[:,4] == DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 10.0, SX)
+        #
         X = [ 0., 0., 1., 2., 3., 4., 0. ] * [ 1., 2., 3.]'
         s_alias = [ "1", "2", "Theta_3F_x_1", "Theta_3F_x_2", "Theta_3F_x_3", "Theta_3F_s", "7" ]
         dict = DiffFusion.alias_dictionary(s_alias)

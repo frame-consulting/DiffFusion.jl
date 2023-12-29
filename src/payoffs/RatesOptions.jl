@@ -139,11 +139,13 @@ end
         expiry_time::ModelTime
         settlement_time::ModelTime
         forward_rates::AbstractVector
+        forward_rate_pay_times::AbstractVector
         fixed_times::AbstractVector
         fixed_weights::AbstractVector
         fixed_rate::ModelValue
         payer_receiver::ModelValue
         disc_key::String
+        zcb_pay_times::AbstractVector
         rate_type::DataType  # to distinguish from functions
     end
 
@@ -158,11 +160,13 @@ struct Swaption <: Payoff
     expiry_time::ModelTime
     settlement_time::ModelTime
     forward_rates::AbstractVector
+    forward_rate_pay_times::AbstractVector
     fixed_times::AbstractVector
     fixed_weights::AbstractVector
     fixed_rate::ModelValue
     payer_receiver::ModelValue
     disc_key::String
+    zcb_pay_times::AbstractVector
     rate_type::DataType  # to distinguish from functions
 end
 
@@ -211,16 +215,20 @@ function Swaption(
     @assert fixed_times[1] == forward_rates[1].start_time
     @assert fixed_times[end] == forward_rates[end].end_time
     @assert payer_receiver in (+1.0, -1.0)
+    forward_rate_pay_times = [ L.end_time for L in forward_rates ]
+    zcb_pay_times = vcat(forward_rate_pay_times, @view(fixed_times[2:end]))
     return Swaption(
         obs_time_,
         expiry_time,
         settlement_time,
         forward_rates,
+        forward_rate_pay_times,
         fixed_times,
         fixed_weights,
         fixed_rate,
         payer_receiver,
         disc_key,
+        zcb_pay_times,
         rate_type,
     )
 end
@@ -252,8 +260,10 @@ end
 Evaluate a `Swaption` at a given `path`, *X(omega)*.
 """
 function at(p::Swaption, path::AbstractPath)
-    float_leg = sum(((L(path) .* L.year_fraction) .* zero_bond(path, p.obs_time, L.end_time, p.disc_key) for L in p.forward_rates))
-    annuity = sum((τ .* zero_bond(path, p.obs_time, T, p.disc_key) for (τ, T) in zip(p.fixed_weights, p.fixed_times[2:end])))
+    zb_float_fixed = zero_bonds(path, p.obs_time, p.zcb_pay_times, p.disc_key)
+    float_leg = sum(((L(path) .* L.year_fraction) .* @view(zb_float_fixed[:,k]) for (k, L) in enumerate(p.forward_rates)))
+    offset = length(p.forward_rate_pay_times)
+    annuity = sum((τ .* @view(zb_float_fixed[:,offset+k]) for (k, τ) in enumerate(p.fixed_weights)))
     swap_rate = float_leg ./ annuity
     df = zero_bond(path, p.obs_time, p.settlement_time, p.disc_key)
     ν² = swap_rate_variance(path, p.obs_time, p.expiry_time, p.fixed_times, p.fixed_weights, p.disc_key)

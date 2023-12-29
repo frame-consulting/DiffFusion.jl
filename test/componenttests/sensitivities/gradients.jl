@@ -26,7 +26,7 @@ using Test
         #
         SX = DiffFusion.model_state(zeros(4,1) .+ 0.01, m)
         #
-        zb = DiffFusion.zero_bond(yts, m, 1.0, 5.0, SX)[1]
+        zb = DiffFusion.zero_bonds(yts, m, 1.0, [5.0], SX)[1,1]
         # println(zb)
         
         # argument setup for gradient calculation
@@ -59,7 +59,7 @@ using Test
             #
             SX_ = DiffFusion.model_state(zeros(4,1) .+ 0.01, m_)
             #
-            return DiffFusion.zero_bond(yts_, m_, 1.0, 5.0, SX_)[1]
+            return DiffFusion.zero_bonds(yts_, m_, 1.0, [5.0], SX_)[1,1]
         end
 
         @test zb == obj_function(arg_x)

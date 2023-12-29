@@ -152,9 +152,7 @@ end
 
 Derive the number of realisations from the linked simulation.
 """
-function length(p::Path)
-    return size(p.sim.X)[2]
-end
+length(p::Path) = size(p.sim.X, 2)
 
 """
     state_variable(sim::Simulation, t::ModelTime, ip::PathInterpolation)

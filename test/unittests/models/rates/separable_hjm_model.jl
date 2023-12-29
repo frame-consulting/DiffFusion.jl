@@ -29,6 +29,11 @@ using LinearAlgebra
             (1. - exp(-0.30*2)) / 0.30]
         @test DiffFusion.H_hjm(chi,1.0,3.0) == DiffFusion.H_hjm(m,1.0,3.0)
         @test DiffFusion.G_hjm(chi,1.0,3.0) == DiffFusion.G_hjm(m,1.0,3.0)
+        G = DiffFusion.G_hjm(chi,1.0, [3.0, 5.0])
+        @test size(G) == (3,2)
+        @test G[:,1] == DiffFusion.G_hjm(chi,1.0,3.0)
+        @test G[:,2] == DiffFusion.G_hjm(chi,1.0,5.0)
+        @test DiffFusion.G_hjm(chi,1.0, [3.0, 5.0]) == DiffFusion.G_hjm(m,1.0, [3.0, 5.0])
         chi_delta = [
             chi[1]*delta[1] chi[2]*delta[1] chi[3]*delta[1];
             chi[1]*delta[2] chi[2]*delta[2] chi[3]*delta[2];

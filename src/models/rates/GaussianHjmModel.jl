@@ -286,6 +286,23 @@ function log_zero_bond(m::GaussianHjmModel, model_alias::String, t::ModelTime, T
 end
 
 """
+    log_zero_bonds(m::GaussianHjmModel, model_alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+
+Calculate the zero bond terms [G(t,T)' x(t) + 0.5 G(t,T)' y(t) G(t,T)]' from rates model.
+"""
+function log_zero_bonds(m::GaussianHjmModel, model_alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+    @assert alias(m) == model_alias
+    idx = X.idx[state_alias(m)[1]]
+    d = length(state_alias(m)) - 1  # exclude s-variable
+    G = G_hjm(m, t, T)
+    y = func_y(m, t)
+    X_ = @view(X.X[idx:idx+(d-1),:])
+    conv = [@view(G[:,k])' * y * @view(G[:,k]) for k in axes(G, 2) ]
+    return X_' * G .+ 0.5 .* conv'
+end
+
+
+"""
     log_compounding_factor(
         m::GaussianHjmModel,
         model_alias::String,
