@@ -261,14 +261,18 @@ end
         #
         dfT = DiffFusion.zero_bonds(p, t, [4.0, 5.0, 6.0], "USD")
         @test size(dfT) == (5, 3)
-        @test dfT[:,1] == DiffFusion.zero_bond(p, t, 4.0, "USD")
-        @test dfT[:,2] == DiffFusion.zero_bond(p, t, 5.0, "USD")
-        @test dfT[:,3] == DiffFusion.zero_bond(p, t, 6.0, "USD")
+        @test maximum(abs.(dfT[:,1] - DiffFusion.zero_bond(p, t, 4.0, "USD"))) < 1.0e-13
+        @test maximum(abs.(dfT[:,2] - DiffFusion.zero_bond(p, t, 5.0, "USD"))) < 1.0e-13
+        @test maximum(abs.(dfT[:,3] - DiffFusion.zero_bond(p, t, 6.0, "USD"))) < 1.0e-13
         dfT = DiffFusion.zero_bonds(p, t, [4.0, 5.0, 6.0], "EUR")
         @test size(dfT) == (5, 3)
-        @test dfT[:,1] == DiffFusion.zero_bond(p, t, 4.0, "EUR")
-        @test dfT[:,2] == DiffFusion.zero_bond(p, t, 5.0, "EUR")
-        @test dfT[:,3] == DiffFusion.zero_bond(p, t, 6.0, "EUR")
+        @test maximum(abs.(dfT[:,1] - DiffFusion.zero_bond(p, t, 4.0, "EUR"))) < 1.0e-13
+        @test maximum(abs.(dfT[:,2] - DiffFusion.zero_bond(p, t, 5.0, "EUR"))) < 1.0e-13
+        @test maximum(abs.(dfT[:,3] - DiffFusion.zero_bond(p, t, 6.0, "EUR"))) < 1.0e-13
+        #
+        @test_nowarn DiffFusion.zero_bonds(p, t, [4.0, 5.0, 6.0], "USD:OIS")
+        @test_nowarn DiffFusion.zero_bonds(p, t, [4.0, 5.0, 6.0], "USD:NO-OIS")
+        @test_nowarn DiffFusion.zero_bonds(p, t, [4.0, 5.0, 6.0], "USD:NO+OIS")
         #
         df1 = DiffFusion.zero_bond(p, 2.0, 5.0, "USD")
         df2 = DiffFusion.zero_bond(p, 2.0, 7.0, "USD")
@@ -278,6 +282,10 @@ end
         df2 = DiffFusion.zero_bond(p, 2.0, 7.0, "EUR")
         cmp = DiffFusion.compounding_factor(p, 2.0, 5.0, 7.0, "EUR")
         @test maximum(abs.(cmp - df1 ./ df2)) < 1.0e-13
+        #
+        @test_nowarn DiffFusion.compounding_factor(p, 2.0, 5.0, 7.0, "USD:OIS")
+        @test_nowarn DiffFusion.compounding_factor(p, 2.0, 5.0, 7.0, "USD:NO-OIS")
+        @test_nowarn DiffFusion.compounding_factor(p, 2.0, 5.0, 7.0, "USD:NO+OIS")
         #
         @test_throws KeyError DiffFusion.zero_bond(p, t, T, "GBP")
         @test_throws KeyError DiffFusion.zero_bond(p, t, T, "USD:LIB")
@@ -357,6 +365,17 @@ end
         @test isapprox(DiffFusion.zero_bond(p, t, T, "USD"), exp(-0.03*(T-t)) * ones(1), atol=5.0e-15)
         @test isapprox(DiffFusion.zero_bond(p, t, T, "EUR"), exp(-0.02*(T-t)) * ones(1), atol=5.0e-15)
         @test isapprox(DiffFusion.zero_bond(p, t, T, "SXE50"), exp(-0.01*(T-t)) * ones(1), atol=5.0e-15)
+        #
+        dfT = DiffFusion.zero_bonds(p, t, [4.0, 5.0, 6.0], "USD")
+        @test size(dfT) == (1, 3)
+        @test maximum(abs.(dfT[:,1] - DiffFusion.zero_bond(p, t, 4.0, "USD"))) < 1.0e-13
+        @test maximum(abs.(dfT[:,2] - DiffFusion.zero_bond(p, t, 5.0, "USD"))) < 1.0e-13
+        @test maximum(abs.(dfT[:,3] - DiffFusion.zero_bond(p, t, 6.0, "USD"))) < 1.0e-13
+        #
+        df1 = DiffFusion.zero_bond(p, 2.0, 5.0, "USD")
+        df2 = DiffFusion.zero_bond(p, 2.0, 7.0, "USD")
+        cmp = DiffFusion.compounding_factor(p, 2.0, 5.0, 7.0, "USD")
+        @test maximum(abs.(cmp - df1 ./ df2)) < 1.0e-13
         #
         @test isapprox(DiffFusion.asset(p, t, "EUR-USD"), 1.25 * exp(0.01*t) * ones(1), atol=5.0e-15)
         @test isapprox(DiffFusion.asset(p, t, "SXE50"), 3750.00 * exp(0.01*t) * ones(1), atol=5.0e-15)
