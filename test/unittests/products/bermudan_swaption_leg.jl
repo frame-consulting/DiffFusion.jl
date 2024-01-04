@@ -261,6 +261,30 @@ berm_35 = "((1.0000 - {({"*option_10*"} > {"*underl_10*"})} * {({"*option_20*"} 
 berm_40 = "((1.0000 - {({"*option_10*"} > {"*underl_10*"})} * {({"*option_20*"} > {"*underl_20*"})} * {(0.0000 > {"*underl_30*"})}) * "*underl_40*" @ 4.00)"
 berm_45 = "((1.0000 - {({"*option_10*"} > {"*underl_10*"})} * {({"*option_20*"} > {"*underl_20*"})} * {(0.0000 > {"*underl_30*"})}) * "*underl_45*" @ 4.50)"
 
+berm_2_00 =
+"AmcSum(0.00, [{AmcMax(1.00, [{AmcMax(2.00, [{Max(0.0000, {(((" *
+"(P(EUR:OIS, 3.00, 4.00) * 1.0000 * 0.0300 * 1.0000 @ 3.00) + " *
+"(P(EUR:OIS, 3.00, 5.00) * 1.0000 * 0.0300 * 1.0000 @ 3.00)) + " *
+"(P(EUR:OIS, 3.00, 4.00) * -1.0000 * L(EURIBOR12M, 3.00; 3.00, 4.00) * 1.0000 @ 3.00)) + " *
+"(P(EUR:OIS, 3.00, 5.00) * -1.0000 * L(EURIBOR12M, 3.00; 4.00, 5.00) * 1.0000 @ 3.00))})}], [{(((((" *
+"(P(EUR:OIS, 2.00, 3.00) * 1.0000 * 0.0300 * 1.0000 @ 2.00) + " *
+"(P(EUR:OIS, 2.00, 4.00) * 1.0000 * 0.0300 * 1.0000 @ 2.00)) + " *
+"(P(EUR:OIS, 2.00, 5.00) * 1.0000 * 0.0300 * 1.0000 @ 2.00)) + " *
+"(P(EUR:OIS, 2.00, 3.00) * -1.0000 * L(EURIBOR12M, 2.00; 2.00, 3.00) * 1.0000 @ 2.00)) + " *
+"(P(EUR:OIS, 2.00, 4.00) * -1.0000 * L(EURIBOR12M, 2.00; 3.00, 4.00) * 1.0000 @ 2.00)) + " *
+"(P(EUR:OIS, 2.00, 5.00) * -1.0000 * L(EURIBOR12M, 2.00; 4.00, 5.00) * 1.0000 @ 2.00))}], " *
+"[L(EURIBOR12M, 2.00; 2.00, 5.00)])}], [{(((((((" *
+"(P(EUR:OIS, 1.00, 2.00) * 1.0000 * 0.0300 * 1.0000 @ 1.00) + " *
+"(P(EUR:OIS, 1.00, 3.00) * 1.0000 * 0.0300 * 1.0000 @ 1.00)) + " *
+"(P(EUR:OIS, 1.00, 4.00) * 1.0000 * 0.0300 * 1.0000 @ 1.00)) + " *
+"(P(EUR:OIS, 1.00, 5.00) * 1.0000 * 0.0300 * 1.0000 @ 1.00)) + " *
+"(P(EUR:OIS, 1.00, 2.00) * -1.0000 * L(EURIBOR12M, 1.00; 1.00, 2.00) * 1.0000 @ 1.00)) + " *
+"(P(EUR:OIS, 1.00, 3.00) * -1.0000 * L(EURIBOR12M, 1.00; 2.00, 3.00) * 1.0000 @ 1.00)) + " *
+"(P(EUR:OIS, 1.00, 4.00) * -1.0000 * L(EURIBOR12M, 1.00; 3.00, 4.00) * 1.0000 @ 1.00)) + " *
+"(P(EUR:OIS, 1.00, 5.00) * -1.0000 * L(EURIBOR12M, 1.00; 4.00, 5.00) * 1.0000 @ 1.00))}], " *
+"[L(EURIBOR12M, 1.00; 1.00, 5.00)])}], [], [L(EURIBOR12M, 0.00; 0.00, 5.00)])"
+
+
     @testset "Test discounted_cashflows" begin
         berm = DiffFusion.bermudan_swaption_leg(
             "berm",
@@ -270,6 +294,7 @@ berm_45 = "((1.0000 - {({"*option_10*"} > {"*underl_10*"})} * {({"*option_20*"} 
             make_regression_variables,
             nothing, # path
             nothing, # make_regression
+            false, # regression_on_exercise_trigger
         )
         @test isa(berm, DiffFusion.BermudanSwaptionLeg)
         cfs = DiffFusion.discounted_cashflows(berm, 0.0)
@@ -287,6 +312,18 @@ berm_45 = "((1.0000 - {({"*option_10*"} > {"*underl_10*"})} * {({"*option_20*"} 
 
         @test length(DiffFusion.discounted_cashflows(berm, 5.0)) == 0
         @test length(DiffFusion.discounted_cashflows(berm, 5.5)) == 0
+
+        berm_2 = DiffFusion.bermudan_swaption_leg(
+            "berm",
+            [ exercise_1, exercise_2, exercise_3,],
+            1.0, # long option
+            "OIS", # default discounting (curve key)
+            make_regression_variables,
+            nothing, # path
+            nothing, # make_regression
+            true, # regression_on_exercise_trigger
+        )
+        @test string(DiffFusion.discounted_cashflows(berm_2, 0.0)[1]) == berm_2_00
     end
 
     @testset "Test regression details setup" begin
@@ -302,6 +339,7 @@ berm_45 = "((1.0000 - {({"*option_10*"} > {"*underl_10*"})} * {({"*option_20*"} 
             make_regression_variables,
             NoPath(), # path
             no_make_regression, # make_regression
+            false, # regression_on_exercise_trigger
         )
         @test isa(berm, DiffFusion.BermudanSwaptionLeg)
         @test berm.regression_data.path == NoPath()
@@ -319,6 +357,7 @@ berm_45 = "((1.0000 - {({"*option_10*"} > {"*underl_10*"})} * {({"*option_20*"} 
             make_regression_variables,
             nothing, # path
             nothing, # make_regression
+            false, # regression_on_exercise_trigger
         )
         @test isa(berm, DiffFusion.BermudanSwaptionLeg)
         @test isnothing(berm.regression_data.path)

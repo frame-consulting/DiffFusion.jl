@@ -124,6 +124,11 @@ and `make_regression_variables` are passed on to `BermudanSwaptionLeg`.
 `path` and `make_regression` are used to create an `AmcPayoffRegression`
 object for  `AmcPayoff`s. This data is supposed to be updated subsequent
 to leg cretion.
+
+`regression_on_exercise_trigger = true` specifies AMC regression strategy.
+If `regression_on_exercise_trigger = then` then regression on regression
+is used. `regression_on_exercise_trigger = true` is recommended for
+accurate sensitivity calculation.
 """
 function bermudan_swaption_leg(
     alias::String,
@@ -133,6 +138,7 @@ function bermudan_swaption_leg(
     make_regression_variables::Function,
     path::Union{AbstractPath, Nothing},
     make_regression::Union{Function, Nothing},
+    regression_on_exercise_trigger = true,
     )
     #
     @assert length(bermudan_exercises) > 0
@@ -157,22 +163,52 @@ function bermudan_swaption_leg(
     exercise_triggers = [ Cache(Hk > Uk), ]
     # backward sweep
     for ex in reverse(bermudan_exercises[begin:end-1])
-        Hk = AmcSum(
-            ex.exercise_time,
-            [hold_values[end],],
-            ex.make_regression_variables(ex.exercise_time),
-            path,
-            make_regression,
-            numeraire_curve_key,
-        )
-        Hk = Cache(Hk)
-        Uk = vcat([
-            discounted_cashflows(leg, ex.exercise_time)
-            for leg in ex.cashflow_legs
-        ]...)
-        Uk = Cache(sum(Uk))
-        hold_values = vcat(hold_values, Cache(Max(Hk, Uk)))
-        exercise_triggers = vcat(exercise_triggers, Cache(Hk > Uk))
+        if regression_on_exercise_trigger
+            Uk = vcat([
+                discounted_cashflows(leg, ex.exercise_time)
+                for leg in ex.cashflow_legs
+            ]...)
+            Uk = Cache(sum(Uk))
+            Hk = AmcMax(
+                ex.exercise_time,
+                [ hold_values[end], ],
+                [ Uk, ],
+                ex.make_regression_variables(ex.exercise_time),
+                path,
+                make_regression,
+                numeraire_curve_key,
+            )
+            Hk = Cache(Hk)
+            Ik = AmcOne(
+                ex.exercise_time,
+                [ hold_values[end], ],
+                [ Uk, ],
+                ex.make_regression_variables(ex.exercise_time),
+                path,
+                make_regression,
+                numeraire_curve_key,
+            )
+            Ik = Cache(Ik)
+            hold_values = vcat(hold_values, Hk)
+            exercise_triggers = vcat(exercise_triggers, Ik)
+        else
+            Hk = AmcSum(
+                ex.exercise_time,
+                [hold_values[end],],
+                ex.make_regression_variables(ex.exercise_time),
+                path,
+                make_regression,
+                numeraire_curve_key,
+            )
+            Hk = Cache(Hk)
+            Uk = vcat([
+                discounted_cashflows(leg, ex.exercise_time)
+                for leg in ex.cashflow_legs
+            ]...)
+            Uk = Cache(sum(Uk))
+            hold_values = vcat(hold_values, Cache(Max(Hk, Uk)))
+            exercise_triggers = vcat(exercise_triggers, Cache(Hk > Uk))
+        end
     end
     #
     return BermudanSwaptionLeg(
@@ -383,12 +419,30 @@ function make_bermudan_exercises(
 end
 
 
+"""
+    bermudan_swaption_leg(
+        alias::String,
+        fixed_leg::DeterministicCashFlowLeg,
+        float_leg::DeterministicCashFlowLeg,
+        exercise_times::AbstractVector,
+        option_long_short::ModelValue,
+        regression_on_exercise_trigger = false,
+        )
+
+Create a `BermudanSwaptionLeg` using simplified interface.
+
+`regression_on_exercise_trigger = true` specifies AMC regression strategy.
+If `regression_on_exercise_trigger = then` then regression on regression
+is used. `regression_on_exercise_trigger = true` is recommended for
+accurate sensitivity calculation.
+"""
 function bermudan_swaption_leg(
     alias::String,
     fixed_leg::DeterministicCashFlowLeg,
     float_leg::DeterministicCashFlowLeg,
     exercise_times::AbstractVector,
     option_long_short::ModelValue,
+    regression_on_exercise_trigger = true,
     )
     #
     bermudan_exercises = make_bermudan_exercises(fixed_leg, float_leg, exercise_times)
@@ -409,5 +463,6 @@ function bermudan_swaption_leg(
         make_regression_variables_,
         path_,
         make_regression_,
+        regression_on_exercise_trigger,
     )
 end

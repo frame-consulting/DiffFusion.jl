@@ -191,8 +191,20 @@ using UnicodePlots
         make_regression_variables,
         nothing, # path
         nothing, # make_regression
+        true, # regression_on_exercise_trigger
     )
-    
+
+    berm_2 = DiffFusion.bermudan_swaption_leg(
+        "berm/10-nc-2 (regr_on_regr)",
+        [ exercise_2y, exercise_4y, exercise_6y, exercise_8y, ],
+        1.0, # long option
+        "", # default discounting (curve key)
+        make_regression_variables,
+        nothing, # path
+        nothing, # make_regression
+        false, # regression_on_exercise_trigger
+    )
+
     
     # AMC Regression
     
@@ -200,6 +212,7 @@ using UnicodePlots
     make_regression = (C, O) -> DiffFusion.piecewise_regression(C, O, 2, [3])
     
     DiffFusion.reset_regression!(berm, path, make_regression)
+    DiffFusion.reset_regression!(berm_2, path, make_regression)
     
     
     # Scenario Calculation
@@ -213,6 +226,7 @@ using UnicodePlots
     swaption_8y_scens = DiffFusion.scenarios([swaption_8y], times, path, "", with_progress_bar=false)
     
     berm_scens = DiffFusion.scenarios([berm], times, path, "", with_progress_bar=false)
+    berm_2_scens = DiffFusion.scenarios([berm_2], times, path, "", with_progress_bar=false)
     
     vanilla_swap_ee = DiffFusion.expected_exposure(vanilla_swap_scens)
     swaption_2y_ee = DiffFusion.expected_exposure(swaption_2y_scens)
@@ -220,6 +234,7 @@ using UnicodePlots
     swaption_6y_ee = DiffFusion.expected_exposure(swaption_6y_scens)
     swaption_8y_ee = DiffFusion.expected_exposure(swaption_8y_scens)
     berm_ee =  DiffFusion.expected_exposure(berm_scens)
+    berm_2_ee =  DiffFusion.expected_exposure(berm_2_scens)
 
     portfolo = DiffFusion.join_scenarios([
         vanilla_swap_ee,
@@ -228,6 +243,11 @@ using UnicodePlots
         swaption_6y_ee,
         swaption_8y_ee,
         berm_ee,
+    ])
+
+    portfolo_berms = DiffFusion.join_scenarios([
+        berm_ee,
+        berm_2_ee,
     ])
 
     function plot_scens(scens, title)
@@ -245,8 +265,12 @@ using UnicodePlots
     end
 
     plot_scens(portfolo, "Rates Derivatives")
+    plot_scens(portfolo_berms, "Bermudans")
 
     max_european_ee = maximum(portfolo.X[1,:,2:5], dims=2)[:,1]
     berm_ee = portfolo.X[1,:,6]
     @test berm_ee ≥ max_european_ee
+
+    rel_error_berms = (portfolo_berms.X[1,:,1] .+ 1.0e-8) ./ (portfolo_berms.X[1,:,2] .+ 1.0e-8) .- 1.0
+    @test maximum(abs.(rel_error_berms)) < 0.007
 end
