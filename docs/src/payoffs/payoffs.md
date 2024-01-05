@@ -1,4 +1,4 @@
-# Payoffs
+# Payoffs Functions
 
 In this section we document the payoff scripting framework.
 
@@ -50,6 +50,10 @@ DiffFusion.Fixing
 
 ```@docs
 DiffFusion.Fixed
+```
+
+```@docs
+DiffFusion.ScalarValue
 ```
 
 ## Unary Nodes
@@ -244,6 +248,14 @@ DiffFusion.AmcSum(
 DiffFusion.reset_regression!
 ```
 
+```@docs
+DiffFusion.calibrate_regression
+```
+
+```@docs
+DiffFusion.has_amc_payoff
+```
+
 ## Common Methods Overview
 
 ```@docs
@@ -260,8 +272,4 @@ DiffFusion.at
 
 ```@docs
 DiffFusion.string
-```
-
-```@docs
-DiffFusion.calibrate_regression
 ```

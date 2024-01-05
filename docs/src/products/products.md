@@ -1,4 +1,4 @@
-# Products
+# Products Functions
 
 In this section we document product objects and methods.
 
@@ -69,6 +69,10 @@ DiffFusion.pay_time(cf::DiffFusion.CombinedCashFlow)
 
 ```@docs
 DiffFusion.pay_time(cf::DiffFusion.OptionletCoupon)
+```
+
+```@docs
+DiffFusion.first_time
 ```
 
 ```@docs
@@ -175,19 +179,15 @@ DiffFusion.bermudan_exercise(
 ```
 
 ```@docs
+DiffFusion.make_bermudan_exercises
+```
+
+```@docs
 DiffFusion.BermudanSwaptionLeg
 ```
 
 ```@docs
-DiffFusion.bermudan_swaption_leg(
-    alias::String,
-    bermudan_exercises::AbstractVector,
-    option_long_short::ModelValue,
-    numeraire_curve_key::String,
-    make_regression_variables::Function,
-    path::Union{DiffFusion.AbstractPath, Nothing},
-    make_regression::Union{Function, Nothing},
-    )
+DiffFusion.bermudan_swaption_leg
 ```
 
 ```@docs

@@ -1,6 +1,10 @@
-# Examples (Module)
+# Examples (Module) Functions
 
 In this section we document data and functions to work with the product and model examples.
+
+```@docs
+DiffFusion.Examples._yaml_path
+```
 
 ```@docs
 DiffFusion.Examples._csv_path
@@ -65,6 +69,14 @@ DiffFusion.Examples.compounded_rate_leg
 
 ```@docs
 DiffFusion.Examples.random_swap
+```
+
+```@docs
+DiffFusion.Examples.random_swaption
+```
+
+```@docs
+DiffFusion.Examples.random_bermudan
 ```
 
 ```@docs

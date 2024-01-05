@@ -1,4 +1,4 @@
-# Models
+# Models Functions
 
 In this section we document models for various risk factors.
 
@@ -113,6 +113,14 @@ DiffFusion.log_bank_account
 
 ```@docs
 DiffFusion.log_zero_bond
+```
+
+```@docs
+DiffFusion.log_zero_bonds
+```
+
+```@docs
+DiffFusion.log_compounding_factor
 ```
 
 ```@docs

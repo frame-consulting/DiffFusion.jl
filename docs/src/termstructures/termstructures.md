@@ -1,4 +1,4 @@
-# Term Structures
+# Term Structures Functions
 
 In this section we document term structures.
 
@@ -238,6 +238,23 @@ DiffFusion.set_correlation!
 DiffFusion.get
 ```
 
+## Credit Default Term Structures
+
+```@docs
+DiffFusion.FlatSpreadCurve
+```
+
+```@docs
+DiffFusion.flat_spread_curve
+```
+
+```@docs
+DiffFusion.LogSurvivalCurve
+```
+
+```@docs
+DiffFusion.survival_curve
+```
 
 ## Parameter Term Structures
 
@@ -292,6 +309,13 @@ DiffFusion.ZeroCurve
 DiffFusion.zero_curve
 ```
 
+```@docs
+DiffFusion.LinearZeroCurve
+```
+
+```@docs
+DiffFusion.linear_zero_curve
+```
 
 ## Volatility Term Structures
 
