@@ -1,4 +1,4 @@
-# Paths
+# Monte Carlo Paths Functions
 
 In this section we document data structures and methods for path setup.
 
@@ -117,6 +117,14 @@ DiffFusion.bank_account
 
 ```@docs
 DiffFusion.zero_bond
+```
+
+```@docs
+DiffFusion.zero_bonds
+```
+
+```@docs
+DiffFusion.compounding_factor
 ```
 
 ```@docs

@@ -70,7 +70,7 @@ A basic one-factor Gaussian interest rate model can be set up as follows:
 model = DiffFusion.gaussian_hjm_model("mdl/HJM1F", δ, χ, σ, nothing, nothing)
 ```
 
-Details on the setup of model parameters are documented in the [Term Structures](@ref) section. Available models are documented in the [Models](@ref) section.
+Details on the setup of model parameters are documented in the [Term Structures Functions](@ref) section. Available models are documented in the [Models Functions](@ref) section.
 
 ### Monte Carlo Simulation
 
@@ -83,7 +83,7 @@ n_paths = 2^10  # number of simulated paths
 sim = DiffFusion.simple_simulation(model, ch, times, n_paths)
 ```
 
-Further details on Monte Carlo simulation methods are documented in the [Simulations](@ref) section.
+Further details on Monte Carlo simulation methods are documented in the [Simulations Functions](@ref) section.
 
 ### Monte Carlo *Path* Construction
 
@@ -98,7 +98,7 @@ ts = [
 ]
 ```
 
-More details on yield curves and model parameter term structures are documented in the [Term Structures](@ref) section.
+More details on yield curves and model parameter term structures are documented in the [Term Structures Functions](@ref) section.
 
 A context links available payoff keys with models and term structures.
 
@@ -123,7 +123,7 @@ And a path combines simulation, term structures and context.
 path = DiffFusion.path(sim, ts, ctx)
 ```
 
-`Context` and `Path` objects are further documented in the [Paths](@ref) section.
+`Context` and `Path` objects are further documented in the [Monte Carlo Paths Functions](@ref) section.
 
 ### Financial Instrument Setup
 
@@ -186,7 +186,7 @@ fixed_leg = DiffFusion.cashflow_leg(
 
 A financial instrument is a list of one or more cash flow legs.
 
-More details on available cash flows and cash flow legs are documented in the [Products](@ref) section.
+More details on available cash flows and cash flow legs are documented in the [Products Functions](@ref) section.
 
 ### Scenario Valuation
 
@@ -229,7 +229,7 @@ display(ee)
 #  0.0  7.98524  9.44371  147.817  148.527  0.0  0.0
 ```
 
-Scenario valuations are further documented in the [Analytics](@ref) section.
+Scenario valuations are further documented in the [Analytics Functions](@ref) section.
 
 ## Further Examples
 

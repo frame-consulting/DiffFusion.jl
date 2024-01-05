@@ -52,7 +52,7 @@ Scenario prices for portfolios and products are stored in a three-dimensional sc
 
 The DiffFusion.jl framework covers models for interest rates, exchange rates, equities/indices, inflation, and commodity futures. All models can be combined into hybrid models for joint simulation.
 
-Financial products are composed of cash flows. Cash flows for linear products are directly available in the framework. New cash flow types can easily be added.
+Financial products are composed of cash flows. Cash flows for linear products and Vanilla options are directly available in the framework. New cash flow types can easily be added.
 
 
 ### Component Models
@@ -71,22 +71,26 @@ Commodity futures are modelled following the HJM framework applied for interest 
 
 ### Cash Flows and Legs
 
-The DiffFusion.jl framework already includes standard fixed income and interest rate cash flows for principal payments, fixed rates and floating rates.
+The DiffFusion.jl framework already includes standard fixed income and interest rate cash flows for principal payments, fixed rates and floating rates. Options on forward-looking and backward-looking interest rates are also available.
 
 Linear FX and cross currency instruments are covered by the interest rate cash flows and exchange rate conversion. Additional principal payments in mark-to-market cross currency swaps are handled by a specific leg type.
+
+European and Bermudan swaptions are are also modelled as cash flow legs. For European swaptions we use analytical scenario pricers. Bermudan swaptions scenario prices are calculated by means of American Monte Carlo methods.
 
 Further cash flow typed and leg types will be added going forward.
 
 
 ## Why Do We Use Julia Language?
 
-Risk factor simulation and scenario-based financial instrument pricing are computationally expensive calculations. Efficient implementation of such calculations requires fast compiled machine code, ability to parallelize and distribute calculations as well as support for high-performance computing hardware like GPU. The Julia language natively fulfills all these requirements.
+Risk factor simulation and scenario-based financial instrument pricing are computationally expensive calculations. Efficient implementation of such calculations requires fast compiled machine code, ability to parallelize and distribute calculations as well as support for high-performance computing hardware like GPU. The Julia language natively fulfils all these requirements.
 
 Development in Julia language is lightweight and similar to languages like Python. As a result, new functionalities can easily be added within the framework or attached by client applications or user interaction.
 
 Sensitivity calculation is critical for risk management processes. For exposure simulations, sensitivity calculations can be particularly challenging from a computational perspective. These challenges are addressed by Automatic Differentiation (AD) methods. Julia language supports forward mode and reverse mode AD via operator overloading and source transformation. We leverage these language features and provide efficient and accurate Delta and Vega calculations.
 
-The DiffFusion.jl framework can be incorporated as package in Julia application and user code. Furthermore, the framework can be used e.g. in Jupyter notebooks, Python code and R code via Julia's interfaces to these environments. The DiffFusion.jl framework can also run fully independent, e.g. in a Docker container.
+The DiffFusion.jl framework can be incorporated as package in Julia application and user code. Furthermore, the framework can be used e.g. in Jupyter notebooks, Python code and R code via Julia's interfaces to these environments.
+
+The DiffFusion.jl framework can also run fully independent, e.g. in a Docker container. A corresponding server application is implemented in the [DiffFusionServer.jl](https://github.com/frame-consulting/DiffFusionServer.jl) project.
 
 
 ## [Related Literature and References] (@id label_literature_and_references)
