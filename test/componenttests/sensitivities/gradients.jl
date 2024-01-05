@@ -1,4 +1,5 @@
 using DiffFusion
+using StatsBase
 using Test
 
 @testset "Gradient calculation." begin
