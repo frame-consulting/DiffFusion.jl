@@ -1,5 +1,7 @@
 module DiffFusion
 
+using PrecompileTools
+
 using ChainRulesCore
 using DelimitedFiles
 using Distributions
@@ -115,5 +117,14 @@ include("chainrules/simulations.jl")
 
 "List of function names eligible for de-serialisation."
 const _eligible_func_names = [ string(n) for n in names(DiffFusion; all = true, imported = false) ]
+
+# A sequence of function calls used to pre-compile and store code.
+@compile_workload begin
+    include("precompile/termstructures.jl")
+    include("precompile/models.jl")
+    include("precompile/simulations.jl")
+    include("precompile/paths.jl")
+    include("precompile/scenarios.jl")
+end
 
 end
