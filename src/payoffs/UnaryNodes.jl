@@ -107,3 +107,55 @@ end
 Formatted (and shortened) output for Cache payoff.
 """
 string(p::Cache) = @sprintf("{%s}", string(p.x))
+
+
+"""
+    struct Exp <: UnaryNode
+        x::Payoff
+    end
+
+Function exp() applied to payoff.
+"""
+struct Exp <: UnaryNode
+    x::Payoff
+end
+
+"""
+    at(p::Exp, path::AbstractPath)
+
+Evaluate exp-function.
+"""
+at(p::Exp, path::AbstractPath) = exp.(at(p.x, path))
+
+"""
+    string(p::Exp)
+
+Formatted output for Exp payoff.
+"""
+string(p::Exp) = @sprintf("Exp(%s)", string(p.x))
+
+
+"""
+    struct Log <: UnaryNode
+        x::Payoff
+    end
+
+Function log() applied to payoff.
+"""
+struct Log <: UnaryNode
+    x::Payoff
+end
+
+"""
+    at(p::Log, path::AbstractPath)
+
+Evaluate log-function.
+"""
+at(p::Log, path::AbstractPath) = log.(at(p.x, path))
+
+"""
+    string(p::Log)
+
+Formatted output for Log payoff.
+"""
+string(p::Log) = @sprintf("Log(%s)", string(p.x))
