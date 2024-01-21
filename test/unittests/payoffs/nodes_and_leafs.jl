@@ -100,6 +100,20 @@ using Test
         #
         p = DiffFusion.Cache(DiffFusion.Asset(5.0, "USD"))
         @test string(p) == "{S(USD, 5.00)}"
+        #
+        p = DiffFusion.Exp(DiffFusion.Fixed(3.5))
+        @test DiffFusion.obs_time(p) == 0.0
+        @test DiffFusion.obs_times(p) == Set([0.0, ])
+        @test DiffFusion.at(p, path) == exp(3.5) * ones(5)
+        @test p(path) == exp(3.5) * ones(5)
+        @test string(p) == "Exp(3.5000)"
+        #
+        p = DiffFusion.Log(DiffFusion.Fixed(3.5))
+        @test DiffFusion.obs_time(p) == 0.0
+        @test DiffFusion.obs_times(p) == Set([0.0, ])
+        @test DiffFusion.at(p, path) == log(3.5) * ones(5)
+        @test p(path) == log(3.5) * ones(5)
+        @test string(p) == "Log(3.5000)"
     end
 
     @testset "Binary nodes" begin
