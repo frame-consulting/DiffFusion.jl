@@ -52,6 +52,9 @@ include("models/rates/SwapRateVolatility.jl")
 include("models/rates/SwapRateCalibration.jl")
 include("models/futures/MarkovFutureModels.jl")
 
+include("models/asset/AssetVolatility.jl")
+include("models/asset/AssetCalibration.jl")
+
 include("simulations/RandomNumbers.jl")
 include("simulations/Simulation.jl")
 
