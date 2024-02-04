@@ -16,5 +16,6 @@ using Test
     end
 
     include("lognormal_asset_model.jl")
+    include("asset_volatility_and_calibration.jl")
 
 end
