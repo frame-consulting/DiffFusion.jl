@@ -328,6 +328,14 @@ end
         v2 = DiffFusion.forward_rate_variance(p.sim.model, "EUR", 1.0, 4.0, 4.0, 5.0)
         @test v1 == ones(5) * v2
         #
+        #
+        v1 = DiffFusion.asset_variance(p, 1.0, 4.0, "EUR-USD")
+        v2 = DiffFusion.asset_variance(p.sim.model, "EUR-USD", "USD", "EUR", 1.0, 4.0, SX)
+        @test v1 == ones(5) * v2
+        #
+        v1 = DiffFusion.asset_variance(p, 1.0, 4.0, "SXE50")
+        v2 = DiffFusion.asset_variance(p.sim.model, "SXE50-EUR", "EUR", nothing, 1.0, 4.0, SX)
+        @test v1 == ones(5) * v2
     end
 
     @testset "Deterministic modelling." begin
@@ -391,5 +399,6 @@ end
         #
         @test DiffFusion.swap_rate_variance(p, 1.0, 2.0, [2.0, 3.0], [1.0], "EUR") == zeros(1)
         @test DiffFusion.forward_rate_variance(p, 1.0, 2.0, 2.0, 3.0, "USD") == zeros(1)
+        @test DiffFusion.asset_variance(p, 1.0, 2.0, "EUR-USD") == zeros(1)
     end
 end
