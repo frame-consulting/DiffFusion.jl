@@ -212,7 +212,10 @@ function model_price_and_vegas(
     # We need a correlation holder... for simplicity, we assume this is unique in the model
     ch_alias = nothing
     for m in model.models
-        if hasproperty(m, :correlation_holder) && !isnothing(m.correlation_holder)
+        if hasproperty(m, :correlation_holder) &&
+            !isnothing(m.correlation_holder) &&
+            length(m.correlation_holder.correlations) > 0  # avoid Zygote error by differentiating empty dict
+            #
             ch_alias = m.correlation_holder.alias
             break
         end
@@ -299,7 +302,10 @@ function model_price_and_vegas_vector(
     # We need a correlation holder... for simplicity, we assume this is unique in the model
     ch_alias = nothing
     for m in model.models
-        if hasproperty(m, :correlation_holder) && !isnothing(m.correlation_holder)
+        if hasproperty(m, :correlation_holder) &&
+            !isnothing(m.correlation_holder) &&
+            length(m.correlation_holder.correlations) > 0  # avoid Zygote error by differentiating empty dict
+            #
             ch_alias = m.correlation_holder.alias
             break
         end
