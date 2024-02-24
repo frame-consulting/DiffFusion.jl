@@ -503,12 +503,54 @@ function forward_rate_variance(
         return zeros(length(p))  # deterministic model
     end
     #
-    return ones(length(p)) * forward_rate_variance(
+    return ones(length(p)) .* forward_rate_variance(
         p.sim.model,
         entry.model_alias,
         t,
         T,
         T0,
         T1,
+    )
+end
+
+
+"""
+    asset_variance(
+        p::Path,
+        t::ModelTime,
+        T::ModelTime,
+        key::String,
+        )
+
+Calculate the lognormal model variance of an asset spot price
+over the time period [t,T].
+"""
+function asset_variance(
+    p::Path,
+    t::ModelTime,
+    T::ModelTime,
+    key::String,
+    )
+    (context_key, ts_key_1, ts_key_2, op) = context_keys(key)
+    @assert op in (_empty_context_key, "-")
+    entry = p.context.assets[context_key]
+    #
+    if isnothing(entry.asset_model_alias) &&
+        isnothing(entry.domestic_model_alias) &&
+        isnothing(entry.foreign_model_alias)
+        return zeros(length(p))  # deterministic model
+    end
+    #
+    X = state_variable(p.sim, t, p.interpolation)
+    SX = model_state(X, p.state_alias_dict)
+    #
+    return ones(length(p)) .* asset_variance(
+        p.sim.model,
+        entry.asset_model_alias,
+        entry.domestic_model_alias,
+        entry.foreign_model_alias,
+        t,
+        T,
+        SX,
     )
 end

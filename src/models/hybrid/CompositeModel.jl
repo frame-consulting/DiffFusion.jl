@@ -188,6 +188,75 @@ function forward_rate_variance(
 end
 
 """
+    asset_variance(
+        m::CompositeModel,
+        ast_alias::Union{String, Nothing},
+        dom_alias::Union{String, Nothing},
+        for_alias::Union{String, Nothing},
+        t::ModelTime,
+        T::ModelTime,
+        X::ModelState,
+        )
+
+Calculate the lognormal model variance of an asset spot price
+over the time period [t,T].
+"""
+function asset_variance(
+    m::CompositeModel,
+    ast_alias::Union{String, Nothing},
+    dom_alias::Union{String, Nothing},
+    for_alias::Union{String, Nothing},
+    t::ModelTime,
+    T::ModelTime,
+    X::ModelState,
+    )
+    # we implement a staged approach to determine the correlation holder
+    ch = nothing
+    ast_model = nothing
+    dom_model = nothing
+    for_model = nothing
+    if !isnothing(for_alias)
+        for_model = m.models[m.model_dict[for_alias]]
+        ch = correlation_holder(for_model)
+    end
+    if !isnothing(dom_alias)
+        dom_model = m.models[m.model_dict[dom_alias]]
+        if !isnothing(ch)
+            # this is only a plausibility check
+            alias(ch) == alias(correlation_holder(dom_model))
+        end
+        ch = correlation_holder(dom_model)
+    end
+    if !isnothing(ast_alias)
+        ast_model = m.models[m.model_dict[ast_alias]]
+        if !isnothing(ch)
+            # this is only a plausibility check
+            alias(ch) == alias(correlation_holder(ast_model))
+        end
+        ch = correlation_holder(ast_model)
+    end
+    if isnothing(ch)
+        # in this case all models are deterministic
+        return 0.0
+    end
+    if !state_dependent_Sigma(m)
+        # We need to make sure that the Sigma_T(...) call in covaiance(...)
+        # method can be executed.
+        X = nothing
+    end
+    return asset_variance(
+        ast_model,
+        dom_model,
+        for_model,
+        ch,
+        t,
+        T,
+        X,
+    )
+end
+
+
+"""
     state_dependent_Theta(m::CompositeModel)
 
 Return whether Theta requires a state vector input X.

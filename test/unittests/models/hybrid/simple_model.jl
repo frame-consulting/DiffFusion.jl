@@ -135,6 +135,14 @@ using Test
         @test DiffFusion.swap_rate_variance(m, "EUR", yts, 1.0, 8.0, [8.0, 9.0, 10.0], [1.0, 1.0], SX) == DiffFusion.swap_rate_variance(hjm_model_for, "EUR", yts, 1.0, 8.0, [8.0, 9.0, 10.0], [1.0, 1.0], SX)
         @test DiffFusion.forward_rate_variance(m, "USD", 1.0, 8.0, 8.0, 9.0) == DiffFusion.forward_rate_variance(hjm_model_dom, "USD", 1.0, 8.0, 8.0, 9.0)
         #
+        @test DiffFusion.asset_variance(m, "EUR-USD", "USD", "EUR", 1.0, 8.0, SX) == DiffFusion.asset_variance(asset_model, hjm_model_dom, hjm_model_for, ch, 1.0, 8.0)
+        @test DiffFusion.asset_variance(m, "EUR-USD", "USD", "EUR", 1.0, 8.0, SX) == DiffFusion.asset_variance(asset_model, hjm_model_dom, hjm_model_for, ch, 1.0, 8.0)
+        @test DiffFusion.asset_variance(m, "EUR-USD", nothing, "EUR", 1.0, 8.0, SX) == DiffFusion.asset_variance(asset_model, nothing, hjm_model_for, ch, 1.0, 8.0)
+        @test DiffFusion.asset_variance(m, "EUR-USD", "USD", nothing, 1.0, 8.0, SX) == DiffFusion.asset_variance(asset_model, hjm_model_dom, nothing, ch, 1.0, 8.0)
+        @test DiffFusion.asset_variance(m, "EUR-USD", nothing, nothing, 1.0, 8.0, SX) == DiffFusion.asset_variance(asset_model, nothing, nothing, ch, 1.0, 8.0)
+        @test DiffFusion.asset_variance(m, nothing, "USD", "EUR", 1.0, 8.0, SX) == DiffFusion.asset_variance(nothing, hjm_model_dom, hjm_model_for, ch, 1.0, 8.0)
+        @test DiffFusion.asset_variance(m, nothing, nothing, nothing, 1.0, 8.0, SX) == 0.0
+        #
         @test_throws KeyError DiffFusion.log_asset(m, "WrongAlias", 1.0, SX)
         @test_throws KeyError DiffFusion.log_bank_account(m, "WrongAlias", 1.0, SX)
         @test_throws KeyError DiffFusion.log_zero_bond(m, "WrongAlias", 4.0, 8.0, SX)
