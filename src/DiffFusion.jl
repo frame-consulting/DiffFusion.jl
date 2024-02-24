@@ -118,6 +118,7 @@ module Examples
 end # module
 
 include("chainrules/models.jl")
+include("chainrules/termstructures.jl")
 include("chainrules/simulations.jl")
 
 "List of function names eligible for de-serialisation."

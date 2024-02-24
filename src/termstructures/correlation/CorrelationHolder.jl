@@ -4,7 +4,7 @@
         alias::String
         correlations::Dict{String, ModelValue}
         sep::String
-        value_type::Type
+        value_type::DataType
     end
 
 A container holding correlation values.
@@ -20,7 +20,7 @@ struct CorrelationHolder <: CorrelationTermstructure
     alias::String
     correlations::Dict{String, ModelValue}
     sep::String
-    value_type::Type
+    value_type::DataType
 end
 
 
@@ -28,8 +28,8 @@ end
     correlation_holder(
         alias::String,
         correlations::Dict,
-        sep = "<>",
-        value_type = ModelValue,
+        sep::String = "<>",
+        value_type::DataType = ModelValue,
         )
 
 Create a CorrelationHolder object from dictionary.
@@ -37,8 +37,8 @@ Create a CorrelationHolder object from dictionary.
 function correlation_holder(
     alias::String,
     correlations::Dict,
-    sep = "<>",
-    value_type = ModelValue,
+    sep::String = "<>",
+    value_type::DataType = ModelValue,
     )
     for (key, value) in correlations
         @assert isa(value, value_type)
@@ -51,16 +51,16 @@ end
 """
     correlation_holder(
         alias::String,
-        sep = "<>",
-        value_type = ModelValue,
+        sep::String = "<>",
+        value_type::DataType = ModelValue,
         )
 
 Create an empty CorrelationHolder object.
 """
 function correlation_holder(
     alias::String,
-    sep = "<>",
-    value_type = ModelValue,
+    sep::String = "<>",
+    value_type::DataType = ModelValue,
     )
     return correlation_holder(alias, Dict{String, value_type}(), sep, value_type)
 end
