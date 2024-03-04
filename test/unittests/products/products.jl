@@ -6,6 +6,8 @@ using Test
     include("cashflows.jl")
     include("asset_option_flows.jl")
     include("rates_coupons.jl")
+    include("relative_return_coupons.jl")
+
     include("cashflow_leg.jl")
     include("mtm_cashflow_leg.jl")
     include("cash_and_asset_legs.jl")

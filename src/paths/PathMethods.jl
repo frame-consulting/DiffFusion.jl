@@ -554,3 +554,97 @@ function asset_variance(
         SX,
     )
 end
+
+
+"""
+    asset_convexity_adjustment(
+        p::Path,
+        t::ModelTime,
+        T0::ModelTime,
+        T1::ModelTime,
+        T2::ModelTime,
+        key::String
+        )
+
+Return the convexity adjustment for a YoY asset payoff.
+"""
+function asset_convexity_adjustment(
+    p::Path,
+    t::ModelTime,
+    T0::ModelTime,
+    T1::ModelTime,
+    T2::ModelTime,
+    key::String
+    )
+    #
+    (context_key, ts_key_1, ts_key_2, op) = context_keys(key)
+    @assert op in (_empty_context_key, "-")
+    entry = p.context.assets[context_key]
+    #
+    @assert t  <= T0
+    @assert T0 <= T1
+    @assert T1 <= T2
+    # TODO: specialise for deterministic models
+    @assert !isnothing(entry.domestic_model_alias)
+    @assert !isnothing(entry.foreign_model_alias)
+    @assert !isnothing(entry.asset_model_alias)
+    #
+    ca = log_asset_convexity_adjustment(
+        p.sim.model,
+        entry.domestic_model_alias,
+        entry.foreign_model_alias,
+        entry.asset_model_alias,
+        t,
+        T0,
+        T1,
+        T2,
+    )
+    return exp(ca) * ones(length(p))
+end
+
+
+"""
+    index_convexity_adjustment(
+        p::Path,
+        t::ModelTime,
+        T0::ModelTime,
+        T1::ModelTime,
+        T2::ModelTime,
+        key::String
+        )
+
+Return the convexity adjustment for a YoY index payoff.
+"""
+function index_convexity_adjustment(
+    p::Path,
+    t::ModelTime,
+    T0::ModelTime,
+    T1::ModelTime,
+    T2::ModelTime,
+    key::String
+    )
+    #
+    (context_key, ts_key_1, ts_key_2, op) = context_keys(key)
+    @assert op in (_empty_context_key,)
+    entry = p.context.forward_indices[context_key]
+    #
+    @assert t  <= T0
+    @assert T0 <= T1
+    @assert T1 <= T2
+    # TODO: specialise for deterministic models
+    @assert !isnothing(entry.domestic_model_alias)
+    @assert !isnothing(entry.foreign_model_alias)
+    @assert !isnothing(entry.asset_model_alias)
+    #
+    ca = log_asset_convexity_adjustment(
+        p.sim.model,
+        entry.domestic_model_alias,
+        entry.foreign_model_alias,
+        entry.asset_model_alias,
+        t,
+        T0,
+        T1,
+        T2,
+    )
+    return exp(ca) * ones(length(p))
+end

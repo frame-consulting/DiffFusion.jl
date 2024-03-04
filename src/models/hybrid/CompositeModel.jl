@@ -257,6 +257,44 @@ end
 
 
 """
+    log_asset_convexity_adjustment(
+        m::CompositeModel,
+        dom_alias::String,
+        for_alias::String,
+        ast_alias::String,
+        t::ModelTime,
+        T0::ModelTime,
+        T1::ModelTime,
+        T2::ModelTime,
+        )
+
+Calculate the YoY convexity adjustment term for OU models.
+
+Returns a scalar quantity.
+"""
+function log_asset_convexity_adjustment(
+    m::CompositeModel,
+    dom_alias::String,
+    for_alias::String,
+    ast_alias::String,
+    t::ModelTime,
+    T0::ModelTime,
+    T1::ModelTime,
+    T2::ModelTime,
+    )
+    return log_asset_convexity_adjustment(
+        m.models[m.model_dict[dom_alias]],
+        m.models[m.model_dict[for_alias]],
+        m.models[m.model_dict[ast_alias]],
+        t,
+        T0,
+        T1,
+        T2,
+    )
+end
+
+
+"""
     state_dependent_Theta(m::CompositeModel)
 
 Return whether Theta requires a state vector input X.

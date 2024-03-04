@@ -252,3 +252,143 @@ Formatted (and shortened) output for deterministic payoff.
 """
 string(p::ScalarValue) = @sprintf("%.4f", p.value)
 
+"""
+    struct AssetConvexityAdjustment <: Leaf
+        obs_time::ModelTime
+        first_time::ModelTime
+        second_time::ModelTime
+        pay_time::ModelTime
+        key::String
+    end
+
+Convexity adjustment factor for YoY asset payoffs.
+"""
+struct AssetConvexityAdjustment <: Leaf
+    obs_time::ModelTime
+    first_time::ModelTime
+    second_time::ModelTime
+    pay_time::ModelTime
+    key::String
+end
+
+"""
+    at(p::AssetConvexityAdjustment, path::AbstractPath)
+
+Derive the YoY payoff convexity adjustment at a given path.
+"""
+at(p::AssetConvexityAdjustment, path::AbstractPath) = asset_convexity_adjustment(path, p.obs_time, p.first_time, p.second_time, p.pay_time, p.key)
+
+"""
+    string(p::AssetConvexityAdjustment)
+
+Formatted (and shortened) output for AssetConvexityAdjustment payoff.
+"""
+string(p::AssetConvexityAdjustment) = @sprintf("Exp{CA(%s, %.2f, %.2f, %.2f, %.2f)}", p.key, p.obs_time, p.first_time, p.second_time, p.pay_time)
+
+
+"""
+    struct ForwardIndex <: Leaf
+        obs_time::ModelTime
+        maturity_time::ModelTime
+        key::String
+    end
+
+Expectation E_t^T[S_T] of a tradeable asset.
+
+This is used in particular for inflation modelling.
+"""
+struct ForwardIndex <: Leaf
+    obs_time::ModelTime
+    maturity_time::ModelTime
+    key::String
+end
+
+"""
+    at(p::ForwardIndex, path::AbstractPath)
+
+Derive forward index value at a given path.
+"""
+at(p::ForwardIndex, path::AbstractPath) = forward_index(path, p.obs_time, p.maturity_time, p.key)
+
+"""
+    string(p::ForwardIndex)
+
+Formatted (and shortened) output for ForwardIndex payoff.
+"""
+string(p::ForwardIndex) = begin
+    if p.obs_time == p.maturity_time
+        return @sprintf("I(%s, %.2f)", p.key, p.obs_time)
+    end
+    return @sprintf("I(%s, %.2f, %.2f)", p.key, p.obs_time, p.maturity_time)
+end
+
+
+"""
+    struct IndexConvexityAdjustment <: Leaf
+        obs_time::ModelTime
+        first_time::ModelTime
+        second_time::ModelTime
+        pay_time::ModelTime
+        key::String
+    end
+
+Convexity adjustment factor for YoY index payoffs.
+"""
+struct IndexConvexityAdjustment <: Leaf
+    obs_time::ModelTime
+    first_time::ModelTime
+    second_time::ModelTime
+    pay_time::ModelTime
+    key::String
+end
+
+"""
+    at(p::IndexConvexityAdjustment, path::AbstractPath)
+
+Derive the YoY payoff convexity adjustment at a given path.
+"""
+at(p::IndexConvexityAdjustment, path::AbstractPath) = index_convexity_adjustment(path, p.obs_time, p.first_time, p.second_time, p.pay_time, p.key)
+
+"""
+    string(p::IndexConvexityAdjustment)
+
+Formatted (and shortened) output for IndexConvexityAdjustment payoff.
+"""
+string(p::IndexConvexityAdjustment) = @sprintf("Exp{CA(%s, %.2f, %.2f, %.2f, %.2f)}", p.key, p.obs_time, p.first_time, p.second_time, p.pay_time)
+
+
+"""
+    struct FutureIndex <: Leaf
+        obs_time::ModelTime
+        maturity_time::ModelTime
+        key::String
+    end
+
+Risk-neutral expectation E_t^T[S_T] of a price index.
+
+This is used in particular for Future modelling.
+"""
+struct FutureIndex <: Leaf
+    obs_time::ModelTime
+    maturity_time::ModelTime
+    key::String
+end
+
+"""
+    at(p::FutureIndex, path::AbstractPath)
+
+Derive forward index value at a given path.
+"""
+at(p::FutureIndex, path::AbstractPath) = future_index(path, p.obs_time, p.maturity_time, p.key)
+
+"""
+    string(p::FutureIndex)
+
+Formatted (and shortened) output for FutureIndex payoff.
+"""
+string(p::FutureIndex) = begin
+    if p.obs_time == p.maturity_time
+        return @sprintf("F(%s, %.2f)", p.key, p.obs_time)
+    end
+    return @sprintf("F(%s, %.2f, %.2f)", p.key, p.obs_time, p.maturity_time)
+end

@@ -54,6 +54,7 @@ include("models/futures/MarkovFutureModels.jl")
 
 include("models/asset/AssetVolatility.jl")
 include("models/asset/AssetCalibration.jl")
+include("models/inflation/ConvexityAdjustment.jl")
 
 include("simulations/RandomNumbers.jl")
 include("simulations/Simulation.jl")
@@ -75,6 +76,9 @@ include("payoffs/AssetOptions.jl")
 include("products/Cashflows.jl")
 include("products/AssetOptionFlows.jl")
 include("products/RatesCoupons.jl")
+include("products/RelativeReturnCoupon.jl")
+include("products/RelativeReturnIndexCoupon.jl")
+
 include("products/CashFlowLeg.jl")
 include("products/SwaptionLeg.jl")
 include("products/MtMCashFlowLeg.jl")
