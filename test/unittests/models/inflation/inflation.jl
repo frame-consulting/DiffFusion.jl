@@ -3,6 +3,5 @@ using Test
 
 @testset "Inflation index models." begin
 
-    # Add tests here.
-
+    include("convexity_adjustment.jl")
 end

@@ -11,6 +11,23 @@ using Test
     DiffFusion.asset(p::ConstantPath, t::DiffFusion.ModelTime, key::String) = 5.0 * ones(5)
     DiffFusion.forward_asset(p::ConstantPath, t::DiffFusion.ModelTime, T::DiffFusion.ModelTime, key::String) = 6.0 * ones(5)
     DiffFusion.fixing(p::ConstantPath, t::DiffFusion.ModelTime, key::String) = 6.0 * ones(5)
+    DiffFusion.asset_convexity_adjustment(
+        p::ConstantPath,
+        t::DiffFusion.ModelTime,
+        T0::DiffFusion.ModelTime,
+        T1::DiffFusion.ModelTime,
+        T2::DiffFusion.ModelTime,
+        key::String) = ones(5)
+    DiffFusion.forward_index(p::ConstantPath, t::DiffFusion.ModelTime, T::DiffFusion.ModelTime, key::String) = 2.0 * ones(5)
+    DiffFusion.index_convexity_adjustment(
+        p::ConstantPath,
+        t::DiffFusion.ModelTime,
+        T0::DiffFusion.ModelTime,
+        T1::DiffFusion.ModelTime,
+        T2::DiffFusion.ModelTime,
+        key::String) = ones(5)
+        DiffFusion.future_index(p::ConstantPath, t::DiffFusion.ModelTime, T::DiffFusion.ModelTime, key::String) = 3.0 * ones(5)
+    #
     DiffFusion.length(p::ConstantPath) = 5
 
     @testset "Leaf payoffs" begin
@@ -72,6 +89,36 @@ using Test
         @test p(path) == 3.5
         @test string(p) == "3.5000"
         #
+        p = DiffFusion.AssetConvexityAdjustment(5.0, 10.0, 15.0, 20.0, "EUR-USD")
+        @test DiffFusion.obs_time(p) == 5.0
+        @test DiffFusion.obs_times(p) == Set(5.0)
+        @test DiffFusion.at(p, path) == ones(5)
+        @test p(path) == ones(5)
+        @test string(p) == "Exp{CA(EUR-USD, 5.00, 10.00, 15.00, 20.00)}"
+        #
+        p = DiffFusion.ForwardIndex(5.0, 10.0, "EUHICP")
+        @test DiffFusion.obs_time(p) == 5.0
+        @test DiffFusion.obs_times(p) == Set(5.0)
+        @test DiffFusion.at(p, path) == 2. * ones(5)
+        @test p(path) == 2. * ones(5)
+        @test string(p) == "I(EUHICP, 5.00, 10.00)"
+        @test string(DiffFusion.ForwardIndex(5.0, 5.0, "EUHICP")) == "I(EUHICP, 5.00)"
+        #
+        p = DiffFusion.IndexConvexityAdjustment(5.0, 10.0, 15.0, 20.0, "EUR-USD")
+        @test DiffFusion.obs_time(p) == 5.0
+        @test DiffFusion.obs_times(p) == Set(5.0)
+        @test DiffFusion.at(p, path) == ones(5)
+        @test p(path) == ones(5)
+        @test string(p) == "Exp{CA(EUR-USD, 5.00, 10.00, 15.00, 20.00)}"
+        #
+        p = DiffFusion.FutureIndex(5.0, 10.0, "NIK")
+        @test DiffFusion.obs_time(p) == 5.0
+        @test DiffFusion.obs_times(p) == Set(5.0)
+        @test DiffFusion.at(p, path) == 3. * ones(5)
+        @test p(path) == 3. * ones(5)
+        @test string(p) == "F(NIK, 5.00, 10.00)"
+        @test string(DiffFusion.FutureIndex(5.0, 5.0, "NIK")) == "F(NIK, 5.00)"
+
     end
 
     @testset "Unary nodes" begin

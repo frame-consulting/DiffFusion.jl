@@ -143,6 +143,8 @@ using Test
         @test DiffFusion.asset_variance(m, nothing, "USD", "EUR", 1.0, 8.0, SX) == DiffFusion.asset_variance(nothing, hjm_model_dom, hjm_model_for, ch, 1.0, 8.0)
         @test DiffFusion.asset_variance(m, nothing, nothing, nothing, 1.0, 8.0, SX) == 0.0
         #
+        @test DiffFusion.log_asset_convexity_adjustment(m, "USD", "EUR", "EUR-USD", 5.0, 10.0, 15.0, 20.0) == DiffFusion.log_asset_convexity_adjustment(hjm_model_dom, hjm_model_for, asset_model, 5.0, 10.0, 15.0, 20.0)
+        #
         @test_throws KeyError DiffFusion.log_asset(m, "WrongAlias", 1.0, SX)
         @test_throws KeyError DiffFusion.log_bank_account(m, "WrongAlias", 1.0, SX)
         @test_throws KeyError DiffFusion.log_zero_bond(m, "WrongAlias", 4.0, 8.0, SX)

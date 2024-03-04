@@ -336,6 +336,14 @@ end
         v1 = DiffFusion.asset_variance(p, 1.0, 4.0, "SXE50")
         v2 = DiffFusion.asset_variance(p.sim.model, "SXE50-EUR", "EUR", nothing, 1.0, 4.0, SX)
         @test v1 == ones(5) * v2
+        #
+        models = sim.model.models
+        ca_path = DiffFusion.asset_convexity_adjustment(p, 5.0, 10.0, 15.0, 20.0, "EUR-USD")
+        log_ca = DiffFusion.log_asset_convexity_adjustment(models[1], models[3], models[2], 5.0, 10.0, 15.0, 20.0)
+        @test ca_path == exp(log_ca) * ones(5)
+        #
+        ca_path_index = DiffFusion.index_convexity_adjustment(p, 5.0, 10.0, 15.0, 20.0, "HICP")
+        @test isapprox(ca_path_index, ca_path, atol=5.0e-15)
     end
 
     @testset "Deterministic modelling." begin
