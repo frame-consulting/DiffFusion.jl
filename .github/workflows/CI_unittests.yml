@@ -1,10 +1,11 @@
-name: CI
+name: CI_unittests
 on:
   push:
     branches:
       - main
     tags: ['*']
   pull_request:
+  workflow_dispatch:
 concurrency:
   # Skip intermediate builds: always.
   # Cancel intermediate builds: only if it is a pull request build.
@@ -32,4 +33,6 @@ jobs:
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v1
       - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
+      - uses: sschlenkrich/julia-runtest@with_test_arg_v3
+        with:
+          test_arg: 'unittests/unittests_all.jl'

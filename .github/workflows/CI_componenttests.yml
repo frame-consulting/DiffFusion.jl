@@ -32,4 +32,4 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: sschlenkrich/julia-runtest@with_test_arg_v3
         with:
-          test_arg: 'componenttests/componenttests.jl'
+          test_arg: 'componenttests/componenttests_all.jl'
