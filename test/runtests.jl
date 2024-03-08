@@ -8,16 +8,14 @@ using Logging
 
 @testset verbose=true "DiffFusion.jl" begin
 
+    # specify default test file here
+    file_name = "unittests/unittests_fast.jl"
+    # allow amending test file via argument
     if @isdefined(ARGS) && length(ARGS) > 0
-        @info "Run tests " * ARGS[1] * " from test_args."
-        @testset verbose=true "Runtests" begin
-            include(ARGS[1])
-        end
-    else
-        @testset verbose=true "Unit tests" begin
-            include("unittests/unittests.jl")
-        end
+        file_name = ARGS[1]
+        @info "Run tests " * file_name * " from test_args."
     end
+    include(file_name)
 
 end
 

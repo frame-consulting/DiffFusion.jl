@@ -1,9 +1,9 @@
 
 using Test
 
-@info "Start unittests.jl."
+@info "Start unittests_fast.jl."
 
-@testset verbose=true "unittests.jl" begin
+@testset verbose=true "unittests_fast.jl" begin
 
     include("analytics/analytics.jl")
     include("examples/examples.jl")
@@ -18,4 +18,4 @@ using Test
 
 end
 
-@info "Finished unittests.jl."
+@info "Finished unittests_fast.jl."
