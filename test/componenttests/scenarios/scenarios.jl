@@ -308,12 +308,12 @@ using YAML
         usd_swap_1 = [ usd_swap[1], usd_swap[1], usd_swap[1], usd_swap[2]]  # make the swap more at par
         usd_swap_2 = [ usd_swap[1], usd_swap[1], usd_swap[1], usd_swap[1], usd_swap[2]]  # make the swap more at par
         obs_times = 0.0:1.0/12:7.0
-        scens_1 = DiffFusion.scenarios(usd_swap_1, obs_times, path, "")
+        scens_1 = DiffFusion.scenarios(usd_swap_1, obs_times, path, "USD")
         plot_swap(scens_1, "USD Swap_1")
         #
         all_swaps = vcat(example["portfolio"]...)
         obs_times = 0.0:1.0/4:10.0
-        scens = DiffFusion.scenarios(all_swaps, obs_times, path, "")
+        scens = DiffFusion.scenarios(all_swaps, obs_times, path, "USD")
         plot_swap(scens, "Portfolio")
         #
     end
@@ -389,9 +389,9 @@ using YAML
         obs_times = 0.0:1.0/4:10.0
         #
         @info "Run single-threaded scenario valuation..."
-        @time scens_st = DiffFusion.scenarios(all_swaps, obs_times, path, "", with_progress_bar=false)
+        @time scens_st = DiffFusion.scenarios(all_swaps, obs_times, path, "USD", with_progress_bar=false)
         @info "Run multi-threaded scenario valuation..."
-        @time scens_mt = scenarios_mt(all_swaps, obs_times, path, "")
+        @time scens_mt = scenarios_mt(all_swaps, obs_times, path, "USD")
         @test scens_mt.X == scens_st.X
         # println(maximum(abs.(scens_mt.X - scens_st.X)))
         #

@@ -53,7 +53,7 @@ using Test
             "berm",
             [ exercise_1, exercise_2, exercise_3,],
             1.0, # long option
-            "", # default discounting (curve key)
+            "EUR", # default discounting (curve key)
             make_regression_variables,
             nothing, # path
             nothing, # make_regression
@@ -98,7 +98,7 @@ using Test
 
         DiffFusion.reset_regression!(berm, path, make_regression)
         #
-        scens = DiffFusion.scenarios([berm], times, path, "")
+        scens = DiffFusion.scenarios([berm], times, path, "EUR")
         println(size(scens.X))
         println(size(sim.X))
         #
@@ -118,14 +118,15 @@ using Test
             float_leg,
             [ 1.0, 2.0, 3.0 ],
             1.0,
+            "EUR"
         )
         DiffFusion.reset_regression!(berm2, path, make_regression)
-        scens2 = DiffFusion.scenarios([berm2], times, path, "")
+        scens2 = DiffFusion.scenarios([berm2], times, path, "EUR")
         @test maximum(abs.(scens.X - scens2.X)) == 0.0
 
         # different regression method
         DiffFusion.reset_regression!(berm2, path, nothing)
-        scens3 = DiffFusion.scenarios([berm2], times, path, "")
+        scens3 = DiffFusion.scenarios([berm2], times, path, "EUR")
         #
         scens2_agg = DiffFusion.aggregate(scens2)
         scens3_agg = DiffFusion.aggregate(scens3)

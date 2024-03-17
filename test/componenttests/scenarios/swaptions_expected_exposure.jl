@@ -187,7 +187,7 @@ using UnicodePlots
         "berm/10-nc-2",
         [ exercise_2y, exercise_4y, exercise_6y, exercise_8y, ],
         1.0, # long option
-        "", # default discounting (curve key)
+        "EUR", # default discounting (curve key)
         make_regression_variables,
         nothing, # path
         nothing, # make_regression
@@ -198,7 +198,7 @@ using UnicodePlots
         "berm/10-nc-2 (regr_on_regr)",
         [ exercise_2y, exercise_4y, exercise_6y, exercise_8y, ],
         1.0, # long option
-        "", # default discounting (curve key)
+        "EUR", # default discounting (curve key)
         make_regression_variables,
         nothing, # path
         nothing, # make_regression
@@ -217,16 +217,16 @@ using UnicodePlots
     
     # Scenario Calculation
     
-    scens = DiffFusion.scenarios(vanilla_swap, times, path, "", with_progress_bar=false);
+    scens = DiffFusion.scenarios(vanilla_swap, times, path, "EUR", with_progress_bar=false);
     vanilla_swap_scens = DiffFusion.aggregate(scens, false, true)
     
-    swaption_2y_scens = DiffFusion.scenarios([swaption_2y], times, path, "", with_progress_bar=false)
-    swaption_4y_scens = DiffFusion.scenarios([swaption_4y], times, path, "", with_progress_bar=false)
-    swaption_6y_scens = DiffFusion.scenarios([swaption_6y], times, path, "", with_progress_bar=false)
-    swaption_8y_scens = DiffFusion.scenarios([swaption_8y], times, path, "", with_progress_bar=false)
+    swaption_2y_scens = DiffFusion.scenarios([swaption_2y], times, path, "EUR", with_progress_bar=false)
+    swaption_4y_scens = DiffFusion.scenarios([swaption_4y], times, path, "EUR", with_progress_bar=false)
+    swaption_6y_scens = DiffFusion.scenarios([swaption_6y], times, path, "EUR", with_progress_bar=false)
+    swaption_8y_scens = DiffFusion.scenarios([swaption_8y], times, path, "EUR", with_progress_bar=false)
     
-    berm_scens = DiffFusion.scenarios([berm], times, path, "", with_progress_bar=false)
-    berm_2_scens = DiffFusion.scenarios([berm_2], times, path, "", with_progress_bar=false)
+    berm_scens = DiffFusion.scenarios([berm], times, path, "EUR", with_progress_bar=false)
+    berm_2_scens = DiffFusion.scenarios([berm_2], times, path, "EUR", with_progress_bar=false)
     
     vanilla_swap_ee = DiffFusion.expected_exposure(vanilla_swap_scens)
     swaption_2y_ee = DiffFusion.expected_exposure(swaption_2y_scens)

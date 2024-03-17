@@ -19,7 +19,7 @@ legs = vcat(
     Examples.random_bermudan(example_, "SONIA_SWPN"),
 )
 
-scens = scenarios(legs, sim.times, path_, "", with_progress_bar=false)
+scens = scenarios(legs, sim.times, path_, "USD", with_progress_bar=false)
 scens = aggregate(scens)
 
 join_scenarios([scens, scens,])

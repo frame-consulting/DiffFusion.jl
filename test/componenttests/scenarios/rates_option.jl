@@ -164,7 +164,7 @@ using UnicodePlots
             for (s, e) in zip(fixed_times[1:end-1], fixed_times[2:end])
         ]
         lib_leg = DiffFusion.SwaptionLeg("lib/5x10", start_time, start_time, lib_float_coupons, fixed_coupons, 1.0, "EUR:OIS", DiffFusion.SwaptionPhysicalSettlement, 100.0)
-        scens = DiffFusion.scenarios([lib_leg, ], times, path, "")
+        scens = DiffFusion.scenarios([lib_leg, ], times, path, "EUR")
         mv = DiffFusion.aggregate(scens)
         ee = DiffFusion.expected_exposure(scens)
         plot_scens(mv, "market value - Libor swaption")
@@ -186,7 +186,7 @@ using UnicodePlots
             for (s, e) in zip(fixed_times[1:end-1], fixed_times[2:end])
         ]
         lib_leg = DiffFusion.SwaptionLeg("ois/5x10", start_time, start_time, lib_float_coupons, fixed_coupons, 1.0, "EUR:OIS", DiffFusion.SwaptionPhysicalSettlement, 100.0)
-        scens = DiffFusion.scenarios([lib_leg, ], times, path, "")
+        scens = DiffFusion.scenarios([lib_leg, ], times, path, "EUR")
         mv = DiffFusion.aggregate(scens)
         ee = DiffFusion.expected_exposure(scens)
         plot_scens(mv, "market value - OIS swaption")

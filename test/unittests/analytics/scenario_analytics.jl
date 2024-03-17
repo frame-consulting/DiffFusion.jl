@@ -111,7 +111,7 @@ using Test
         path_ = DiffFusion.path(sim, ts, context, DiffFusion.LinearPathInterpolation)
         #
         obs_times = 1:0.5:10
-        scens = DiffFusion.scenarios([leg1, leg2], obs_times, path_, "", with_progress_bar = false)
+        scens = DiffFusion.scenarios([leg1, leg2], obs_times, path_, "USD", with_progress_bar = false)
         @test size(scens.X) == (n_paths, length(obs_times), 2)
         #
         path_ = DiffFusion.path(sim, ts, context, DiffFusion.NoPathInterpolation)
@@ -123,7 +123,7 @@ using Test
         n_paths = 2^3
         sim = DiffFusion.simple_simulation(m, ch, times, n_paths, with_progress_bar = false)
         path_ = DiffFusion.path(sim, ts, context, DiffFusion.LinearPathInterpolation)
-        scens = DiffFusion.scenarios([leg1, leg2], times, path_, "", with_progress_bar = true)
+        scens = DiffFusion.scenarios([leg1, leg2], times, path_, "USD", with_progress_bar = true)
         #
         average_paths = false
         aggregate_legs = false

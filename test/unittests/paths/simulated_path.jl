@@ -88,7 +88,7 @@ using Test
         p = DiffFusion.path(sim, ts, context)
         for t in times[2:end]
             #
-            num = DiffFusion.numeraire(p, t, "")
+            num = DiffFusion.numeraire(p, t, "USD")
             one = (1.0 / DiffFusion.discount(ts[1], t)) ./ num
             # println(abs(mean(one) - 1.0))
             @test isapprox(mean(one), 1.0, atol=3.6e-3 )
@@ -147,7 +147,7 @@ using Test
         p = DiffFusion.path(sim, ts, context)
         for t in times[2:end]
             #
-            num = DiffFusion.numeraire(p, t, "")
+            num = DiffFusion.numeraire(p, t, "USD")
             one = (1.0 / DiffFusion.discount(ts[1], t)) ./ num
             # println(abs(mean(one) - 1.0))
             @test isapprox(mean(one), 1.0, atol=1.5e-3 )

@@ -21,9 +21,9 @@ using ForwardDiff
         for obs_time in (0.0, 0.5, 2.0)
             # println("Obs_time: " * string(obs_time) * ".")
             payoffs = [ DiffFusion.Asset(obs_time, "EUR-USD") ]
-            model_price = DiffFusion.model_price(payoffs, path, nothing, "")
+            model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
             # println(model_price)
-            (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "")
+            (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD")
             @test v == model_price
             # test deltas via manual FD
             shift = 1.0e-7
@@ -45,8 +45,8 @@ using ForwardDiff
                     path_u.ts_dict[alias] = DiffFusion.BackwardFlatParameter(alias, path.ts_dict[alias].times, path.ts_dict[alias].values .+ shift)
                     path_d.ts_dict[alias] = DiffFusion.BackwardFlatParameter(alias, path.ts_dict[alias].times, path.ts_dict[alias].values .- shift)
                 end
-                model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "")
-                model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "")
+                model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "USD")
+                model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "USD")
                 delta = (model_price_u - model_price_d) / (2 * shift)
                 #
                 # println(alias * ": grad = " * string(grad) * ", delta = " * string(delta) * ".")
@@ -64,9 +64,9 @@ using ForwardDiff
         sim = DiffFusion.simple_simulation(model, ch, times, n_paths, with_progress_bar = false)
         path = DiffFusion.path(sim, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
         payoffs = [ ]
-        model_price = DiffFusion.model_price(payoffs, path, nothing, "")
+        model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
         @test model_price == 0.0
-        (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "")
+        (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD")
         @test v == model_price
     end
 
@@ -87,10 +87,10 @@ using ForwardDiff
         for (obs_time, g_ref) in zip((0.0, 0.5, 2.0,), gradient_vector)
             # println("Obs_time: " * string(obs_time) * ".")
             payoffs = [ DiffFusion.Asset(obs_time, "EUR-USD") ]
-            model_price = DiffFusion.model_price(payoffs, path, nothing, "")
+            model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
             # println(model_price)
-            (v1, g1, l1) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "", Zygote)
-            (v2, g2, l2) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "", ForwardDiff)
+            (v1, g1, l1) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "USD", Zygote)
+            (v2, g2, l2) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "USD", ForwardDiff)
             @test v1 == model_price
             @test v2 == model_price
             @test isapprox(g1, g_ref, atol=1.0e-12)

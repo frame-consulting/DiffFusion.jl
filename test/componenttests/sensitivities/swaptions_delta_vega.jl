@@ -190,7 +190,7 @@ using UnicodePlots
         "berm/10-nc-2",
         [ exercise_2y, exercise_4y, exercise_6y, exercise_8y, ],
         1.0, # long option
-        "", # default discounting (curve key)
+        "EUR", # default discounting (curve key)
         make_regression_variables,
         nothing, # path
         nothing, # make_regression
@@ -200,7 +200,7 @@ using UnicodePlots
         "berm/4y",
         [ exercise_4y, ],
         1.0, # long option
-        "", # default discounting (curve key)
+        "EUR", # default discounting (curve key)
         make_regression_variables,
         nothing, # path
         nothing, # make_regression
@@ -239,7 +239,7 @@ using UnicodePlots
             DiffFusion.discounted_cashflows(swaption_4y, 1.0),
             path,
             1.0,
-            "",
+            "EUR",
             DiffFusion.ForwardDiff
         )
         print_results(v1, g1, ts_labels)
@@ -248,7 +248,7 @@ using UnicodePlots
             DiffFusion.discounted_cashflows(berm_4y, 1.0),
             path,
             1.0,
-            "",
+            "EUR",
             DiffFusion.ForwardDiff
         )
         print_results(v2, g2, ts_labels)
@@ -257,7 +257,7 @@ using UnicodePlots
             DiffFusion.discounted_cashflows(berm_10nc2, 1.0),
             path,
             1.0,
-            "",
+            "EUR",
             DiffFusion.ForwardDiff
         )
         print_results(v3, g3, ts_labels)
@@ -284,7 +284,7 @@ using UnicodePlots
             ts_list,
             context,
             1.0,
-            "",
+            "EUR",
             DiffFusion.ForwardDiff
         )
         print_results(v1, g1, ts_labels)
@@ -296,7 +296,7 @@ using UnicodePlots
             ts_list,
             context,
             1.0,
-            "",
+            "EUR",
             DiffFusion.ForwardDiff
         )
         print_results(v2, g2, ts_labels)
@@ -308,7 +308,7 @@ using UnicodePlots
             ts_list,
             context,
             1.0,
-            "",
+            "EUR",
             DiffFusion.ForwardDiff
         )
         print_results(v3, g3, ts_labels)

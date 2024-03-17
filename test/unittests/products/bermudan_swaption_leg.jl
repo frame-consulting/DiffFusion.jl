@@ -416,6 +416,7 @@ berm_2_00 =
             float_leg,
             [ 1.0, 2.0, 3.0, 3.5 ],
             -1.0,
+            "EUR:OIS"
         )
         @test isa(berm, DiffFusion.BermudanSwaptionLeg)
     end

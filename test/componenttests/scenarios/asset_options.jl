@@ -44,7 +44,7 @@ using UnicodePlots
             [ 1.0, ],
             "USD"
         )
-        scens = DiffFusion.scenarios([call_leg, put_leg], times, path, "")
+        scens = DiffFusion.scenarios([call_leg, put_leg], times, path, "USD")
         mv = DiffFusion.aggregate(scens, true, false)
         #
         plot_scens(mv, "EUR-USD option mv")

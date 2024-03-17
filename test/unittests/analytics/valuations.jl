@@ -42,18 +42,18 @@ using ForwardDiff
         @info "Start testing AD Deltas..."
         payoffs = [ DiffFusion.Asset(2.0, "EUR-USD")]
         #
-        model_price = DiffFusion.model_price(payoffs, path, nothing, "")
-        (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "")
+        model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
+        (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD")
         @test v == model_price
         #
         model_price = DiffFusion.model_price(payoffs, path, nothing, nothing)
         (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, nothing)
         @test v == model_price
         #
-        model_price = DiffFusion.model_price(payoffs, path, nothing, "")
-        (v1, g1, l1) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "", Zygote)
-        (v2, g2, l2) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "", ForwardDiff)
-        (v3, g3, l3) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "", FiniteDifferences)
+        model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
+        (v1, g1, l1) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "USD", Zygote)
+        (v2, g2, l2) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "USD", ForwardDiff)
+        (v3, g3, l3) = DiffFusion.model_price_and_deltas_vector(payoffs, path, nothing, "USD", FiniteDifferences)
         @test v1 == model_price
         @test v2 == model_price
         @test v2 == model_price
@@ -79,14 +79,14 @@ using ForwardDiff
         sim_func(model, ch) = DiffFusion.simple_simulation(model, ch, times, n_paths, with_progress_bar = false)
         #
         payoffs = [ DiffFusion.Asset(2.0, "EUR-USD")]
-        model_price = DiffFusion.model_price(payoffs, path, nothing, "")
-        (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "")
+        model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
+        (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "USD")
         @test v == model_price
         #
-        model_price = DiffFusion.model_price(payoffs, path, nothing, "")
-        (v1, g1, l1) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim_func, ts_list, context, nothing, "", Zygote)
-        (v2, g2, l2) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim_func, ts_list, context, nothing, "", ForwardDiff)
-        (v3, g3, l3) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim_func, ts_list, context, nothing, "", FiniteDifferences)
+        model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
+        (v1, g1, l1) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim_func, ts_list, context, nothing, "USD", Zygote)
+        (v2, g2, l2) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim_func, ts_list, context, nothing, "USD", ForwardDiff)
+        (v3, g3, l3) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim_func, ts_list, context, nothing, "USD", FiniteDifferences)
         @test v1 == model_price
         @test v2 == model_price
         @test v3 == model_price
