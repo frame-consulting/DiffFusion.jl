@@ -237,7 +237,7 @@ end
     @testset "Stochastic model functions." begin
         p = DiffFusion.path(sim, ts, context)
         t = 2.0
-        @test isapprox(DiffFusion.numeraire(p, t, ""), exp(1.0 + 0.03*t) * ones(5), atol=1.0e-15)
+        @test isapprox(DiffFusion.numeraire(p, t, "USD"), exp(1.0 + 0.03*t) * ones(5), atol=1.0e-15)
         #
         @test isapprox(DiffFusion.bank_account(p, t, "USD"), exp(1.0 + 0.03*t) * ones(5), atol=1.0e-15)
         @test isapprox(DiffFusion.bank_account(p, t, "EUR"), exp(1.0 + 0.02*t) * ones(5), atol=1.0e-15)
@@ -372,7 +372,7 @@ end
         p = DiffFusion.path(det_sim, ts, det_context)
         t = 2.0
         T = 5.0
-        @test isapprox(DiffFusion.numeraire(p, t, ""), exp(0.03*t) * ones(1), atol=1.0e-15)
+        @test isapprox(DiffFusion.numeraire(p, t, "USD"), exp(0.03*t) * ones(1), atol=1.0e-15)
         #
         @test isapprox(DiffFusion.bank_account(p, t, "USD"), exp(0.03*t) * ones(1), atol=1.0e-15)
         @test isapprox(DiffFusion.bank_account(p, t, "EUR"), exp(0.02*t) * ones(1), atol=1.0e-15)

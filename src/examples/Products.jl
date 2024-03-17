@@ -357,6 +357,7 @@ function random_bermudan(
     last_expiry_time = max(first_expiry_time, maturity_time - bermudan_time)
     exercise_times = first_expiry_time:bermudan_time:last_expiry_time
     swpt_long_short = rand(-1:2:1)
+    numeraire_curve_key = example["config/instruments"]["discount_curve_key"]
     #
     berm = DiffFusion.bermudan_swaption_leg(
         swaption_alias,
@@ -364,6 +365,7 @@ function random_bermudan(
         swap[2],
         exercise_times,
         swpt_long_short,
+        numeraire_curve_key,
     )
     return [ berm ]
 end

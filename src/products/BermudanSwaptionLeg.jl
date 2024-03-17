@@ -426,7 +426,8 @@ end
         float_leg::DeterministicCashFlowLeg,
         exercise_times::AbstractVector,
         option_long_short::ModelValue,
-        regression_on_exercise_trigger = false,
+        numeraire_curve_key::String,
+        regression_on_exercise_trigger = true,
         )
 
 Create a `BermudanSwaptionLeg` using simplified interface.
@@ -442,11 +443,11 @@ function bermudan_swaption_leg(
     float_leg::DeterministicCashFlowLeg,
     exercise_times::AbstractVector,
     option_long_short::ModelValue,
+    numeraire_curve_key::String,
     regression_on_exercise_trigger = true,
     )
     #
     bermudan_exercises = make_bermudan_exercises(fixed_leg, float_leg, exercise_times)
-    numeraire_curve_key = "" # default discounting
     #
     curve_key = float_leg.cashflows[begin].curve_key
     maturity_time = fixed_leg.cashflows[end].pay_time

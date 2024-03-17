@@ -79,7 +79,6 @@ using Test
             with_progress_bar=with_progress_bar
         )
         @test size(scens.X) == (8, 11, 32)
-        println(size(scens.X))
     end
 
 end

@@ -187,7 +187,7 @@ using Test
             [ L2 ],
             nothing,
             nothing,
-            "",
+            "EUR",
         )
 
         A2 = DiffFusion.AmcSum(
@@ -196,7 +196,7 @@ using Test
             [ L2 ],
             nothing,
             nothing,
-            "",
+            "EUR",
         )
 
         (v1, g1, ts_labels) = DiffFusion.model_price_and_deltas_vector(

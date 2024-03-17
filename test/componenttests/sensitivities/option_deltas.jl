@@ -54,11 +54,11 @@ using Test
                 DiffFusion.ZeroBond(obs_time, pay_time, "USD"),
             ]
             payoffs = [ DiffFusion.AmcSum(
-                obs_time, [V], Z, path, make_regression, ""
+                obs_time, [V], Z, path, make_regression, "USD"
             )]
-            model_price = DiffFusion.model_price(payoffs, path, nothing, "")
+            model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
             println(model_price)
-            (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "")
+            (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD")
             @test v == model_price
             # test deltas via manual FD
             shift = 1.0e-7
@@ -80,8 +80,8 @@ using Test
                     path_u.ts_dict[alias] = DiffFusion.BackwardFlatParameter(alias, path.ts_dict[alias].times, path.ts_dict[alias].values .+ shift)
                     path_d.ts_dict[alias] = DiffFusion.BackwardFlatParameter(alias, path.ts_dict[alias].times, path.ts_dict[alias].values .- shift)
                 end
-                model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "")
-                model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "")
+                model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "USD")
+                model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "USD")
                 delta = (model_price_u - model_price_d) / (2 * shift)
                 #
                 println(alias * ": grad = " * string(grad) * ", delta = " * string(delta) * ".")
@@ -115,12 +115,12 @@ using Test
                     DiffFusion.ZeroBond(T, maturity_time, "USD"),
                 ]
                 U = put(T)
-                H = DiffFusion.AmcMax(T, [H], [U], Z, path, make_regression, "")
+                H = DiffFusion.AmcMax(T, [H], [U], Z, path, make_regression, "USD")
             end
             payoffs = [ H ]
-            model_price = DiffFusion.model_price(payoffs, path, nothing, "")
+            model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
             println(model_price)
-            (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "")
+            (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD")
             @test v == model_price
             # test deltas via manual FD
             shift = 1.0e-7
@@ -142,8 +142,8 @@ using Test
                     path_u.ts_dict[alias] = DiffFusion.BackwardFlatParameter(alias, path.ts_dict[alias].times, path.ts_dict[alias].values .+ shift)
                     path_d.ts_dict[alias] = DiffFusion.BackwardFlatParameter(alias, path.ts_dict[alias].times, path.ts_dict[alias].values .- shift)
                 end
-                model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "")
-                model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "")
+                model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "USD")
+                model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "USD")
                 delta = (model_price_u - model_price_d) / (2 * shift)
                 #
                 println(alias * ": grad = " * string(grad) * ", delta = " * string(delta) * ".")

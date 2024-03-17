@@ -36,9 +36,9 @@ using ForwardDiff
         #
         for obs_time in (1.0, 2.0, 5.0,)
             payoffs = [ straddle(obs_time) ]
-            model_price = DiffFusion.model_price(payoffs, path_, nothing, "")
+            model_price = DiffFusion.model_price(payoffs, path_, nothing, "USD")
             println("Obs_time: " * string(obs_time) * ", model_price: " * string(model_price))
-            (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "")
+            (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD")
             @test v == model_price
             # Vega
             for key in keys(g)
@@ -60,14 +60,14 @@ using ForwardDiff
                         mdl_u = DiffFusion.build_model(model.alias, param_dict_u, model_dict)
                         sim_u = sim(mdl_u, ch)
                         path_u = DiffFusion.path(sim_u, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
-                        model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "")
+                        model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "USD")
                         #
                         param_dict_d = deepcopy(param_dict)
                         param_dict_d[key][param_key].values[k,1] -= shift
                         mdl_d = DiffFusion.build_model(model.alias, param_dict_d, model_dict)
                         sim_d = sim(mdl_d, ch)
                         path_d = DiffFusion.path(sim_d, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
-                        model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "")
+                        model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "USD")
                         #
                         delta = (model_price_u - model_price_d) / (2 * shift)
                         # println(key * "/" * param_key * "/" * string(k) * ": grad = " * string(grad[k]) * ", delta = " * string(delta) * ".")
@@ -92,14 +92,14 @@ using ForwardDiff
                         mdl_u = DiffFusion.build_model(model.alias, param_dict_u, model_dict)
                         sim_u = sim(mdl_u, ch)
                         path_u = DiffFusion.path(sim_u, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
-                        model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "")
+                        model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "USD")
                         #
                         param_dict_d = deepcopy(param_dict)
                         param_dict_d[key][param_key].values[k,1] -= shift
                         mdl_d = DiffFusion.build_model(model.alias, param_dict_d, model_dict)
                         sim_d = sim(mdl_d, ch)
                         path_d = DiffFusion.path(sim_d, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
-                        model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "")
+                        model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "USD")
                         #
                         delta = (model_price_u - model_price_d) / (2 * shift)
                         # println(key * "/" * param_key * "/" * string(k) * ": grad = " * string(grad[k]) * ", delta = " * string(delta) * ".")
@@ -115,14 +115,14 @@ using ForwardDiff
                 mdl_u = DiffFusion.build_model(model.alias, param_dict_u, model_dict)
                 sim_u = sim(mdl_u, param_dict_u["Full"])
                 path_u = DiffFusion.path(sim_u, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
-                model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "")
+                model_price_u = DiffFusion.model_price(payoffs, path_u, nothing, "USD")
                 #
                 param_dict_d = deepcopy(param_dict)
                 param_dict_d["Full"].correlations[k] -= shift
                 mdl_d = DiffFusion.build_model(model.alias, param_dict_d, model_dict)
                 sim_d = sim(mdl_d, param_dict_d["Full"])
                 path_d = DiffFusion.path(sim_d, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
-                model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "")
+                model_price_d = DiffFusion.model_price(payoffs, path_d, nothing, "USD")
                 #
                 delta = (model_price_u - model_price_d) / (2 * shift)
                 # println(k * ": grad = " * string(g) * ", delta = " * string(delta) * ".")
@@ -144,9 +144,9 @@ using ForwardDiff
         #
         sim_ = sim(model, ch)
         path_ = DiffFusion.path(sim_, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
-        model_price = DiffFusion.model_price(payoffs, path_, nothing, "")
+        model_price = DiffFusion.model_price(payoffs, path_, nothing, "USD")
         #
-        (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "")
+        (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD")
         @test v == model_price
         #println(g)
     end
@@ -189,10 +189,10 @@ using ForwardDiff
         #
         sim_ = sim(model, TestModels.ch_one)
         path_ = DiffFusion.path(sim_, TestModels.ts_list, context, DiffFusion.LinearPathInterpolation)
-        model_price = DiffFusion.model_price(payoffs, path_, nothing, "")
+        model_price = DiffFusion.model_price(payoffs, path_, nothing, "USD")
         # println(model_price)
         #
-        (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, context, nothing, "")
+        (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, context, nothing, "USD")
         @test v == model_price
         # println(g)
     end
@@ -230,10 +230,10 @@ using ForwardDiff
         #
         for (obs_time, g_ref) in zip((1.0, 2.0, 5.0,), gradient_vector)
             payoffs = [ straddle(obs_time) ]
-            model_price = DiffFusion.model_price(payoffs, path_, nothing, "")
+            model_price = DiffFusion.model_price(payoffs, path_, nothing, "USD")
             println("Obs_time: " * string(obs_time) * ", model_price: " * string(model_price))
-            (v1, g1, l1) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "", Zygote)
-            (v2, g2, l2) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "", ForwardDiff)
+            (v1, g1, l1) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD", Zygote)
+            (v2, g2, l2) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD", ForwardDiff)
             @test v1 == model_price
             @test v2 == model_price
             @test isapprox(g1, g_ref, atol=1.0e-12)

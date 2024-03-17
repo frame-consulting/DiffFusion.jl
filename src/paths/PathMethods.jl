@@ -52,18 +52,27 @@ Calculate the numeraire in the domestic currency.
 We allow for curve-specific numeraire calculation e.g. to allow
 for trade-specific discounting in AMC valuation.
 """
-function numeraire(p::Path, t::ModelTime, curve_key::String)
-    key = _split_key_identifyer * curve_key  # allow for context key parsing and ensure normalisation
+function numeraire(p::Path, t::ModelTime, key::String)
     (context_key, ts_key_1, ts_key_2, op) = context_keys(key)
     entry = p.context.numeraire
+    @assert context_key == entry.context_key
     ts_alias_1 = entry.termstructure_dict[ts_key_1]
-    df = discount(t, p.ts_dict, ts_alias_1)
-    if isnothing(p.context.numeraire.model_alias)
+    if ts_key_2 == _empty_context_key || op == _empty_context_key
+        # This is some business logic that overlaps with context_keys(...).
+        # However, the logic is different e.g. for assets. So it makes
+        # sense to leave it here.
+        ts_alias_2 = nothing
+    else
+        ts_alias_2 = entry.termstructure_dict[ts_key_2]
+    end
+    df = discount(t, p.ts_dict, ts_alias_1, ts_alias_2, op)
+    if isnothing(entry.model_alias)
         return (1.0/df) * ones(length(p)) 
     end
+    #
     X = state_variable(p.sim, t, p.interpolation)
     SX = model_state(X, p.state_alias_dict)
-    s = log_bank_account(p.sim.model, p.context.numeraire.model_alias, t, SX)
+    s = log_bank_account(p.sim.model, entry.model_alias, t, SX)
     return (1.0/df) .* exp.(s)
 end
 

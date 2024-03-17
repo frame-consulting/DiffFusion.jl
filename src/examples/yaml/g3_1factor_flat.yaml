@@ -9,6 +9,7 @@
     model_alias: "md/USD"
     termstructure_alias:
       <empty_key> : "yc/USD:SOFR"
+      SOFR : "yc/USD:SOFR"
   rates:
     USD:
       typename: "DiffFusion.RatesEntry"
@@ -363,7 +364,7 @@
     step: 1.0
     stop: 10.0
   with_progress_bar: true
-  discount_curve_key: ""
+  discount_curve_key: "USD:SOFR"
   swap_types:
     - USD
     - EUR

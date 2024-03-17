@@ -36,7 +36,7 @@ using Test
         @test path_ == example[alias(sim.model) * "/path"]
         #
         n_paths = example["config/simulation"]["n_paths"]
-        @test size(at(DiffFusion.Numeraire(1.0, ""), path_)) == (n_paths,)
+        @test size(at(DiffFusion.Numeraire(1.0, "USD"), path_)) == (n_paths,)
         #
         @test size(at(DiffFusion.BankAccount(1.0, "USD"), path_)) == (n_paths,)
         @test size(at(DiffFusion.BankAccount(1.0, "USD:SOFR"), path_)) == (n_paths,)

@@ -32,6 +32,7 @@ using YAML
     """
     config/instruments:
       seed: 123456
+      discount_curve_key: "USD:SOFR"
       swap_types:
         - USD
         - EUR
