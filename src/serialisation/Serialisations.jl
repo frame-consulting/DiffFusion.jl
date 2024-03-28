@@ -61,6 +61,16 @@ function serialise(o::Any)
 end
 
 """
+    serialise(o::Future)
+
+Serialise a Future object from a `remotecall(...)`.
+
+This operation is blocking. We require that the result is calculated such that
+it actually can be serialised.
+"""
+serialise(o::Future) = serialise(fetch(o))
+
+"""
     serialise(o::Nothing)
 
 Serialise Nothing.
@@ -108,7 +118,11 @@ end
 
 De-serialise strings.
 
-We incorporate some logic to handle external references."
+We incorporate some logic to handle external references.
+
+We allow that the repository disctionary `d` contains remote call
+`Futures`. However, we want to ensure that the method returns actual
+objects. Thus, we `fetch` any `Future` within this method.
 """
 function deserialise(o::String, d::Union{AbstractDict, Nothing} = nothing)
     if o == "nothing"
@@ -120,9 +134,14 @@ function deserialise(o::String, d::Union{AbstractDict, Nothing} = nothing)
         (first(o, n_first) == _serialise_key_references[1]) &&
         (last(o, n_last) == _serialise_key_references[2])
         # we found a key
+        dict_key = o[begin+n_first:end-n_last]
         @assert !isnothing(d)
-        @assert haskey(d, o[begin+n_first:end-n_last])
-        return d[o[begin+n_first:end-n_last]]
+        @assert haskey(d, dict_key)
+        obj = d[dict_key]
+        if isa(obj, Future)
+            return fetch(obj)
+        end
+        return obj
     end
     return o
 end
