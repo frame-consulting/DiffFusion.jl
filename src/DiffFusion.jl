@@ -2,6 +2,7 @@ module DiffFusion
 
 using ChainRulesCore
 using DelimitedFiles
+using Distributed
 using Distributions
 using FiniteDifferences
 using ForwardDiff

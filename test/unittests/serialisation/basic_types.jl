@@ -1,4 +1,5 @@
 using DiffFusion
+using Distributed
 using OrderedCollections
 using Test
 
@@ -17,6 +18,13 @@ using Test
             "A" => 1,
             "C" => "Std"
         )
+    end
+
+    @testset "Simple Remote call serialisation." begin
+        f = remotecall(()-> "Std", workers()[1])
+        @test DiffFusion.serialise(f) == "Std"
+        f = remotecall(()-> 42.1, workers()[1])
+        @test DiffFusion.serialise(f) == 42.1
     end
 
     @testset "Basic object types de-serialisation" begin

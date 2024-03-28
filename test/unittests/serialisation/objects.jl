@@ -1,5 +1,6 @@
 
 using DiffFusion
+using Distributed
 using OrderedCollections
 using Test
 
@@ -109,4 +110,44 @@ using Test
         )
         @test obj.X == obj_ref.X
     end
+
+
+    @testset "Test object with remote calls" begin
+        model = hybrid_model_full
+        ch = ch_full
+        future_model = remotecall(()-> model, workers()[1])
+        future_ch = remotecall(()-> ch, workers()[1])
+        repository = Dict{String, Any}(
+            DiffFusion.alias(model) => future_model,
+            DiffFusion.alias(ch) => future_ch,
+            "true" => true,
+            "false" => false,
+            "SobolBrownianIncrements" => DiffFusion.sobol_brownian_increments
+        )
+        # println(keys(repository))
+        #
+        d = OrderedDict{String, Any}(
+            "typename" => "DiffFusion.Simulation",
+            "constructor" => "simple_simulation",
+            "model" => "{Std}",
+            "ch" => "{Full}",
+            "times" => [ 0.0, 2.0, 4.0, 6.0, 8.0, 10.0 ],
+            "n_paths" => 2^10,
+            "kwargs" => OrderedDict{String, Any}(
+                "with_progress_bar" => "{false}",
+                "brownian_increments" => "{SobolBrownianIncrements}",
+            ),
+        )
+        obj = DiffFusion.deserialise(d, repository)
+        obj_ref = DiffFusion.simple_simulation(
+            model,
+            ch,
+            [ 0.0, 2.0, 4.0, 6.0, 8.0, 10.0 ],
+            2^10;
+            with_progress_bar = false,
+            brownian_increments = DiffFusion.sobol_brownian_increments,
+        )
+        @test obj.X == obj_ref.X
+    end
+
 end
