@@ -1,6 +1,7 @@
 # DiffFusion
 
-[![Build Status](https://github.com/frame-consulting/DiffFusion.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/frame-consulting/DiffFusion.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/frame-consulting/DiffFusion.jl/actions/workflows/CI_unittests.yml/badge.svg?branch=main)](https://github.com/frame-consulting/DiffFusion.jl/actions/workflows/CI_unittests.yml?query=branch%3Amain)
+[![Build Status](https://github.com/frame-consulting/DiffFusion.jl/actions/workflows/CI_componenttests.yml/badge.svg?branch=main)](https://github.com/frame-consulting/DiffFusion.jl/actions/workflows/CI_componenttests.yml?query=branch%3Amain)
 
 [![codecov](https://codecov.io/github/frame-consulting/DiffFusion.jl/branch/main/graph/badge.svg?token=U9IZPWR0T1)](https://codecov.io/github/frame-consulting/DiffFusion.jl)
 
