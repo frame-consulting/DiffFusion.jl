@@ -4,6 +4,7 @@
         pay_time::ModelTime
         fixed_rate::ModelValue
         year_fraction::ModelValue
+        first_time::Union{ModelTime,Nothing}
     end
 
 A fixed rate coupon.

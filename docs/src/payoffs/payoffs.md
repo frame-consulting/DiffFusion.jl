@@ -45,6 +45,22 @@ DiffFusion.ForwardAsset
 ```
 
 ```@docs
+DiffFusion.AssetConvexityAdjustment
+```
+
+```@docs
+DiffFusion.ForwardIndex
+```
+
+```@docs
+DiffFusion.IndexConvexityAdjustment
+```
+
+```@docs
+DiffFusion.FutureIndex
+```
+
+```@docs
 DiffFusion.Fixing
 ```
 
@@ -60,6 +76,14 @@ DiffFusion.ScalarValue
 
 ```@docs
 DiffFusion.UnaryNode
+```
+
+```@docs
+DiffFusion.Exp
+```
+
+```@docs
+DiffFusion.Log
 ```
 
 ```@docs
@@ -165,6 +189,12 @@ DiffFusion.Swaption(
     )
 ```
 
+
+## Asset Option Payoffs
+
+```@docs
+DiffFusion.VanillaAssetOption
+```
 
 
 ## American Monte Carlo Payoffs
