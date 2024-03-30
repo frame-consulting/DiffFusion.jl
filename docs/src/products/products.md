@@ -57,6 +57,19 @@ DiffFusion.OptionletCoupon(
     )
 ```
 
+```@docs
+DiffFusion.RelativeReturnCoupon
+```
+
+```@docs
+DiffFusion.RelativeReturnIndexCoupon
+```
+
+```@docs
+DiffFusion.VanillaAssetOptionFlow
+```
+
+
 ## Cash Flow and Coupon Methods
 
 ```@docs
