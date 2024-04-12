@@ -69,7 +69,7 @@ end
     X = ones(length(DiffFusion.state_alias(m)), n_paths, length(times))
     X[:,:,1] = zeros(length(DiffFusion.state_alias(m)), n_paths)
     X[:,:,5] = 2.0 * ones(length(DiffFusion.state_alias(m)), n_paths)
-    sim = DiffFusion.Simulation(m, times, X)
+    sim = DiffFusion.Simulation(m, times, X, nothing)
 
     # valuation context with deterministic dividend yield
 
@@ -293,7 +293,7 @@ end
         @test_throws KeyError DiffFusion.zero_bond(p, t, T, "SXE50:OIS")
         #
         X = zeros(length(DiffFusion.state_alias(m)), n_paths, length(times))
-        sim = DiffFusion.Simulation(m, times, X)  # simplify calculations
+        sim = DiffFusion.Simulation(m, times, X, nothing)  # simplify calculations
         p = DiffFusion.path(sim, ts, context)
         @test isapprox(DiffFusion.asset(p, t, "EUR-USD"), ones(5) * 1.25 * exp(0.01*t), atol=5.0e-15)
         @test isapprox(DiffFusion.asset(p, t, "SXE50"), ones(5) * 3750.00 * exp(0.01*t), atol=5.0e-15)
@@ -368,7 +368,7 @@ end
                 ("SOFR", DiffFusion.FixingEntry("SOFR", "USD-SOFR-Fixings")),
             ]),
         )
-        det_sim = DiffFusion.Simulation(m, zeros(0), zeros(0,1,0) )
+        det_sim = DiffFusion.Simulation(m, zeros(0), zeros(0,1,0), nothing)
         p = DiffFusion.path(det_sim, ts, det_context)
         t = 2.0
         T = 5.0
