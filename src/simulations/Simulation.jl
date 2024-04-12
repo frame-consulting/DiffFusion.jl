@@ -4,6 +4,7 @@
         model::Model
         times::AbstractVector
         X::AbstractArray
+        dZ::Union{AbstractArray, Nothing}
     end
 
 A `Simulation` object represents the result of a Monte Carlo simulation.
@@ -15,11 +16,13 @@ Elements are:
      - `N_1` is `length(m.state_alias)`,
      - `N_2` is number of Monte Carlo paths,
      - `N_3` is `length(times)`.
+  - `dZ` - Brownian motion increments.
 """
 struct Simulation
     model::Model
     times::AbstractVector
     X::AbstractArray
+    dZ::Union{AbstractArray, Nothing}
 end
 
 
@@ -30,7 +33,8 @@ end
         times::AbstractVector,
         n_paths::Int;
         with_progress_bar::Bool = true,
-        brownian_increments::Function = pseudo_brownian_increments
+        brownian_increments::Function = pseudo_brownian_increments,
+        store_brownian_increments::Bool = false,
         )
 
 A simple Monte Carlo simulation method assuming all model components are state-independent.
@@ -41,9 +45,10 @@ function simple_simulation(
     times::AbstractVector,
     n_paths::Int;
     with_progress_bar::Bool = true,
-    brownian_increments::Function = pseudo_brownian_increments
+    brownian_increments::Function = pseudo_brownian_increments,
+    store_brownian_increments::Bool = false,
     )
-    Z = brownian_increments(
+    dZ = brownian_increments(
         length(state_alias(model)),
         n_paths,
         length(times) - 1,
@@ -59,10 +64,13 @@ function simple_simulation(
         (vol, corr) = volatility_and_correlation(model,ch,times[k-1],times[k])
         L = cholesky(corr).L
         # apply diffusion
-        X_t += (sqrt(times[k] - times[k-1]) * (L .* vol)) * Z[:,:,k-1]
+        X_t += (sqrt(times[k] - times[k-1]) * (L .* vol)) * dZ[:,:,k-1]
         X = cat(X, X_t, dims=3)
     end
+    if !store_brownian_increments
+        dZ = nothing
+    end
     #
-    return Simulation(model, times, X)
+    return Simulation(model, times, X, dZ)
 end
 

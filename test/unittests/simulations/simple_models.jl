@@ -154,6 +154,7 @@ using Test
         n_paths = 2^13
         sim = DiffFusion.simple_simulation(m, ch_full, times, n_paths, with_progress_bar = false)
         # println(size(sim.X))
+        @test isnothing(sim.dZ)
         @test size(sim.X) == (9,8192,6)
         # martingale test domestic numeraire
         one = mean(exp.(-sim.X[4,:,:]), dims=1)
@@ -222,6 +223,13 @@ using Test
         @test isapprox(one[4], 0.9967937694265642, atol=abs_tol)
         @test isapprox(one[5], 0.9976008565308596, atol=abs_tol)
         @test isapprox(one[6], 0.9947929666530295, atol=abs_tol)
+        #
+        # store Brownian increments
+        sim_w_dZ = DiffFusion.simple_simulation(m, ch_full, times, n_paths,
+            with_progress_bar = false, store_brownian_increments = true)
+        @test !isnothing(sim_w_dZ.dZ)
+        @test size(sim_w_dZ.dZ) == (9,8192,5)
+        @test sim_w_dZ.X == sim.X
     end
 
 end
