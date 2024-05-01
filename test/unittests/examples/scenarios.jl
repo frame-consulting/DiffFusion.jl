@@ -42,43 +42,44 @@ using Test
     end
 
     @testset "Test full scenario" begin
-        serialised_example = DiffFusion.Examples.load(DiffFusion.Examples.examples[1])
-        example = DiffFusion.Examples.build(serialised_example)
-        example["config/simulation"]["n_paths"] = 2^3
-        example["config/simulation"]["with_progress_bar"] = false
-        example["config/instruments"]["with_progress_bar"] = false
-        #
-        path_ = DiffFusion.Examples.path!(example)
-        portfolio_ = DiffFusion.Examples.portfolio!(
-            example,
-            8,  # swap
-            8,  # swaptions
-            8,  # berms
-        )
-        legs = vcat(portfolio_...)
-        #
-        config = example["config/instruments"]
-        obs_times = config["obs_times"]
-        if isa(obs_times, AbstractDict)
-            obs_times = Vector(obs_times["start"]:obs_times["step"]:obs_times["stop"])
-        end
-        with_progress_bar = config["with_progress_bar"]
-        discount_curve_key = config["discount_curve_key"]
-        #
-        for leg in legs
-            if isa(leg, DiffFusion.BermudanSwaptionLeg)
-                DiffFusion.reset_regression!(leg, path_, leg.regression_data.make_regression)
+        for example_string in DiffFusion.Examples.examples
+            serialised_example = DiffFusion.Examples.load(example_string)
+            example = DiffFusion.Examples.build(serialised_example)
+            example["config/simulation"]["n_paths"] = 2^3
+            example["config/simulation"]["with_progress_bar"] = false
+            example["config/instruments"]["with_progress_bar"] = false
+            #
+            path_ = DiffFusion.Examples.path!(example)
+            portfolio_ = DiffFusion.Examples.portfolio!(
+                example,
+                8,  # swap
+                8,  # swaptions
+                8,  # berms
+            )
+            legs = vcat(portfolio_...)
+            #
+            config = example["config/instruments"]
+            obs_times = config["obs_times"]
+            if isa(obs_times, AbstractDict)
+                obs_times = Vector(obs_times["start"]:obs_times["step"]:obs_times["stop"])
             end
+            with_progress_bar = config["with_progress_bar"]
+            discount_curve_key = config["discount_curve_key"]
+            #
+            for leg in legs
+                if isa(leg, DiffFusion.BermudanSwaptionLeg)
+                    DiffFusion.reset_regression!(leg, path_, leg.regression_data.make_regression)
+                end
+            end
+            #
+            scens = DiffFusion.scenarios(
+                legs,
+                obs_times,
+                path_,
+                discount_curve_key,
+                with_progress_bar=with_progress_bar
+            )
+            @test size(scens.X) == (8, 11, 32)
         end
-        #
-        scens = DiffFusion.scenarios(
-            legs,
-            obs_times,
-            path_,
-            discount_curve_key,
-            with_progress_bar=with_progress_bar
-        )
-        @test size(scens.X) == (8, 11, 32)
     end
-
 end

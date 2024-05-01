@@ -1,0 +1,797 @@
+# Context
+- typename: "DiffFusion.Context"
+  constructor: "Context"
+  alias: "ct/STD"
+  numeraire:
+    typename: "DiffFusion.NumeraireEntry"
+    constructor: "NumeraireEntry"
+    context_key: "USD"
+    model_alias: "md/USD"
+    termstructure_alias:
+      <empty_key> : "yc/USD:SOFR"
+  rates:
+    USD:
+      typename: "DiffFusion.RatesEntry"
+      constructor: "RatesEntry"
+      context_key: "USD"
+      model_alias: "md/USD"
+      termstructure_alias:
+        <empty_key> : "yc/USD:SOFR"
+        SOFR : "yc/USD:SOFR"
+        LIB3M : "yc/USD:LIB3M"
+    EUR:
+      typename: "DiffFusion.RatesEntry"
+      constructor: "RatesEntry"
+      context_key: "EUR"
+      model_alias: "md/EUR"
+      termstructure_alias:
+        <empty_key> : "yc/EUR:XCCY"
+        XCCY : "yc/EUR:XCCY"
+        ESTR : "yc/EUR:ESTR"
+        EURIBOR6M : "yc/EUR:EURIBOR6M"
+    GBP:
+      typename: "DiffFusion.RatesEntry"
+      constructor: "RatesEntry"
+      context_key: "GBP"
+      model_alias: "md/GBP"
+      termstructure_alias:
+        <empty_key> : "yc/GBP:XCCY"
+        XCCY : "yc/GBP:XCCY"
+        SONIA : "yc/GBP:SONIA"
+  assets:
+    EUR-USD:
+      typename: "DiffFusion.AssetEntry"
+      constructor: "AssetEntry"
+      context_key: "EUR-USD"
+      asset_model_alias: "md/EUR-USD"
+      domestic_model_alias: "md/USD"
+      foreign_model_alias: "md/EUR"
+      asset_spot_alias: "pa/EUR-USD"
+      domestic_termstructure_alias:
+        <empty_key> : "yc/USD:SOFR"
+      foreign_termstructure_alias:
+        <empty_key> : "yc/EUR:XCCY"
+    GBP-USD:
+      typename: "DiffFusion.AssetEntry"
+      constructor: "AssetEntry"
+      context_key: "GBP-USD"
+      asset_model_alias: "md/GBP-USD"
+      domestic_model_alias: "md/USD"
+      foreign_model_alias: "md/GBP"
+      asset_spot_alias: "pa/GBP-USD"
+      domestic_termstructure_alias:
+        <empty_key> : "yc/USD:SOFR"
+      foreign_termstructure_alias:
+        <empty_key> : "yc/GBP:XCCY"
+  forward_indices:
+    EUHICP:
+      typename: "DiffFusion.ForwardIndexEntry"
+      constructor: "ForwardIndexEntry"
+      context_key: "EUHICP"
+      asset_model_alias: "md/EUHICP"
+      domestic_model_alias: "md/USD"
+      foreign_model_alias: "md/EUHICP-RR"
+      forward_index_alias: "pa/EUHICP"
+  future_indices:
+    NIK:
+      typename: "DiffFusion.FutureIndexEntry"
+      constructor: "FutureIndexEntry"
+      context_key: "NIK"
+      future_model_alias: "md/NIK-FUT"
+      future_index_alias: "pa/NIK-FUT"
+  fixings:
+    USD:SOFR:
+      typename: "DiffFusion.FixingEntry"
+      constructor: "FixingEntry"
+      context_key: "USD:SOFR"
+      termstructure_alias: "pa/USD:SOFR"
+    USD:LIB3M:
+      typename: "DiffFusion.FixingEntry"
+      constructor: "FixingEntry"
+      context_key: "USD:LIB3M"
+      termstructure_alias: "pa/USD:LIB3M"
+    EUR:ESTR:
+      typename: "DiffFusion.FixingEntry"
+      constructor: "FixingEntry"
+      context_key: "EUR:ESTR"
+      termstructure_alias: "pa/EUR:ESTR"
+    EUR:EURIBOR6M:
+      typename: "DiffFusion.FixingEntry"
+      constructor: "FixingEntry"
+      context_key: "EUR:EURIBOR6M"
+      termstructure_alias: "pa/EUR:EURIBOR6M"
+    GBP:SONIA:
+      typename: "DiffFusion.FixingEntry"
+      constructor: "FixingEntry"
+      context_key: "GBP:SONIA"
+      termstructure_alias: "pa/GBP:SONIA"
+    EUR-USD:
+      typename: "DiffFusion.FixingEntry"
+      constructor: "FixingEntry"
+      context_key: "EUR-USD"
+      termstructure_alias: "pa/EUR-USD"
+    GBP-USD:
+      typename: "DiffFusion.FixingEntry"
+      constructor: "FixingEntry"
+      context_key: "GBP-USD"
+      termstructure_alias: "pa/GBP-USD"
+#
+# Correlations
+- typename: "DiffFusion.CorrelationHolder"
+  constructor: "correlation_holder"
+  alias: "ch/STD"
+  correlations:
+    md/EUR_f_1<>md/USD_f_1: 0.3
+    md/EUR-USD_x<>md/USD_f_1: -0.2
+    md/EUR-USD_x<>md/EUR_f_1: -0.3
+    #
+    md/GBP_f_1<>md/USD_f_1: 0.3
+    md/GBP-USD_x<>md/USD_f_1: -0.2
+    md/GBP-USD_x<>md/GBP_f_1: -0.3
+    #
+    md/EUR_f_1<>md/GBP_f_1: 0.3
+  sep: "<>"
+# Models
+- typename: "DiffFusion.LognormalAssetModel"
+  constructor: "lognormal_asset_model"
+  alias: "md/EUR-USD"
+  sigma_x:
+    typename: "DiffFusion.BackwardFlatVolatility"
+    constructor: "BackwardFlatVolatility"
+    alias: "vol/EUR-USD"
+    times:
+      - 1.0
+      - 2.0
+      - 3.0
+      - 5.0
+      - 7.0
+      - 10.0
+    values:
+      -
+        - 0.0821
+        - 0.0841
+        - 0.0884
+        - 0.0972
+        - 0.1005
+        - 0.1012
+  correlation_holder: "{ch/STD}"
+  quanto_model: "nothing"
+#
+- typename: "DiffFusion.LognormalAssetModel"
+  constructor: "lognormal_asset_model"
+  alias: "md/GBP-USD"
+  sigma_x:
+    typename: "DiffFusion.BackwardFlatVolatility"
+    constructor: "BackwardFlatVolatility"
+    alias: "vol/GBP-USD"
+    times:
+      - 1.0
+      - 2.0
+      - 3.0
+      - 5.0
+      - 7.0
+      - 10.0
+    values:
+      -
+        - 0.1033
+        - 0.1108
+        - 0.1162
+        - 0.1272
+        - 0.1145
+        - 0.1165
+  correlation_holder: "{ch/STD}"
+  quanto_model: "nothing"
+#
+- typename: "DiffFusion.GaussianHjmModel"
+  constructor: "gaussian_hjm_model"
+  alias: "md/USD"
+  delta:
+    typename: "DiffFusion.BackwardFlatParameter"
+    constructor: "flat_parameter"
+    alias: ""
+    value: 0.0
+  chi:
+    typename: "DiffFusion.BackwardFlatParameter"
+    constructor: "flat_parameter"
+    alias: ""
+    value: 0.03
+  sigma_f:
+    typename: "DiffFusion.BackwardFlatVolatility"
+    constructor: "BackwardFlatVolatility"
+    alias: "vol/USD-1F"
+    times:
+      - 1.0
+      - 2.0
+      - 3.0
+      - 5.0
+      - 7.0
+      - 10.0
+    values:
+      -
+        - 0.0075
+        - 0.0075
+        - 0.0075
+        - 0.0075
+        - 0.0075
+        - 0.0075
+  correlation_holder: "{ch/STD}"
+  quanto_model: "nothing"
+#
+- typename: "DiffFusion.GaussianHjmModel"
+  constructor: "gaussian_hjm_model"
+  alias: "md/EUR"
+  delta:
+    typename: "DiffFusion.BackwardFlatParameter"
+    constructor: "flat_parameter"
+    alias: ""
+    value: 0.0
+  chi:
+    typename: "DiffFusion.BackwardFlatParameter"
+    constructor: "flat_parameter"
+    alias: ""
+    value: 0.03
+  sigma_f:
+    typename: "DiffFusion.BackwardFlatVolatility"
+    constructor: "BackwardFlatVolatility"
+    alias: "vol/EUR-1F"
+    times:
+      - 1.0
+      - 2.0
+      - 3.0
+      - 5.0
+      - 7.0
+      - 10.0
+    values:
+      -
+        - 0.0065
+        - 0.0065
+        - 0.0065
+        - 0.0065
+        - 0.0065
+        - 0.0065
+  correlation_holder: "{ch/STD}"
+  quanto_model: "{md/EUR-USD}"
+#
+- typename: "DiffFusion.GaussianHjmModel"
+  constructor: "gaussian_hjm_model"
+  alias: "md/GBP"
+  delta:
+    typename: "DiffFusion.BackwardFlatParameter"
+    constructor: "flat_parameter"
+    alias: ""
+    value: 0.0
+  chi:
+    typename: "DiffFusion.BackwardFlatParameter"
+    constructor: "flat_parameter"
+    alias: ""
+    value: 0.03
+  sigma_f:
+    typename: "DiffFusion.BackwardFlatVolatility"
+    constructor: "BackwardFlatVolatility"
+    alias: "vol/GBP-1F"
+    times:
+      - 1.0
+      - 2.0
+      - 3.0
+      - 5.0
+      - 7.0
+      - 10.0
+    values:
+      -
+        - 0.0055
+        - 0.0055
+        - 0.0055
+        - 0.0055
+        - 0.0055
+        - 0.0055
+  correlation_holder: "{ch/STD}"
+  quanto_model: "{md/GBP-USD}"
+#
+- typename: "DiffFusion.SimpleModel"
+  constructor: "simple_model"
+  alias: "md/G3"
+  models:
+    - "{md/USD}"
+    - "{md/EUR}"
+    - "{md/GBP}"
+    - "{md/EUR-USD}"
+    - "{md/GBP-USD}"
+# Yield curves
+- typename: "DiffFusion.ZeroCurve"
+  constructor: "zero_curve"
+  alias: "yc/USD:SOFR"
+  times:
+    - 1.0
+    - 2.0
+    - 3.0
+    - 4.0
+    - 5.0
+    - 6.0
+    - 7.0
+    - 8.0
+    - 9.0
+    - 10.0
+    - 15.0
+    - 20.0
+    - 30.0
+  values:
+    - 0.049348
+    - 0.04476
+    - 0.040821
+    - 0.038746
+    - 0.037613
+    - 0.036959
+    - 0.036525
+    - 0.036235
+    - 0.036009
+    - 0.036002
+    - 0.035936
+    - 0.035076
+    - 0.031686
+#
+- typename: "DiffFusion.FlatForward"
+  constructor: "FlatForward"
+  alias: "yc/USD:LIB3M"
+  rate: 0.0374
+#
+- typename: "DiffFusion.ZeroCurve"
+  constructor: "zero_curve"
+  alias: "yc/EUR:ESTR"
+  times:
+    - 1.0
+    - 2.0
+    - 3.0
+    - 4.0
+    - 5.0
+    - 6.0
+    - 7.0
+    - 8.0
+    - 9.0
+    - 10.0
+    - 15.0
+    - 20.0
+    - 30.0
+  values:
+    - 0.031048
+    - 0.031601
+    - 0.030354
+    - 0.02967
+    - 0.029388
+    - 0.029056
+    - 0.028874
+    - 0.0288
+    - 0.028854
+    - 0.029039
+    - 0.028941
+    - 0.027132
+    - 0.023087
+#
+- typename: "DiffFusion.ZeroCurve"
+  constructor: "zero_curve"
+  alias: "yc/EUR:XCCY"
+  times:
+    - 1.0
+    - 2.0
+    - 3.0
+    - 4.0
+    - 5.0
+    - 6.0
+    - 7.0
+    - 8.0
+    - 9.0
+    - 10.0
+    - 15.0
+    - 20.0
+    - 30.0
+  values:
+    - 0.030883
+    - 0.031552
+    - 0.030457
+    - 0.029637
+    - 0.029343
+    - 0.029036
+    - 0.028887
+    - 0.028823
+    - 0.028843
+    - 0.028984
+    - 0.028753
+    - 0.027228
+    - 0.024317
+#
+- typename: "DiffFusion.ZeroCurve"
+  constructor: "zero_curve"
+  alias: "yc/EUR:EURIBOR6M"
+  times:
+    - 1.0
+    - 2.0
+    - 3.0
+    - 4.0
+    - 5.0
+    - 6.0
+    - 7.0
+    - 8.0
+    - 9.0
+    - 10.0
+    - 15.0
+    - 20.0
+    - 30.0
+  values:
+    - 0.032952
+    - 0.033956
+    - 0.032835
+    - 0.032273
+    - 0.031962
+    - 0.0318
+    - 0.031606
+    - 0.031469
+    - 0.031559
+    - 0.031579
+    - 0.030728
+    - 0.028162
+    - 0.023295
+#
+- typename: "DiffFusion.ZeroCurve"
+  constructor: "zero_curve"
+  alias: "yc/GBP:SONIA"
+  times:
+    - 1.0
+    - 2.0
+    - 3.0
+    - 4.0
+    - 5.0
+    - 6.0
+    - 7.0
+    - 8.0
+    - 9.0
+    - 10.0
+    - 15.0
+    - 20.0
+    - 30.0
+  values:
+    - 0.04448
+    - 0.04458
+    - 0.043117
+    - 0.041756
+    - 0.040438
+    - 0.039336
+    - 0.03838
+    - 0.037655
+    - 0.037206
+    - 0.03686
+    - 0.035923
+    - 0.035141
+    - 0.033293
+#
+- typename: "DiffFusion.ZeroCurve"
+  constructor: "zero_curve"
+  alias: "yc/GBP:XCCY"
+  times:
+    - 1.0
+    - 2.0
+    - 3.0
+    - 4.0
+    - 5.0
+    - 6.0
+    - 7.0
+    - 8.0
+    - 9.0
+    - 10.0
+    - 15.0
+    - 20.0
+    - 30.0
+  values:
+    - 0.045583
+    - 0.045517
+    - 0.043809
+    - 0.042225
+    - 0.040797
+    - 0.039615
+    - 0.038654
+    - 0.03804
+    - 0.037576
+    - 0.037279
+    - 0.03599
+    - 0.034624
+    - 0.032799
+# Fixings
+- typename: "DiffFusion.ForwardFlatParameter"
+  constructor: "forward_flat_parameter"
+  alias: "pa/USD:SOFR"
+  times:
+    -  0.00
+  values:
+    - 0.0455
+#
+- typename: "DiffFusion.ForwardFlatParameter"
+  constructor: "forward_flat_parameter"
+  alias: "pa/USD:LIB3M"
+  times:
+    -  0.00
+  values:
+    - 0.0486
+#
+- typename: "DiffFusion.ForwardFlatParameter"
+  constructor: "forward_flat_parameter"
+  alias: "pa/EUR:ESTR"
+  times:
+    -  0.00
+  values:
+    - 0.0240
+#
+- typename: "DiffFusion.ForwardFlatParameter"
+  constructor: "forward_flat_parameter"
+  alias: "pa/EUR:EURIBOR6M"
+  times:
+    -  0.00
+  values:
+    - 0.0308
+#
+- typename: "DiffFusion.ForwardFlatParameter"
+  constructor: "forward_flat_parameter"
+  alias: "pa/GBP:SONIA"
+  times:
+    -  0.00
+  values:
+    - 0.0308
+#
+- typename: "DiffFusion.ForwardFlatParameter"
+  constructor: "forward_flat_parameter"
+  alias: "pa/EUR-USD"
+  times:
+    - -0.25
+    - -0.12
+    -  0.00
+  values:
+    - 1.07
+    - 1.07
+    - 1.07
+#
+- typename: "DiffFusion.ForwardFlatParameter"
+  constructor: "forward_flat_parameter"
+  alias: "pa/GBP-USD"
+  times:
+    - -0.25
+    - -0.12
+    -  0.00
+  values:
+    - 1.09
+    - 1.12
+    - 1.20
+#
+- typename: "DiffFusion.ForwardFlatParameter"
+  constructor: "forward_flat_parameter"
+  alias: "pa/EUHICP"
+  times:
+    -  0.00
+  values:
+    - 1.00
+- typename: "DiffFusion.ForwardFlatParameter"
+  constructor: "forward_flat_parameter"
+  alias: "pa/NIK-FUT"
+  times:
+    -  0.00
+  values:
+    - 23776.50
+- typename: "DiffFusion.FlatSpreadCurve"
+  constructor: "flat_spread_curve"
+  alias: "sc/SingleA"
+  spread: 0.015  # 150 bp
+# Configs
+- alias: "config/simulation"
+  simulation_times:
+    start: 0.0
+    step: 1.0
+    stop: 10.0
+  n_paths: 8192
+  with_progress_bar: true
+  seed: 42
+  path_interpolation: true
+- alias: "config/instruments"
+  seed: 123456
+  obs_times:
+    start: 0.0
+    step: 1.0
+    stop: 10.0
+  with_progress_bar: true
+  discount_curve_key: "USD"
+  swap_types:
+    - USD
+    - EUR
+    - GBP
+    - EUR-USD
+    - GBP-USD
+    - EUR6M-USD3M
+  swaption_types:
+    - SOFR_SWPN
+    - EURIBOR6M_SWPN
+    - SONIA_SWPN
+  bermudan_types:
+    - SOFR_SWPN
+    - EURIBOR6M_SWPN
+    - SONIA_SWPN
+  USD:
+    type: VANILLA
+    discount_curve_key: USD:SOFR
+    fx_key: nothing
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    fixed_leg:
+      coupons_per_year: 4
+      min_rate: 0.01
+      max_rate: 0.04
+    float_leg:
+      coupon_type: COMPOUNDED
+      coupons_per_year: 4
+      forward_curve_key: USD:SOFR
+      fixing_key: USD:SOFR
+  EUR:
+    type: VANILLA
+    discount_curve_key: EUR:XCCY
+    fx_key: EUR-USD
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    fixed_leg:
+      coupons_per_year: 1
+      min_rate: 0.01
+      max_rate: 0.04
+    float_leg:
+      coupon_type: SIMPLE
+      coupons_per_year: 2
+      forward_curve_key: EUR:EURIBOR6M
+      fixing_key: EUR:EURIBOR6M
+  GBP:
+    type: VANILLA
+    discount_curve_key: GBP:XCCY
+    fx_key: GBP-USD
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    fixed_leg:
+      coupons_per_year: 4
+      min_rate: 0.01
+      max_rate: 0.04
+    float_leg:
+      coupon_type: COMPOUNDED
+      coupons_per_year: 4
+      forward_curve_key: GBP:SONIA
+      fixing_key: GBP:SONIA
+  EUR-USD:
+    type: BASIS-MTM
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    dom_leg:
+      coupon_type: COMPOUNDED
+      coupons_per_year: 4
+      forward_curve_key: USD:SOFR
+      fixing_key: USD:SOFR
+      #
+      discount_curve_key: USD:SOFR
+      fx_key: nothing
+    for_leg:
+      coupon_type: COMPOUNDED
+      coupons_per_year: 4
+      forward_curve_key: EUR:ESTR
+      fixing_key: EUR:ESTR
+      min_spread: 0.01
+      max_spread: 0.03
+      #
+      discount_curve_key: EUR:XCCY
+      fx_key: EUR-USD
+  GBP-USD:
+    type: BASIS-MTM
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    dom_leg:
+      coupon_type: COMPOUNDED
+      coupons_per_year: 4
+      forward_curve_key: USD:SOFR
+      fixing_key: USD:SOFR
+      #
+      discount_curve_key: USD:SOFR
+      fx_key: nothing
+    for_leg:
+      coupon_type: COMPOUNDED
+      coupons_per_year: 4
+      forward_curve_key: GBP:SONIA
+      fixing_key: GBP:SONIA
+      min_spread: 0.01
+      max_spread: 0.03
+      #
+      discount_curve_key: GBP:XCCY
+      fx_key: GBP-USD
+  EUR6M-USD3M:
+    type: BASIS-MTM
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    dom_leg:
+      coupon_type: SIMPLE
+      coupons_per_year: 4
+      forward_curve_key: USD:LIB3M
+      fixing_key: USD:LIB3M
+      #
+      discount_curve_key: USD:SOFR
+      fx_key: nothing
+    for_leg:
+      coupon_type: SIMPLE
+      coupons_per_year: 2
+      forward_curve_key: EUR:EURIBOR6M
+      fixing_key: EUR:EURIBOR6M
+      min_spread: 0.01
+      max_spread: 0.03
+      #
+      discount_curve_key: EUR:XCCY
+      fx_key: EUR-USD
+  SOFR_SWPN:
+    setlement_type: CASH
+    #
+    type: VANILLA
+    discount_curve_key: USD:SOFR
+    fx_key: nothing
+    min_start: 1.0
+    max_start: 10.0
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    fixed_leg:
+      coupons_per_year: 4
+      min_rate: 0.01
+      max_rate: 0.04
+    float_leg:
+      coupon_type: COMPOUNDED
+      coupons_per_year: 4
+      forward_curve_key: USD:SOFR
+      fixing_key: USD:SOFR
+  EURIBOR6M_SWPN:
+    setlement_type: CASH
+    #
+    type: VANILLA
+    discount_curve_key: EUR:XCCY
+    fx_key: EUR-USD
+    min_start: 1.0
+    max_start: 10.0
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    fixed_leg:
+      coupons_per_year: 1
+      min_rate: 0.01
+      max_rate: 0.04
+    float_leg:
+      coupon_type: SIMPLE
+      coupons_per_year: 2
+      forward_curve_key: EUR:EURIBOR6M
+      fixing_key: EUR:EURIBOR6M
+  SONIA_SWPN:
+    setlement_type: CASH
+    #
+    type: VANILLA
+    discount_curve_key: GBP:XCCY
+    fx_key: GBP-USD
+    min_start: 1.0
+    max_start: 10.0
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    fixed_leg:
+      coupons_per_year: 4
+      min_rate: 0.01
+      max_rate: 0.04
+    float_leg:
+      coupon_type: COMPOUNDED
+      coupons_per_year: 4
+      forward_curve_key: GBP:SONIA
+      fixing_key: GBP:SONIA
