@@ -2,6 +2,8 @@
 "A list of example models and instrument specifications."
 examples = [
     "g3_1factor_flat",
+    "g3_1factor_ts",
+    "g3_3factor_ts",
 ]
 
 """
