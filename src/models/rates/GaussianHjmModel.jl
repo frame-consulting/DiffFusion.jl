@@ -14,8 +14,18 @@ struct GaussianHjmModelVolatility
     DfT::AbstractMatrix
 end
 
+function volatility(o::GaussianHjmModelVolatility, u::ModelTime)
+    # return o.HHfInv * (o.DfT .* o.sigma_f(u))  # beware DfT multiplication
+    σ = o.sigma_f(u)
+    d = length(σ)
+    return [
+        sum( o.HHfInv[i,k] * o.DfT[k,j] * σ[k] for k = 1:d )
+        for i = 1:d, j = 1:d
+    ]
+end
+
 "Calculate volatility matrix."
-(o::GaussianHjmModelVolatility)(u::ModelTime) = o.HHfInv * (o.DfT .* o.sigma_f(u))  # beware DfT multiplication
+(o::GaussianHjmModelVolatility)(u::ModelTime) = volatility(o, u)
 
 
 """
@@ -282,7 +292,8 @@ function log_zero_bond(m::GaussianHjmModel, model_alias::String, t::ModelTime, T
     G = G_hjm(m, t, T)
     y = func_y(m, t)
     X_ = @view(X.X[idx:idx+(d-1),:])
-    return X_' * G .+ 0.5 * (G'*y*G)
+    GyG = sum(G[i] * sum(y[i,j] * G[j] for j in 1:d) for i in 1:d)
+    return X_' * G .+ (0.5 * GyG)
 end
 
 """
@@ -333,7 +344,9 @@ function log_compounding_factor(
     G2 = G_hjm(m, t, T2)
     y = func_y(m, t)
     X_ = @view(X.X[idx:idx+(d-1),:])
-    return X_' * (G2 .- G1) .+ 0.5 * ((G2'*y*G2) - (G1'*y*G1))
+    G1yG1 = sum(G1[i] * sum(y[i,j] * G1[j] for j in 1:d) for i in 1:d)
+    G2yG2 = sum(G2[i] * sum(y[i,j] * G2[j] for j in 1:d) for i in 1:d)
+    return X_' * (G2 .- G1) .+ 0.5 * (G2yG2 - G1yG1)
 end
 
 

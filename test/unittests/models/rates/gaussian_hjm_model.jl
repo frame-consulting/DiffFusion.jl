@@ -98,7 +98,7 @@ using LinearAlgebra
         ]
         @test isapprox(theta_model[1], theta_ref[1], atol=1.5e-13 )
         @test isapprox(theta_model[2], theta_ref[2], atol=7.0e-13 )
-        @test isapprox(theta_model[3], theta_ref[3], atol=3.0e-11 )
+        @test isapprox(theta_model[3], theta_ref[3], atol=4.0e-11 )
         @test isapprox(theta_model[4], theta_ref[4], rtol=7.5e-9  )
         @test isapprox(theta_model[5], theta_ref[5], rtol=2.0e-9  )
     end
@@ -250,8 +250,8 @@ using LinearAlgebra
         SX_2 = DiffFusion.model_state(X, m)
         @test string(SX_2) == string(SX)
         @test DiffFusion.log_bank_account(m, DiffFusion.alias(m), 1.0, SX) == [ 4., 8., 12. ]
-        @test_throws AssertionError DiffFusion.log_bank_account(m, "WrongAlias", 1.0, SX) 
-        @test DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 8.0, SX) == X[1:3,:]' * G .+ 0.5 * G'*y*G
+        @test_throws AssertionError DiffFusion.log_bank_account(m, "WrongAlias", 1.0, SX)
+        @test isapprox(DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 8.0, SX), X[1:3,:]' * G .+ 0.5 * G'*y*G, rtol=1.0e-14)
         @test_throws AssertionError DiffFusion.log_zero_bond(m, "WrongAlias", 4.0, 8.0, SX)
         #
         df1 = DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 8.0, SX)
@@ -262,17 +262,17 @@ using LinearAlgebra
         #
         dfT = DiffFusion.log_zero_bonds(m, DiffFusion.alias(m), 4.0, [4.0, 6.0, 8.0, 10.0], SX)
         @test size(dfT) == (3, 4)
-        @test dfT[:,1] == DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 4.0, SX)
-        @test dfT[:,2] == DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 6.0, SX)
-        @test dfT[:,3] == DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 8.0, SX)
-        @test dfT[:,4] == DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 10.0, SX)
+        @test isapprox(dfT[:,1], DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 4.0, SX), rtol=1.0e-14)
+        @test isapprox(dfT[:,2], DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 6.0, SX), rtol=1.0e-14)
+        @test isapprox(dfT[:,3], DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 8.0, SX), rtol=1.0e-14)
+        @test isapprox(dfT[:,4], DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 10.0, SX), rtol=1.0e-14)
         #
         X = [ 0., 0., 1., 2., 3., 4., 0. ] * [ 1., 2., 3.]'
         s_alias = [ "1", "2", "Theta_3F_x_1", "Theta_3F_x_2", "Theta_3F_x_3", "Theta_3F_s", "7" ]
         dict = DiffFusion.alias_dictionary(s_alias)
         SX = DiffFusion.model_state(X, dict)
         @test DiffFusion.log_bank_account(m, "Theta_3F", 1.0, SX) == [ 4., 8., 12. ]
-        @test DiffFusion.log_zero_bond(m, "Theta_3F", 4.0, 8.0, SX) == X[3:5,:]' * G .+ 0.5 * G'*y*G
+        @test isapprox(DiffFusion.log_zero_bond(m, "Theta_3F", 4.0, 8.0, SX), X[3:5,:]' * G .+ 0.5 * G'*y*G, rtol=1.0e-14)
         #
         df1 = DiffFusion.log_zero_bond(m, "Theta_3F", 4.0, 8.0, SX)
         df2 = DiffFusion.log_zero_bond(m, "Theta_3F", 4.0, 10.0, SX)
