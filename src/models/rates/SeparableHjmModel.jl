@@ -36,7 +36,9 @@ end
 Diagonal entries of ``H(s,t)``.
 """
 function H_hjm(chi::AbstractVector, s::ModelTime, t::ModelTime)
-    return exp.(-chi .* (t-s))
+    # exp.(-chi .* (t-s))
+    δt = t-s
+    return [ exp(-χ * δt) for χ in chi ]
 end
 
 """
@@ -54,8 +56,10 @@ end
 Vector function ``G(s,t)``.
 """
 function G_hjm(chi::AbstractVector, s::ModelTime, t::ModelTime)
+    # (1.0 .- exp.(-chi .* (t-s))) ./ chi
+    δt = t-s
     # This is an unsafe implementation. Better use Taylor expansion.
-    return (1.0 .- exp.(-chi .* (t-s))) ./ chi
+    return [ (1.0 - exp(-χ * δt)) / χ for χ in chi ]
 end
 
 """
@@ -93,6 +97,7 @@ end
 Benchmark times volatility scaling matrix ``H [H^f]^{-1} = [H^f H^{-1}]^{-1}``.
 """
 function benchmark_times_scaling(chi::AbstractVector, delta::AbstractVector)
+    # Hf_H_inv = exp.(-delta * chi')
     Hf_H_inv = [ exp(-chi_ * delta_) for delta_ in delta, chi_ in chi ]  # beware the order of loops!
     HHfInv = inv(Hf_H_inv)
     return HHfInv
@@ -118,13 +123,22 @@ function func_y(
     s::ModelTime,
     t::ModelTime,
     )
+    # chi_i_p_chi_j = chi .+ chi'
+    # H_i_j = exp.(-chi_i_p_chi_j .* (t-s))
+    # V = sigmaT * transpose(sigmaT)
+    # G_i_j = (1. .- H_i_j) ./ chi_i_p_chi_j
+    # y1 = y0 .* H_i_j .+ V .* G_i_j
+    #
     # better exploit symmetry and update in-place
-    chi_i_p_chi_j = [ (chi_i + chi_j) for chi_i in chi, chi_j in chi ]
-    H_i_j = exp.(-chi_i_p_chi_j .* (t-s))
-    V = sigmaT * transpose(sigmaT)
     # this is unsafe, better use Taylor expansion
-    G_i_j = (1. .- H_i_j) ./ chi_i_p_chi_j
-    return y0 .* H_i_j .+ V .* G_i_j
+    d = length(chi)
+    δt = t - s
+    return [
+        y0[i,j] * exp(-(chi[i] + chi[j]) * δt) +
+        sum( sigmaT[i,k] * sigmaT[j,k] for k in 1:d ) *
+        (1.0 - exp(-(chi[i] + chi[j]) * δt)) / (chi[i] + chi[j])
+        for i in 1:d, j in 1:d
+    ]
 end
 
 
@@ -146,13 +160,21 @@ function _func_y(
     s::ModelTime,
     t::ModelTime,
     )
+    # chi_i_p_chi_j = chi .+ chi'
+    # H_i_j = exp.(-chi_i_p_chi_j .* (t-s))
+    # V = sigmaT * transpose(sigmaT)
+    # G_i_j = (1. .- H_i_j) ./ chi_i_p_chi_j
+    # y1 = 0 + V .* G_i_j
+    #
     # better exploit symmetry and update in-place
-    chi_i_p_chi_j = [ (chi_i + chi_j) for chi_i in chi, chi_j in chi ]
-    H_i_j = exp.(-chi_i_p_chi_j .* (t-s))
-    V = sigmaT * transpose(sigmaT)
     # this is unsafe, better use Taylor expansion
-    G_i_j = (1. .- H_i_j) ./ chi_i_p_chi_j
-    return V .* G_i_j
+    d = length(chi)
+    δt = t - s
+    return [
+        sum( sigmaT[i,k] * sigmaT[j,k] for k in 1:d ) *
+        (1.0 - exp(-(chi[i] + chi[j]) * δt)) / (chi[i] + chi[j])
+        for i in 1:d, j in 1:d
+    ]
 end
 
 
