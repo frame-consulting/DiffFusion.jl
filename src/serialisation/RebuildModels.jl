@@ -56,6 +56,28 @@ end
 
 
 """
+    model_parameters(m::CevAssetModel)
+
+Extract model parameters from CevAssetModel.
+"""
+function model_parameters(m::CevAssetModel)
+    d = Dict{String, Any}()
+    d["type"]    = typeof(m)
+    d["alias"]   = m.alias
+    d["sigma_x"] = m.sigma_x
+    d["skew_x"]  = m.skew_x
+    d["correlation_holder"]  = m.correlation_holder.alias  # LognormalAssetModel must have correlation_holder
+    if isnothing(m.quanto_model) # quanto model is optional
+        d["quanto_model"] = nothing
+    else
+        d["quanto_model"] = m.quanto_model.alias
+    end
+    # we add another dict layer to allow combining models and ts.
+    return Dict(m.alias => d)
+end
+
+
+"""
     model_parameters(m::SimpleModel)
 
 Extract model parameters from SimpleModel.
@@ -133,6 +155,21 @@ function build_model(
         return lognormal_asset_model(
             m_dict["alias"],
             m_dict["sigma_x"],
+            ch,
+            quanto_model,
+        )
+    end
+    if m_dict["type"] == CevAssetModel
+        ch = param_dict[m_dict["correlation_holder"]]  # CevAssetModel requires correlation_holder
+        if isnothing(m_dict["quanto_model"])
+            quanto_model = nothing
+        else
+            quanto_model = model_dict[m_dict["quanto_model"]]
+        end
+        return cev_asset_model(
+            m_dict["alias"],
+            m_dict["sigma_x"],
+            m_dict["skew_x"],
             ch,
             quanto_model,
         )
@@ -252,6 +289,11 @@ function model_volatility_values(
     if m_dict["type"] == LognormalAssetModel
         return _get_labels_and_values(alias, "sigma_x", m_dict)
     end
+    if m_dict["type"] == CevAssetModel
+        (l1, v1) = _get_labels_and_values(alias, "sigma_x", m_dict)
+        (l2, v2) = _get_labels_and_values(alias, "skew_x", m_dict)
+        return (vcat(l1, l2), vcat(v1, v2))
+    end
     if m_dict["type"] == SimpleModel
         vol_labels_values = [
             model_volatility_values(a, param_dict)
@@ -291,8 +333,14 @@ function model_parameters!(
             value_matrix = reshape(param_value_dict[m_alias][param_key], (ts_size[2],ts_size[1]))
             value_matrix = permutedims(value_matrix)
             #
-            @assert isa(ts, BackwardFlatVolatility)  # deal with other cases later...
-            ts_new = backward_flat_volatility(ts.alias, ts.times, value_matrix)
+            if isa(ts, BackwardFlatVolatility)
+                ts_new = backward_flat_volatility(ts.alias, ts.times, value_matrix)
+            elseif isa(ts, BackwardFlatParameter)
+                ts_new = backward_flat_parameter(ts.alias, ts.times, value_matrix)
+            else
+                # deal with other cases later...
+                error("Unknown term structure type.")
+            end
             param_dict[m_alias][param_key] = ts_new  # re-set (and activate) term structure
         end
     end

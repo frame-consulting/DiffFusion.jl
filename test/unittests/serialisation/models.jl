@@ -180,6 +180,76 @@ using YAML
         @test string(o) == string(models[4])
     end
 
+    @testset "CevAssetModel (de-)serialisation." begin
+        models = setup_models(ch_full)
+        σ = DiffFusion.flat_volatility(0.15)
+        γ = DiffFusion.flat_parameter(1.3)
+        m = DiffFusion.cev_asset_model("EUR-USD", σ, γ, ch_full, nothing)
+        ref_dict = Dict(
+            "EUR-USD" => models[2],
+            "One" => ch_one,
+            "Full" => ch_full
+        )
+        #
+        s = DiffFusion.serialise(m)
+        d = OrderedDict(
+            "typename" => "DiffFusion.CevAssetModel",
+            "constructor" => "cev_asset_model",
+            "alias" => "EUR-USD",
+            "sigma_x" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatVolatility",
+                "constructor" => "BackwardFlatVolatility",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.15]]
+                ),
+            "skew_x" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatParameter",
+                "constructor" => "BackwardFlatParameter",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[1.3]]
+                ),
+                "correlation_holder" => "{Full}",
+            "quanto_model" => "nothing",
+        )
+        o = DiffFusion.deserialise(d, ref_dict)
+        @test s == d
+        @test string(o) == string(m)
+        #
+        m = DiffFusion.cev_asset_model("SXE50", σ, γ, ch_full, models[2])
+        ref_dict = Dict(
+            "EUR-USD" => models[2],
+            "One" => ch_one,
+            "Full" => ch_full
+        )
+        s = DiffFusion.serialise(m)
+        d = OrderedDict(
+            "typename" => "DiffFusion.CevAssetModel",
+            "constructor" => "cev_asset_model",
+            "alias" => "SXE50",
+            "sigma_x" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatVolatility",
+                "constructor" => "BackwardFlatVolatility",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.15]]
+                ),
+            "skew_x" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatParameter",
+                "constructor" => "BackwardFlatParameter",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[1.3]]
+                ),
+            "correlation_holder" => "{Full}",
+            "quanto_model" => "{EUR-USD}",
+        )
+        o = DiffFusion.deserialise(d, ref_dict)
+        @test s == d
+        @test string(o) == string(m)
+    end
+
     @testset "SimpleModel (de-)serialisation." begin
         models = setup_models(ch_one)
         ref_dict = Dict(
