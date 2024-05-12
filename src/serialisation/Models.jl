@@ -56,6 +56,28 @@ end
 
 
 """
+    serialise(o::CevAssetModel)
+
+Serialise CevAssetModel.
+"""
+function serialise(o::CevAssetModel)
+    d = OrderedDict{String, Any}()
+    d["typename"]    = string(typeof(o))
+    d["constructor"] = "cev_asset_model"
+    d["alias"]       = serialise(o.alias)
+    d["sigma_x"]     = serialise(o.sigma_x)
+    d["skew_x"]      = serialise(o.skew_x)
+    d["correlation_holder"] = serialise_key(o.correlation_holder.alias)
+    if isnothing(o.quanto_model)
+        d["quanto_model"] = serialise(o.quanto_model)
+    else
+        d["quanto_model"] = serialise_key(o.quanto_model.alias)
+    end
+    return d
+end
+
+
+"""
     serialise(o::SimpleModel)
 
 Serialise SimpleModel.

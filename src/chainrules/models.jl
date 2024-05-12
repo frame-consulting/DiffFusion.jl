@@ -14,6 +14,7 @@ ChainRulesCore.@non_differentiable _intersect_interval(s::ModelTime, t::ModelTim
 # do not differentiate time grid operations
 ChainRulesCore.@non_differentiable parameter_grid(m::Model)
 ChainRulesCore.@non_differentiable parameter_grid(m::LognormalAssetModel)
+ChainRulesCore.@non_differentiable parameter_grid(m::CevAssetModel)
 ChainRulesCore.@non_differentiable parameter_grid(m::MarkovFutureModel)
 ChainRulesCore.@non_differentiable parameter_grid(m::CompositeModel)
 ChainRulesCore.@non_differentiable parameter_grid(m::GaussianHjmModel)

@@ -15,6 +15,7 @@ using Test
         @test_throws ErrorException DiffFusion.asset_volatility(m, 1.0, 2.0, SX)
     end
 
+    include("cev_asset_model.jl")
     include("lognormal_asset_model.jl")
     include("asset_volatility_and_calibration.jl")
 

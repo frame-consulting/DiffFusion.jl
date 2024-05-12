@@ -194,4 +194,23 @@ using Test
         # println(v)
     end
 
+    @testset "CevAssetModel re-build" begin
+        σ = DiffFusion.flat_volatility(0.15)
+        γ = DiffFusion.flat_parameter(1.3)
+        m = DiffFusion.cev_asset_model("EUR-USD", σ, γ, ch_full, nothing)
+        d = DiffFusion.model_parameters(m)
+        (l, v) = DiffFusion.model_volatility_values(m.alias, d)
+        #
+        p_dict = Dict{String, Any}( "Full" => ch_full )
+        for k in keys(d)
+            p_dict[k] = d[k]
+        end
+        DiffFusion.model_parameters!(p_dict, l, v)
+        m_dict = Dict{String, Any}()
+        m1 = DiffFusion.build_model(m.alias, p_dict, m_dict)
+        @test string(m1) == string(m)
+        # println(l)
+        # println(d)
+    end
+
 end
