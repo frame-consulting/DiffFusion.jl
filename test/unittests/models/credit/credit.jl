@@ -3,6 +3,6 @@ using Test
 
 @testset "Models for default and survival probabilities." begin
 
-    # Add tests here.
+    include("cox_ingersoll_ross_model.jl")
 
 end
