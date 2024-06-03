@@ -12,7 +12,7 @@ A `CompositeModel` represents a collection of (coupled) component models.
     factor_alias
     model_dict::Dict{String,Int}
 
-For concrete types, see `SimpleModel`.
+For concrete types, see `SimpleModel` and `DiagonalModel`.
 """
 abstract type CompositeModel <: Model end
 
