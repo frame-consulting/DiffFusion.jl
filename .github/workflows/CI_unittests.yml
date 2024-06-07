@@ -33,6 +33,6 @@ jobs:
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v1
       - uses: julia-actions/julia-buildpkg@v1
-      - uses: sschlenkrich/julia-runtest@with_test_arg_v3
+      - uses: sschlenkrich/julia-runtest@with_test_arg_v4
         with:
           test_arg: 'unittests/unittests_all.jl'
