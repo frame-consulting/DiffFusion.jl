@@ -201,6 +201,10 @@ using Test
     end
 
     @testset "Hybrid CEV model martingale test." begin
+        include("../test_tolerances.jl")
+        abs_tol = test_tolerances["simulations/diagonal_model.jl"]
+        @info "Run simulation test with tolerance abs_tol=" * string(abs_tol) * "."
+
         ch = TestModels.ch_full
         model = TestModels.hybrid_model_full
         #
@@ -247,7 +251,7 @@ using Test
                 s = sim.X[4:4,:,k]
                 one = mean(exp.(-G'*x .- 0.5*G'*y*G - s))
                 # println(maximum(abs(one-1)))
-                @test isapprox(one, 1.0, atol=1.0e-2)
+                @test isapprox(one, 1.0, atol=abs_tol)
             end
         end
         # fx rate

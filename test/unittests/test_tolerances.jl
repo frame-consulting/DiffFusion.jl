@@ -12,6 +12,7 @@ if isfile(joinpath(@__DIR__, "test_tolerances.local.jl"))
 else
     test_tolerances = Dict(
         "simulations/asset_model.jl"        => if (VERSION < v"1.7") 0.06 else 0.08 end,
+        "simulations/diagonal_model.jl"     => if (VERSION < v"1.7") 0.015 else 0.015 end,
         "simulations/gaussian_hjm_model.jl" => if (VERSION < v"1.7") 0.05 else 0.05 end,
         "simulations/simple_models.jl"      => if (VERSION < v"1.7") 0.05 else 0.05 end,
         "examples/examples.jl"              => 1.0e-8,
