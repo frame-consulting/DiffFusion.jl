@@ -19,10 +19,23 @@ using LinearAlgebra
         @test DiffFusion.alias(m) == "Std"
         @test DiffFusion.state_alias(m) == [ "Std_x_1", "Std_x_2", "Std_x_3", "Std_s" ]
         @test DiffFusion.factor_alias(m) == [ "Std_f_1", "Std_f_2", "Std_f_3" ]
+        #
         HHfInv = DiffFusion.benchmark_times_scaling(chi(),delta())
         @test m.sigma_T(1.5) == HHfInv * Diagonal([60., 70., 80.])
         @test m.sigma_T(5.0) == HHfInv * Diagonal([70., 80., 90.])
         @test m.sigma_T(12.0) == HHfInv * Diagonal([80., 90., 90.])
+        #
+        m = DiffFusion.gaussian_hjm_model("Std",delta,chi,sigma_f,nothing,nothing,DiffFusion.ZeroRateScaling)
+        A_inv = DiffFusion.benchmark_times_scaling(chi(), delta(), DiffFusion.ZeroRateScaling)
+        @test m.sigma_T(1.5) == A_inv * Diagonal([60., 70., 80.])
+        @test m.sigma_T(5.0) == A_inv * Diagonal([70., 80., 90.])
+        @test m.sigma_T(12.0) == A_inv * Diagonal([80., 90., 90.])
+        #
+        m = DiffFusion.gaussian_hjm_model("Std",delta,chi,sigma_f,nothing,nothing,DiffFusion.DiagonalScaling)
+        @test m.sigma_T(1.5) == Diagonal([60., 70., 80.])
+        @test m.sigma_T(5.0) == Diagonal([70., 80., 90.])
+        @test m.sigma_T(12.0) == Diagonal([80., 90., 90.])
+        #
         @test DiffFusion.correlation_holder(m) == nothing
         #
         @test_throws AssertionError DiffFusion.gaussian_hjm_model("Std", DiffFusion.flat_parameter("", delta()[2:end]), chi, sigma_f, nothing, nothing)

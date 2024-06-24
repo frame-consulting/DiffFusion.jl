@@ -30,6 +30,7 @@ end
         sigma_f::BackwardFlatVolatility,
         correlation_holder::Union{CorrelationHolder, Nothing},
         quanto_model::Union{AssetModel, Nothing},
+        scaling_type::BenchmarkTimesScaling = ForwardRateScaling,
         )
 
 Create a Gausian Markov model for Future prices.
@@ -41,9 +42,10 @@ function markov_future_model(
     sigma_f::BackwardFlatVolatility,
     correlation_holder::Union{CorrelationHolder, Nothing},
     quanto_model::Union{AssetModel, Nothing},
+    scaling_type::BenchmarkTimesScaling = ForwardRateScaling,
     )
     #
-    hjm_model = gaussian_hjm_model(alias, delta, chi, sigma_f, correlation_holder, quanto_model)
+    hjm_model = gaussian_hjm_model(alias, delta, chi, sigma_f, correlation_holder, quanto_model, scaling_type)
     # manage aliases different to GaussianHjmModel
     state_alias  = [ alias * "_x_" * string(k) for k in 1:length(delta()) ]
     factor_alias = [ alias * "_f_" * string(k) for k in 1:length(delta()) ]  # ensure consistency with HJM correlation calculation
@@ -149,7 +151,7 @@ function Theta(
     @assert isnothing(X) == !state_dependent_Theta(m)
     y(t) = func_y(m.hjm_model, t)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb(u) = m.hjm_model.sigma_T.HHfInv .* reshape(m.hjm_model.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb(u) = m.hjm_model.sigma_T.scaling_matrix .* reshape(m.hjm_model.sigma_T.sigma_f(u), (1,:))
     alpha = quanto_drift(m.factor_alias, m.hjm_model.quanto_model, s, t, X)
     #
     chi = chi_hjm(m)
@@ -208,7 +210,7 @@ function Sigma_T(
     @assert isnothing(X) == !state_dependent_Sigma(m)
     chi = chi_hjm(m)
     # make sure we do not apply correlations twice!
-    f(u) = H_hjm(chi,u,t) .* m.hjm_model.sigma_T.HHfInv .* reshape(m.hjm_model.sigma_T.sigma_f(u), (1,:))
+    f(u) = H_hjm(chi,u,t) .* m.hjm_model.sigma_T.scaling_matrix .* reshape(m.hjm_model.sigma_T.sigma_f(u), (1,:))
     return f
 end
 

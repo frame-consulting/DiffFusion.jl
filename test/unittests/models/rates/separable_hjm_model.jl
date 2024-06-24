@@ -39,7 +39,10 @@ using LinearAlgebra
             chi[1]*delta[2] chi[2]*delta[2] chi[3]*delta[2];
             chi[1]*delta[3] chi[2]*delta[3] chi[3]*delta[3];
         ]
-        @test DiffFusion.benchmark_times_scaling(chi,delta) == inv(exp.(-chi_delta))
+        @test DiffFusion.benchmark_times_scaling(chi, delta) == inv(exp.(-chi_delta))
+        @test DiffFusion.benchmark_times_scaling(chi, delta, DiffFusion.ForwardRateScaling) == inv(exp.(-chi_delta))
+        @test DiffFusion.benchmark_times_scaling(chi, delta, DiffFusion.ZeroRateScaling) == inv((1.0 .- exp.(-chi_delta)) ./ chi_delta)
+        @test DiffFusion.benchmark_times_scaling(chi, delta, DiffFusion.DiagonalScaling) == Matrix(I, 3, 3)
     end
 
     @testset "Auxilliary state variable/variance calculation." begin

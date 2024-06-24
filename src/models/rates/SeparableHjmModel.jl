@@ -91,17 +91,83 @@ function G_hjm(m::SeparableHjmModel, s::ModelTime, T::AbstractVector)
     return G_hjm(chi_hjm(m), s, T)
 end
 
+
 """
-    benchmark_times_scaling(chi::AbstractVector, delta::AbstractVector)
+    @enum(
+        BenchmarkTimesScaling,
+        ForwardRateScaling,
+        ZeroRateScaling,
+        DiagonalScaling,
+    )
+
+Specify scaling methods to be used for state variable `x` volatility function.
+
+`ForwardRateScaling` (default) uses forward rates as benchmark rates. For refrence,
+see Andersen/Piterbarg, Interest Rate Modeling, 2010, Prop. 13.3.2.
+
+`ZeroRateScaling` uses continous compounded zero rates as benchmark rates. See
+https://ssrn.com/abstract=4638188 for details.
+
+`DiagonalScaling` uses identity matrix (i.e. no scaling).
+"""
+@enum(
+    BenchmarkTimesScaling,
+    ForwardRateScaling,
+    ZeroRateScaling,
+    DiagonalScaling,
+)
+
+
+"""
+    benchmark_times_scaling_forward_rate(chi::AbstractVector, delta::AbstractVector)
 
 Benchmark times volatility scaling matrix ``H [H^f]^{-1} = [H^f H^{-1}]^{-1}``.
 """
-function benchmark_times_scaling(chi::AbstractVector, delta::AbstractVector)
+function benchmark_times_scaling_forward_rate(chi::AbstractVector, delta::AbstractVector)
     # Hf_H_inv = exp.(-delta * chi')
     Hf_H_inv = [ exp(-chi_ * delta_) for delta_ in delta, chi_ in chi ]  # beware the order of loops!
     HHfInv = inv(Hf_H_inv)
     return HHfInv
 end
+
+
+"""
+    benchmark_times_scaling_zero_rate(chi::AbstractVector, delta::AbstractVector)
+
+Benchmark times volatility scaling matrix based on zero rates.
+"""
+function benchmark_times_scaling_zero_rate(chi::AbstractVector, delta::AbstractVector)
+    A_tau = [ (1.0 - exp(-chi_ * delta_)) / (chi_ * delta_) for delta_ in delta, chi_ in chi ]  # beware the order of loops!
+    return inv(A_tau)
+end
+
+
+"""
+    benchmark_times_scaling(
+        chi::AbstractVector,
+        delta::AbstractVector,
+        scaling_type::BenchmarkTimesScaling = ForwardRate::BenchmarkTimesScaling
+        )
+
+Calculate volatility scaling matrix depending on the scaling type.
+"""
+function benchmark_times_scaling(
+    chi::AbstractVector,
+    delta::AbstractVector,
+    scaling_type::BenchmarkTimesScaling = ForwardRateScaling,
+    )
+    #
+    if scaling_type == ForwardRateScaling
+        return benchmark_times_scaling_forward_rate(chi, delta)
+    elseif scaling_type == ZeroRateScaling
+        return benchmark_times_scaling_zero_rate(chi, delta)
+    elseif scaling_type == DiagonalScaling
+        return Matrix(I, length(delta), length(delta))
+    else
+        error("Unknown BenchmarkTimesScaling type " * string(scaling_type))
+    end
+end
+
 
 """
     func_y(
