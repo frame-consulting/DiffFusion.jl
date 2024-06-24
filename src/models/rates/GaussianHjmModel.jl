@@ -1,7 +1,7 @@
 
 """
     struct GaussianHjmModelVolatility
-        HHfInv::AbstractMatrix
+        scaling_matrix::AbstractMatrix
         sigma_f::BackwardFlatVolatility
         DfT::AbstractMatrix
     end
@@ -9,17 +9,17 @@
 A dedicated matrix-valued volatility term structure for Gaussian HJM Models.
 """
 struct GaussianHjmModelVolatility
-    HHfInv::AbstractMatrix
+    scaling_matrix::AbstractMatrix
     sigma_f::BackwardFlatVolatility
     DfT::AbstractMatrix
 end
 
 function volatility(o::GaussianHjmModelVolatility, u::ModelTime)
-    # return o.HHfInv * (o.DfT .* o.sigma_f(u))  # beware DfT multiplication
+    # return o.scaling_matrix * (o.DfT .* o.sigma_f(u))  # beware DfT multiplication
     σ = o.sigma_f(u)
     d = length(σ)
     return [
-        sum( o.HHfInv[i,k] * o.DfT[k,j] * σ[k] for k = 1:d )
+        sum( o.scaling_matrix[i,k] * o.DfT[k,j] * σ[k] for k = 1:d )
         for i = 1:d, j = 1:d
     ]
 end
@@ -64,6 +64,7 @@ end
         sigma_f::BackwardFlatVolatility,
         correlation_holder::Union{CorrelationHolder, Nothing},
         quanto_model::Union{AssetModel, Nothing},
+        scaling_type::BenchmarkTimesScaling = ForwardRateScaling,
         )
 
 Create a Gausian HJM model.
@@ -75,6 +76,7 @@ function gaussian_hjm_model(
     sigma_f::BackwardFlatVolatility,
     correlation_holder::Union{CorrelationHolder, Nothing},
     quanto_model::Union{AssetModel, Nothing},
+    scaling_type::BenchmarkTimesScaling = ForwardRateScaling,
     )
     # Check inputs
     @assert length(delta()) > 0
@@ -101,8 +103,8 @@ function gaussian_hjm_model(
         DfT = cholesky(Gamma).L
     end
     # prepare vol calculation
-    HHfInv = benchmark_times_scaling(chi(),delta())
-    sigma_T = GaussianHjmModelVolatility(HHfInv, sigma_f, DfT)
+    scaling_matrix = benchmark_times_scaling(chi(), delta(), scaling_type)
+    sigma_T = GaussianHjmModelVolatility(scaling_matrix, sigma_f, DfT)
     # pre-calculate variance 
     d = length(delta())
     y = zeros(d, d, 0)
@@ -216,7 +218,7 @@ function Theta(
     @assert isnothing(X) == !state_dependent_Theta(m)
     y(t) = func_y(m, t)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb(u) = m.sigma_T.HHfInv .* reshape(m.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb(u) = m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
     alpha = quanto_drift(m.factor_alias, m.quanto_model, s, t, X)
     return vcat(
         func_Theta_x_integrate_y(m.chi(),y,sigma_T_hyb,alpha,s,t,parameter_grid(m)),
@@ -265,7 +267,7 @@ function Sigma_T(
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
     # make sure we do not apply correlations twice!
-    sigma_T_hyb(u) = m.sigma_T.HHfInv .* reshape(m.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb(u) = m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
     return func_Sigma_T(m.chi(),sigma_T_hyb,s,t)
 end
 
