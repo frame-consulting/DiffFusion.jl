@@ -8,6 +8,20 @@ serialise(o::Context) = serialise_struct(o)
 
 
 """
+    serialise(o::BenchmarkTimesScaling)
+
+Serialise a BenchmarkTimesScaling enumeration object.
+"""
+function serialise(o::BenchmarkTimesScaling)
+    d = OrderedDict{String, Any}()
+    d["typename"]    = string(typeof(o))
+    d["constructor"] = "BenchmarkTimesScaling"
+    d["enumeration"] = Integer(o)
+    return d
+end
+
+
+"""
     serialise(o::GaussianHjmModel)
 
 Serialise GaussianHjmModel.
@@ -29,6 +43,9 @@ function serialise(o::GaussianHjmModel)
         d["quanto_model"] = serialise(o.quanto_model)
     else
         d["quanto_model"] = serialise_key(o.quanto_model.alias)
+    end
+    if o.scaling_type != _default_benchmark_time_scaling
+        d["scaling_type"] = serialise(o.scaling_type)
     end
     return d
 end

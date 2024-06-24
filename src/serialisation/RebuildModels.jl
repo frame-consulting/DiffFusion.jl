@@ -29,6 +29,7 @@ function model_parameters(m::GaussianHjmModel)
     else
         d["quanto_model"] = m.quanto_model.alias
     end
+    d["scaling_type"] = m.scaling_type
     # we add another dict layer to allow combining models and ts.
     return Dict(m.alias => d)
 end
@@ -143,6 +144,7 @@ function build_model(
             m_dict["sigma_f"],
             ch,
             quanto_model,
+            m_dict["scaling_type"],
         )
     end
     if m_dict["type"] == LognormalAssetModel

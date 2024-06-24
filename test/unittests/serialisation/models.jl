@@ -133,6 +133,94 @@ using YAML
         end
     end
 
+    @testset "GaussianHjmModel with BenchmarkTimesScaling (de-)serialisation." begin
+        models = setup_models(ch_full)
+        ref_dict = Dict(
+            "EUR-USD" => models[2],
+            "One" => ch_one,
+            "Full" => ch_full
+        )
+        #
+        d = OrderedDict(
+            "typename" => "DiffFusion.GaussianHjmModel",
+            "constructor" => "gaussian_hjm_model",
+            "alias" => "USD",
+            "delta" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatParameter",
+                "constructor" => "BackwardFlatParameter",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[1.0], [7.0], [15.0]],
+                ),
+            "chi" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatParameter",
+                "constructor" => "BackwardFlatParameter",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.01], [0.1], [0.3]],
+                ),
+            "sigma_f" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatVolatility",
+                "constructor" => "BackwardFlatVolatility",
+                "alias" => "USD",
+                "times" => [0.0],
+                "values" => [[0.005], [0.006], [0.007]]
+                ),
+            "correlation_holder" => "{Full}",
+            "quanto_model" => "nothing",
+            "scaling_type" => OrderedDict{String, Any}(
+                "typename"    => "DiffFusion.BenchmarkTimesScaling",
+                "constructor" => "BenchmarkTimesScaling",
+                "enumeration" => 1,
+            ),
+        )
+        o = DiffFusion.deserialise(d, ref_dict)
+        s = DiffFusion.serialise(o)
+        if VERSION >= v"1.7" # equality tests fail with Julia 1.6
+            @test s == d
+        end
+        #
+        d = OrderedDict(
+            "typename" => "DiffFusion.GaussianHjmModel",
+            "constructor" => "gaussian_hjm_model",
+            "alias" => "EUR",
+            "delta" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatParameter",
+                "constructor" => "BackwardFlatParameter",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[1.0], [10.0]],
+                ),
+            "chi" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatParameter",
+                "constructor" => "BackwardFlatParameter",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.01], [0.15]],
+                ),
+            "sigma_f" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatVolatility",
+                "constructor" => "BackwardFlatVolatility",
+                "alias" => "EUR",
+                "times" => [0.0],
+                "values" => [[0.008], [0.009000000000000001]],
+                ),
+            "correlation_holder" => "{Full}",
+            "quanto_model" => "{EUR-USD}",
+            "quanto_model" => "nothing",
+            "scaling_type" => OrderedDict{String, Any}(
+                "typename"    => "DiffFusion.BenchmarkTimesScaling",
+                "constructor" => "BenchmarkTimesScaling",
+                "enumeration" => 2,
+            ),
+        )
+        o = DiffFusion.deserialise(d, ref_dict)
+        s = DiffFusion.serialise(o)
+        if VERSION >= v"1.7" # equality tests fail with Julia 1.6
+            @test s == d
+        end
+    end
+
     @testset "LognormalAssetModel (de-)serialisation." begin
         models = setup_models(ch_full)
         ref_dict = Dict(

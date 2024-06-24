@@ -119,6 +119,14 @@ https://ssrn.com/abstract=4638188 for details.
 
 
 """
+    const _default_benchmark_time_scaling = ForwardRateScaling
+
+We specify a default value to allow for backward compatibility in
+seialisation.
+"""
+const _default_benchmark_time_scaling = ForwardRateScaling
+
+"""
     benchmark_times_scaling_forward_rate(chi::AbstractVector, delta::AbstractVector)
 
 Benchmark times volatility scaling matrix ``H [H^f]^{-1} = [H^f H^{-1}]^{-1}``.

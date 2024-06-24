@@ -39,6 +39,7 @@ end
         factor_alias::AbstractVector
         correlation_holder::Union{CorrelationHolder, Nothing}
         quanto_model::Union{AssetModel, Nothing}
+        scaling_type::BenchmarkTimesScaling
     end
 
 A Gaussian HJM model with piece-wise constant benchmark rate volatility and
@@ -54,6 +55,7 @@ struct GaussianHjmModel <: SeparableHjmModel
     factor_alias::AbstractVector
     correlation_holder::Union{CorrelationHolder, Nothing}
     quanto_model::Union{AssetModel, Nothing}
+    scaling_type::BenchmarkTimesScaling
 end
 
 """
@@ -76,7 +78,7 @@ function gaussian_hjm_model(
     sigma_f::BackwardFlatVolatility,
     correlation_holder::Union{CorrelationHolder, Nothing},
     quanto_model::Union{AssetModel, Nothing},
-    scaling_type::BenchmarkTimesScaling = ForwardRateScaling,
+    scaling_type::BenchmarkTimesScaling = _default_benchmark_time_scaling,
     )
     # Check inputs
     @assert length(delta()) > 0
@@ -117,7 +119,7 @@ function gaussian_hjm_model(
         y0 = y[:,:,k]
     end
     return GaussianHjmModel(alias, delta, chi, sigma_T, y,
-        state_alias, factor_alias, correlation_holder, quanto_model)
+        state_alias, factor_alias, correlation_holder, quanto_model, scaling_type)
 end
 
 """

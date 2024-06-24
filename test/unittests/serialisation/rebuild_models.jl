@@ -61,7 +61,7 @@ using Test
         @test length(d) == 1
         @test haskey(d, DiffFusion.alias(usd_model))
         d = d[DiffFusion.alias(usd_model)]
-        for (a, b) in zip(keys(d), ["correlation_holder", "quanto_model", "chi", "sigma_f", "type", "delta", "alias"])
+        for (a, b) in zip(keys(d), ["correlation_holder", "quanto_model", "chi", "sigma_f", "scaling_type", "type", "delta", "alias"])
             @test a == b
         end
         #
