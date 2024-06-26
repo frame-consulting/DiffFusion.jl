@@ -74,6 +74,8 @@ using Test
 
     @testset "Example models." begin
         test_example_simulation(DiffFusion.Examples.examples[1])
+        test_example_simulation(DiffFusion.Examples.examples[2])
+        test_example_simulation(DiffFusion.Examples.examples[3])
     end
 
 
@@ -96,5 +98,60 @@ using Test
         @test scens1 == scens2
     end
 
+    @testset "EUR-denominated real-world model" begin
+        ex_name = "g3_3factor_real_world"
+        serialised_example = DiffFusion.Examples.load(ex_name)
+        example = DiffFusion.Examples.build(serialised_example)
+        model = DiffFusion.Examples.model(example)
+        ch = DiffFusion.Examples.correlation_holder(example)
+        # we do not want outputs here
+        example["config/simulation"]["with_progress_bar"] = false
+        sim = DiffFusion.Examples.simulation!(example)
+        ctx = DiffFusion.Examples.context(example)
+        ts_dict = DiffFusion.Examples.term_structures(example)
+        path_ = DiffFusion.Examples.path!(example)
+        #
+        @test typeof(serialised_example) == Vector{OrderedDict{String, Any}}
+        @test typeof(example) == OrderedDict{String, Any}
+        @test typeof(model) == DiffFusion.SimpleModel
+        @test typeof(ch)  == DiffFusion.CorrelationHolder
+        @test typeof(sim)  == DiffFusion.Simulation
+        @test sim  == example[alias(model) * "/simulation"]
+        @test typeof(ctx) == DiffFusion.Context
+        @test typeof(ts_dict)  == Dict{String, DiffFusion.Termstructure}
+        @test typeof(path_) == DiffFusion.Path
+        @test path_ == example[alias(sim.model) * "/path"]
+        #
+        n_paths = example["config/simulation"]["n_paths"]
+        @test size(at(DiffFusion.Numeraire(1.0, "EUR"), path_)) == (n_paths,)
+        #
+        @test size(at(DiffFusion.BankAccount(1.0, "EUR"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.BankAccount(1.0, "EUR:ESTR"), path_)) == (n_paths,)
+        #
+        @test size(at(DiffFusion.BankAccount(1.0, "USD"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.BankAccount(1.0, "USD:XCCY"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.BankAccount(1.0, "USD:SOFR"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.BankAccount(1.0, "USD:LIB3M"), path_)) == (n_paths,)
+        #
+        @test size(at(DiffFusion.BankAccount(1.0, "GBP"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.BankAccount(1.0, "GBP:XCCY"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.BankAccount(1.0, "GBP:SONIA"), path_)) == (n_paths,)
+        #
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "EUR"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "EUR:ESTR"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "EUR:EURIBOR6M"), path_)) == (n_paths,)
+        #
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "USD"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "USD:XCCY"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "USD:SOFR"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "USD:LIB3M"), path_)) == (n_paths,)
+        #
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "GBP"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "GBP:XCCY"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.ZeroBond(1.0, 2.0, "GBP:SONIA"), path_)) == (n_paths,)
+        #
+        @test size(at(DiffFusion.Asset(1.0, "USD-EUR"), path_)) == (n_paths,)
+        @test size(at(DiffFusion.Asset(1.0, "GBP-EUR"), path_)) == (n_paths,)
+    end
 
 end
