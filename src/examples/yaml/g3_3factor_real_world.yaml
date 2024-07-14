@@ -215,6 +215,10 @@
         - 0.0071
   correlation_holder: "{ch/EUR}"
   quanto_model: "nothing"
+  scaling_type:
+    typename: "DiffFusion.BenchmarkTimesScaling"
+    constructor: "BenchmarkTimesScaling"
+    enumeration: 1 # ZeroRateScaling
 - typename: "DiffFusion.LognormalAssetModel"
   constructor: "lognormal_asset_model"
   alias: "md/USD-EUR"
@@ -274,6 +278,10 @@
         - 0.008
   correlation_holder: "{ch/EUR}"
   quanto_model: "{md/USD-EUR}"
+  scaling_type:
+    typename: "DiffFusion.BenchmarkTimesScaling"
+    constructor: "BenchmarkTimesScaling"
+    enumeration: 1 # ZeroRateScaling
 - typename: "DiffFusion.LognormalAssetModel"
   constructor: "lognormal_asset_model"
   alias: "md/GBP-EUR"
@@ -333,6 +341,10 @@
         - 0.0077
   correlation_holder: "{ch/EUR}"
   quanto_model: "{md/GBP-EUR}"
+  scaling_type:
+    typename: "DiffFusion.BenchmarkTimesScaling"
+    constructor: "BenchmarkTimesScaling"
+    enumeration: 1 # ZeroRateScaling
 #
 - typename: "DiffFusion.SimpleModel"
   constructor: "simple_model"
