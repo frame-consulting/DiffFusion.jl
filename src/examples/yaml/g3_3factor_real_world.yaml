@@ -460,6 +460,10 @@
     - EUR
     - USD
     - GBP
+  swaption_types:
+    - EURIBOR6M_SWPN
+  bermudan_types:
+    - EURIBOR6M_SWPN
   EUR:
     type: VANILLA
     discount_curve_key: EUR:ESTR
@@ -511,3 +515,24 @@
       coupons_per_year: 4
       forward_curve_key: GBP:SONIA
       fixing_key: GBP:SONIA
+  EURIBOR6M_SWPN:
+    setlement_type: CASH
+    #
+    type: VANILLA
+    discount_curve_key: EUR:ESTR
+    fx_key: nothing
+    min_start: 1.0
+    max_start: 10.0
+    min_maturity: 1.0
+    max_maturity: 10.0
+    min_notional: 1.0e+7
+    max_notional: 1.0e+8
+    fixed_leg:
+      coupons_per_year: 1
+      min_rate: 0.01
+      max_rate: 0.04
+    float_leg:
+      coupon_type: SIMPLE
+      coupons_per_year: 2
+      forward_curve_key: EUR:EURIBOR6M
+      fixing_key: EUR:EURIBOR6M
