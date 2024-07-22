@@ -33,7 +33,7 @@ end
 
 
 """
-survival(ts::FlatSpreadCurve, t::ModelTime)
+    survival(ts::FlatSpreadCurve, t::ModelTime)
 
 Calculate survival probability.
 """
