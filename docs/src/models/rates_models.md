@@ -1,4 +1,26 @@
-# Additional Rates Model Functions
+# Interest Rates Models
+
+## Model Types
+
+```@docs
+DiffFusion.SeparableHjmModel
+```
+
+```@docs
+DiffFusion.GaussianHjmModel
+```
+
+```@docs
+DiffFusion.gaussian_hjm_model(
+    alias::String,
+    delta::DiffFusion.ParameterTermstructure,
+    chi::DiffFusion.ParameterTermstructure,
+    sigma_f::DiffFusion.BackwardFlatVolatility,
+    correlation_holder::Union{DiffFusion.CorrelationHolder, Nothing},
+    quanto_model::Union{DiffFusion.AssetModel, Nothing},
+    scaling_type::DiffFusion.BenchmarkTimesScaling = DiffFusion._default_benchmark_time_scaling,
+    )
+```
 
 ## Model Functions for Simulation
 
@@ -23,7 +45,19 @@ DiffFusion.G_hjm
 ```
 
 ```@docs
+DiffFusion.BenchmarkTimesScaling
+```
+
+```@docs
 DiffFusion.benchmark_times_scaling
+```
+
+```@docs
+DiffFusion.benchmark_times_scaling_forward_rate
+```
+
+```@docs
+DiffFusion.benchmark_times_scaling_zero_rate
 ```
 
 ```@docs
@@ -52,6 +86,32 @@ DiffFusion.func_H_T_dense
 
 ```@docs
 DiffFusion.func_Sigma_T
+```
+
+## Model Functions for Payoff Evaluation
+
+```@docs
+DiffFusion.log_bank_account
+```
+
+```@docs
+DiffFusion.log_zero_bond
+```
+
+```@docs
+DiffFusion.log_zero_bonds
+```
+
+```@docs
+DiffFusion.log_compounding_factor
+```
+
+```@docs
+DiffFusion.forward_rate_variance
+```
+
+```@docs
+DiffFusion.swap_rate_variance
 ```
 
 ## Swap Rate Volatility Calculation

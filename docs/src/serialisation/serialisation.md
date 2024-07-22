@@ -1,6 +1,6 @@
 # Serialisation Functions
 
-In this section we document methods for serialising and de-serialising objects.
+In this section we document methods for serialising and de-serialising DiffFusion.jl objects.
 
 We serialise objects into ordered dictionaries of the general form
 

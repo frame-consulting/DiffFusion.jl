@@ -1,4 +1,6 @@
-# Examples (Module) Functions
+# Example Models and Portfolios
+
+We add example models, term structures, pricing context and product configurations in an `Examples` sub-module. The examples are encoded as YAML files. They should help users to easily set up simulations for ad-hoc testing and analysis.
 
 In this section we document data and functions to work with the product and model examples.
 

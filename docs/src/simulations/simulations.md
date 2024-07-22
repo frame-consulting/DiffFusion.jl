@@ -1,8 +1,8 @@
-# Simulations Functions
+# Monte Carlo Simulations
 
-In this section we document data structures and methods for Monte Carlo  simulation and path setup.
+In this section we document data structures and methods for Monte Carlo  simulation.
 
-## Monte Carlo Simulation
+## Simulation Types
 
 ```@docs
 DiffFusion.Simulation
@@ -18,4 +18,8 @@ DiffFusion.sobol_brownian_increments
 
 ```@docs
 DiffFusion.simple_simulation
+```
+
+```@docs
+DiffFusion.diagonal_simulation
 ```
