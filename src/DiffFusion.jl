@@ -88,6 +88,7 @@ include("products/CashAndAssetLegs.jl")
 include("products/BermudanSwaptionLeg.jl")
 
 include("utils/Bachelier.jl")
+include("utils/Barriers.jl")
 include("utils/Black.jl")
 include("utils/Gradients.jl")
 include("utils/Integrations.jl")
