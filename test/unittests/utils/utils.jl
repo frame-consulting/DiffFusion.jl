@@ -6,6 +6,7 @@ using Test
     include("bachelier.jl")
     include("barriers.jl")
     include("black.jl")
+    include("brownian_bridge.jl")
     include("polynomialregression.jl")
     include("piecewiseregression.jl")
 
