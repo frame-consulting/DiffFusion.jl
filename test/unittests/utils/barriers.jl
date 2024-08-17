@@ -3,7 +3,7 @@ using DiffFusion
 
 using Test
 
-@testset "Black-Scholes single barrier model." begin
+@testset "Black-Scholes single barrier pricing." begin
 # We test versus QuantLib values.
 
     @testset "Vanilla Black-Scholes formula" begin
