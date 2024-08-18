@@ -13,6 +13,9 @@ at `expiry_time`.
 
 Option forward price is calculated as expectation in T-forward measure where T corresponds
 to the expiry time. Conditioning (for time-t price) is on information at `obs_time`.
+
+Strike price `strike_price` must be time-t (`obs_time`) measurable. Otherwise, we *look into
+the future*.
 """
 struct VanillaAssetOption <: Payoff
     obs_time::ModelTime

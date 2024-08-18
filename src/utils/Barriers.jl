@@ -15,9 +15,9 @@ Notation:
 function black_scholes_vanilla_price(X, ϕ, S, DF_r, DF_b, ν)
     N(x) = cdf.(Normal(), x)
     F = S ./ DF_b
-    d1 = log.(F ./ X) ./ ν .+ ν / 2
+    d1 = log.(F ./ X) ./ ν .+ ν ./ 2
     d2 = d1 .- ν
-    return DF_r * ϕ * (F .* N(ϕ * d1) - X .* N(ϕ * d2))    
+    return DF_r .* ϕ .* (F .* N(ϕ .* d1) .- X .* N(ϕ .* d2))
 end
 
 
@@ -61,15 +61,15 @@ function black_scholes_barrier_price(X, H, K, η, χ, ϕ, S, DF_r, DF_b, σ, T)
     out = Int(χ == 1)
     in = 1 - out
     
-    barrier_hit = down * (S .< H) + up * (S .> H)  # OR of disjoint events
-    barrier_hit_price = in * black_scholes_vanilla_price(X, ϕ, S, DF_r, DF_b, ν) # + out * DF_r * K, for rebate at expiry
+    barrier_hit = down .* (S .< H) + up .* (S .> H)  # OR of disjoint events
+    barrier_hit_price = in .* black_scholes_vanilla_price(X, ϕ, S, DF_r, DF_b, ν) # + out * DF_r * K, for rebate at expiry
     
     N(x) = cdf.(Normal(), x)
     # scalar auxiliary variables
-    r = -log(DF_r) / T
-    b = -log(DF_b) / T
+    r = -log.(DF_r) ./ T
+    b = -log.(DF_b) ./ T
     μ = (b .- (σ.^2)/2)./(σ.^2)
-    λ = sqrt.(max.(μ.^2 .+ 2 * r ./ σ.^2, 0.0))
+    λ = sqrt.(max.(μ.^2 .+ 2 .* r ./ σ.^2, 0.0))
     α = (1 .+ μ) .* ν
 
     # common vector-valued input terms
@@ -83,17 +83,17 @@ function black_scholes_barrier_price(X, H, K, η, χ, ϕ, S, DF_r, DF_b, σ, T)
     z  = -log_S_H ./ ν .+ (λ .* ν)        # -> F
 
     # option component terms; TODO: move to where it is really needed and avoid unnecessary calculations
-    A = ϕ * S * (DF_r/DF_b)                       .* N(ϕ * x1) .- ϕ * X * DF_r                  .* N(ϕ * x1 .- ϕ * ν)
-    B = ϕ * S * (DF_r/DF_b)                       .* N(ϕ * x2) .- ϕ * X * DF_r                  .* N(ϕ * x2 .- ϕ * ν)
-    C = ϕ * S * (DF_r/DF_b) .* (H./S).^(2*(μ.+1)) .* N(η * y1) .- ϕ * X * DF_r .* (H./S).^(2*μ) .* N(η * y1 .- η * ν)
-    D = ϕ * S * (DF_r/DF_b) .* (H./S).^(2*(μ.+1)) .* N(η * y2) .- ϕ * X * DF_r .* (H./S).^(2*μ) .* N(η * y2 .- η * ν)
+    A = ϕ .* S .* DF_r./DF_b                       .* N(ϕ .* x1) .- ϕ .* X .* DF_r                  .* N(ϕ .* x1 .- ϕ .* ν)
+    B = ϕ .* S .* DF_r./DF_b                       .* N(ϕ .* x2) .- ϕ .* X .* DF_r                  .* N(ϕ .* x2 .- ϕ .* ν)
+    C = ϕ .* S .* DF_r./DF_b .* (H./S).^(2*(μ.+1)) .* N(η .* y1) .- ϕ .* X .* DF_r .* (H./S).^(2*μ) .* N(η .* y1 .- η .* ν)
+    D = ϕ .* S .* DF_r./DF_b .* (H./S).^(2*(μ.+1)) .* N(η .* y2) .- ϕ .* X .* DF_r .* (H./S).^(2*μ) .* N(η .* y2 .- η .* ν)
     #
-    E = K * DF_r .* (                  N(η * x2 .- η * ν) .- (H./S).^(2*μ)  .* N(η * y2         .- η .* ν))
-    F = K        .* ((H./S).^(μ.+λ) .* N(η * z)           .+ (H./S).^(μ.-λ) .* N(η * z  .- 2 * λ * η .* ν))
+    E = K .* DF_r .* (                  N(η .* x2 .- η .* ν) .- (H./S).^(2 .* μ) .* N(η .* y2           .- η .* ν))
+    F = K         .* ((H./S).^(μ.+λ) .* N(η .* z)            .+ (H./S).^(μ .- λ) .* N(η .* z  .- 2 .* λ .* η .* ν))
 
     # if KO rebate is paid at expiry: λ -> μ
     z_T_e = -log_S_H ./ ν .+ (μ .* ν)  # -> F_T_e
-    F_T_e = K .* ((H./S).^(2*μ) .* N(η * z)              .+                  N(η * z  .- 2 * μ * η .* ν))
+    F_T_e = K .* ((H./S).^(2*μ)     .* N(η * z)              .+                     N(η .* z  .- 2 .* μ .* η .* ν))
     
     # For the no-hit case we need to distinguish 16 different cases.
     # We follow the ordering in Haug
