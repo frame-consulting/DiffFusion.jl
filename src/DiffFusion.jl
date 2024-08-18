@@ -17,6 +17,7 @@ using Random
 using Roots
 using Sobol
 using SparseArrays
+using StatsBase
 using Zygote
 
 import Base.length
@@ -74,6 +75,7 @@ include("payoffs/RatesPayoffs.jl")
 include("payoffs/RatesOptions.jl")
 include("payoffs/AmcPayoffs.jl")
 include("payoffs/AssetOptions.jl")
+include("payoffs/BarrierOptions.jl")
 
 include("products/Cashflows.jl")
 include("products/AssetOptionFlows.jl")

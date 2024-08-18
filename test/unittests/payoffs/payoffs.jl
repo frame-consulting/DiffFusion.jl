@@ -18,6 +18,7 @@ using Test
 
     include("amc_payoffs.jl")
     include("asset_options.jl")
+    include("barrier_options.jl")
     include("nodes_and_leafs.jl")
     include("rates_payoffs.jl")
     include("rates_options.jl")
