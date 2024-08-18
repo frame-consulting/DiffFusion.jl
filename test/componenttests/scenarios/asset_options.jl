@@ -50,4 +50,30 @@ using UnicodePlots
         plot_scens(mv, "EUR-USD option mv")
     end
 
+    @testset "Test BarrierAssetOption simulation" begin
+        model = TestModels.hybrid_model_full
+        ch = TestModels.ch_full
+        times = 0.0:1.0:6.0
+        n_paths = 2^13
+        sim = DiffFusion.simple_simulation(model, ch, times, n_paths, with_progress_bar = false)
+        path = DiffFusion.path(sim, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
+        #
+        uoc_leg = DiffFusion.cashflow_leg(
+            "leg/UOC/EUR-USD/5y/1.25/1.85",
+            [ DiffFusion.BarrierAssetOptionFlow(5.0, 5.0, 1.25, 1.85, 0.0, "UOC", "EUR-USD", 0.5), ],
+            [ 1.0, ],
+            "USD"
+        )
+        uic_leg = DiffFusion.cashflow_leg(
+            "leg/UIC/EUR-USD/5y/1.25/1.85",
+            [ DiffFusion.BarrierAssetOptionFlow(5.0, 5.0, 1.25, 1.85, 0.0, "UIC", "EUR-USD", 0.5), ],
+            [ 1.0, ],
+            "USD"
+        )
+        scens = DiffFusion.scenarios([uoc_leg, uic_leg], times, path, "USD")
+        mv = DiffFusion.aggregate(scens, true, false)
+        #
+        plot_scens(mv, "EUR-USD barrier option mv")
+    end
+
 end
