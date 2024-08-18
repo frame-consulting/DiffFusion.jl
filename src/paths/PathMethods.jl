@@ -350,6 +350,67 @@ function forward_asset(p::Path, t::ModelTime, T::ModelTime, key::String)
 end
 
 
+
+"""
+    forward_asset_zero_bonds(p::Path, t::ModelTime, T::ModelTime, key::String)
+
+Calculate asset (plus deterministic jumps) as well as domestic and foreign
+zero bond price associated with an `Asset` key.
+
+This function implements methodology redundant to `forward_asset(...)`. But it
+returns asset and zero bonds separately.
+
+This function is used for barrier option pricing.
+"""
+function forward_asset_and_zero_bonds(p::Path, t::ModelTime, T::ModelTime, key::String)
+    @assert t <= T
+    (context_key, ts_key_for, ts_key_dom, op) = context_keys(key)
+    @assert op in (_empty_context_key, "-")
+    entry = p.context.assets[context_key]
+    #
+    spot_alias = entry.asset_spot_alias
+    spot = p.ts_dict[spot_alias](T, TermstructureScalar)  # capture any discrete jumps until T to be consistent with forward_asset
+    #
+    ts_alias_dom = entry.domestic_termstructure_dict[ts_key_dom]
+    df_dom_t = discount(t, p.ts_dict, ts_alias_dom)
+    df_dom_T = discount(T, p.ts_dict, ts_alias_dom)
+    #
+    ts_alias_for = entry.foreign_termstructure_dict[ts_key_for]
+    df_for_t = discount(t, p.ts_dict, ts_alias_for)
+    df_for_T = discount(T, p.ts_dict, ts_alias_for)
+    #
+    if isnothing(entry.asset_model_alias) &&
+        isnothing(entry.foreign_model_alias) &&
+        isnothing(entry.domestic_model_alias)
+        # we can take a short-cut for fully deterministic models
+        e = ones(length(p))
+        return ((spot*df_for_t/df_dom_t) .*e, (df_dom_T/df_dom_t).*e, (df_for_T/df_for_t).*e)
+    end
+    #
+    X = state_variable(p.sim, t, p.interpolation)
+    SX = model_state(X, p.state_alias_dict)
+    #
+    y_ast = zeros(length(p))
+    y_dom = zeros(length(p))
+    y_for = zeros(length(p))
+    if !isnothing(entry.asset_model_alias)
+        y_ast .+= log_asset(p.sim.model, entry.asset_model_alias, t, SX)
+    end
+    if !isnothing(entry.domestic_model_alias)
+        y_ast .+= log_bank_account(p.sim.model, entry.domestic_model_alias, t, SX)
+        y_dom .-= log_zero_bond(p.sim.model, entry.domestic_model_alias, t, T, SX)
+    end
+    if !isnothing(entry.foreign_model_alias)
+        y_ast .-= log_bank_account(p.sim.model, entry.foreign_model_alias, t, SX)
+        y_for .-= log_zero_bond(p.sim.model, entry.foreign_model_alias, t, T, SX)
+    end
+    asset = (spot * df_for_t / df_dom_t) .* exp.(y_ast)
+    zb_dom = (df_dom_T / df_dom_t) .* exp.(y_dom)
+    zb_for = (df_for_T / df_for_t) .* exp.(y_for)
+    return (asset, zb_dom, zb_for)
+end
+
+
 """
     fixing(p::Path, t::ModelTime, key::String)
 

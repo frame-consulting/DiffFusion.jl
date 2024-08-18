@@ -94,6 +94,15 @@ function forward_asset(p::AbstractPath, t::ModelTime, T::ModelTime, key::String)
     error("AbstractPath needs to implement forward_asset method.")
 end
 
+"""
+    forward_asset_and_zero_bonds(p::AbstractPath, t::ModelTime, T::ModelTime, key::String)
+
+Calculate asset and zero bond components for forward asset price calculation.
+"""
+function forward_asset_and_zero_bonds(p::AbstractPath, t::ModelTime, T::ModelTime, key::String)
+    error("AbstractPath needs to implement forward_asset_and_zero_bonds method.")
+end
+
 
 """
     fixing(p::AbstractPath, t::ModelTime, key::String)

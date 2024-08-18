@@ -13,6 +13,7 @@ using Test
         @test_throws ErrorException DiffFusion.compounding_factor(NoPath(), 5.0, 8.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.asset(NoPath(), 5.0, "Std")
         @test_throws ErrorException DiffFusion.forward_asset(NoPath(), 5.0, 10.0, "Std")
+        @test_throws ErrorException DiffFusion.forward_asset_and_zero_bonds(NoPath(), 5.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.forward_index(NoPath(), 5.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.future_index(NoPath(), 5.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.fixing(NoPath(), 5.0, "Std")
@@ -302,11 +303,19 @@ end
         P_d = DiffFusion.zero_bond(p, t, T, "USD")
         P_f = DiffFusion.zero_bond(p, t, T, "EUR")
         @test isapprox(DiffFusion.forward_asset(p, t, T, "EUR-USD"), S_t .* P_f ./ P_d, atol=5.0e-15)
+        (S_t_, P_d_, P_f_) = DiffFusion.forward_asset_and_zero_bonds(p, t, T, "EUR-USD")
+        @test isapprox(S_t_, S_t, atol=1.0e-14)
+        @test isapprox(P_d_, P_d, atol=1.0e-14)
+        @test isapprox(P_f_, P_f, atol=1.0e-14)
         #
         S_t = DiffFusion.asset(p, t, "SXE50")
         P_d = DiffFusion.zero_bond(p, t, T, "EUR")
         P_f = DiffFusion.zero_bond(p, t, T, "SXE50")
         @test isapprox(DiffFusion.forward_asset(p, t, T, "SXE50"), S_t .* P_f ./ P_d, atol=5.0e-15)
+        (S_t_, P_d_, P_f_) = DiffFusion.forward_asset_and_zero_bonds(p, t, T, "SXE50")
+        @test isapprox(S_t_, S_t, atol=1.0e-11)
+        @test isapprox(P_d_, P_d, atol=1.0e-14)
+        @test isapprox(P_f_, P_f, atol=1.0e-14)
         #
         @test DiffFusion.fixing(p, -1.0, "SOFR") == 0.0123 * ones(5)
         @test DiffFusion.fixing(p,  0.0, "SOFR") == 0.0123 * ones(5)
@@ -398,6 +407,14 @@ end
         #
         @test isapprox(DiffFusion.forward_asset(p, t, T, "EUR-USD"), 1.25 * exp(0.01*T) * ones(1), atol=5.0e-15)
         @test isapprox(DiffFusion.forward_asset(p, t, T, "SXE50"), 3750.00 * exp(0.01*T) * ones(1), atol=5.0e-15)
+        #
+        (S_t_, P_d_, P_f_) = DiffFusion.forward_asset_and_zero_bonds(p, t, T, "EUR-USD")
+        S_T = DiffFusion.forward_asset(p, t, T, "EUR-USD")
+        @test isapprox(S_t_ .* P_f_ ./ P_d_, S_T, atol=1.0e-14)
+        #
+        (S_t_, P_d_, P_f_) = DiffFusion.forward_asset_and_zero_bonds(p, t, T, "SXE50")
+        S_T = DiffFusion.forward_asset(p, t, T, "SXE50")
+        @test isapprox(S_t_ .* P_f_ ./ P_d_, S_T, atol=1.0e-12)
         #
         @test isapprox(DiffFusion.forward_index(p, 4.0, 5.0, "HICP"), 1.25 * ones(1), atol=5.0e-15)
         #

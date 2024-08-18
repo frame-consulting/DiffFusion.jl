@@ -134,6 +134,11 @@ using Test
                 zcb_f = DiffFusion.zero_bond(p, t, t+dT, "EUR")
                 one = fx_fwd ./ (fx .* zcb_f ./ zcb_d)
                 @test maximum(abs.(one .- 1.0)) < 1.5e-15
+                #
+                (S_t_, P_d_, P_f_) = DiffFusion.forward_asset_and_zero_bonds(p, t, t+dT, "EUR-USD")
+                @test maximum(abs.(S_t_ .- fx)) < 1.0e-15
+                @test maximum(abs.(P_d_ .- zcb_d)) < 1.0e-15
+                @test maximum(abs.(P_f_ .- zcb_f)) < 1.0e-15
             end
         end
     end
@@ -193,6 +198,11 @@ using Test
                 zcb_f = DiffFusion.zero_bond(p, t, t+dT, "EUR")
                 one = fx_fwd ./ (fx .* zcb_f ./ zcb_d)
                 @test maximum(abs.(one .- 1.0)) < 1.5e-15
+                #
+                (S_t_, P_d_, P_f_) = DiffFusion.forward_asset_and_zero_bonds(p, t, t+dT, "EUR-USD")
+                @test maximum(abs.(S_t_ .- fx)) < 1.0e-15
+                @test maximum(abs.(P_d_ .- zcb_d)) < 1.0e-15
+                @test maximum(abs.(P_f_ .- zcb_f)) < 1.0e-15
             end
         end
     end
