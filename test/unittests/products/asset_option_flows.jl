@@ -25,4 +25,22 @@ using Test
         # println(string(DiffFusion.expected_amount(cf, 0.0)))
     end
 
+    @testset "Test BarrierAssetOptionFlow" begin
+        cf = DiffFusion.BarrierAssetOptionFlow(5.0, 6.0, 1.25, 1.35, 0.0, "UOC", "EUR-USD", 0.5)
+        @test DiffFusion.pay_time(cf) == 6.0
+        @test string(DiffFusion.expected_amount(cf, 0.0)) == "UOCall(S(EUR-USD, 0.00, 5.00), X = 1.2500, H = 1.3500)"
+        @test string(DiffFusion.expected_amount(cf, 2.0)) == "UOCall(S(EUR-USD, 2.00, 5.00), X = 1.2500, H = 1.3500)"
+        @test string(DiffFusion.expected_amount(cf, 5.0)) == "UOCall(S(EUR-USD, 5.00, 5.00), X = 1.2500, H = 1.3500)"
+        @test string(DiffFusion.expected_amount(cf, 6.0)) == "UOCall(S(EUR-USD, 5.00, 5.00), X = 1.2500, H = 1.3500)"
+        @test string(DiffFusion.expected_amount(cf, 7.0)) == "UOCall(S(EUR-USD, 5.00, 5.00), X = 1.2500, H = 1.3500)"
+        #
+        cf = DiffFusion.BarrierAssetOptionFlow(5.0, 6.0, 1.25, 1.35, 0.0, "DIP", "EUR-USD", 0.5)
+        @test DiffFusion.pay_time(cf) == 6.0
+        @test string(DiffFusion.expected_amount(cf, 0.0)) == "DIPut(S(EUR-USD, 0.00, 5.00), X = 1.2500, H = 1.3500)"
+        @test string(DiffFusion.expected_amount(cf, 2.0)) == "DIPut(S(EUR-USD, 2.00, 5.00), X = 1.2500, H = 1.3500)"
+        @test string(DiffFusion.expected_amount(cf, 5.0)) == "DIPut(S(EUR-USD, 5.00, 5.00), X = 1.2500, H = 1.3500)"
+        @test string(DiffFusion.expected_amount(cf, 6.0)) == "DIPut(S(EUR-USD, 5.00, 5.00), X = 1.2500, H = 1.3500)"
+        @test string(DiffFusion.expected_amount(cf, 7.0)) == "DIPut(S(EUR-USD, 5.00, 5.00), X = 1.2500, H = 1.3500)"
+    end
+
 end
