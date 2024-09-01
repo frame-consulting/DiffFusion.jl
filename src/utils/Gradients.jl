@@ -7,7 +7,6 @@ The centralisation of these routines should simplify replacing and fine-
 tuning AD routines.
 """
 
-
 """
     _function_value_and_gradient(
         f::Function,
@@ -38,6 +37,11 @@ function _function_value_and_gradient(
         m = central_fdm(3, 1)
         g = grad(m, f, x)
         return (v, g[1])
+    end
+    if m == ADOLC
+        v = f(x)
+        g = derivative(f, x, :jac)
+        return v, g
     end
     error("Unknown module " * string(m) * ".")
 end

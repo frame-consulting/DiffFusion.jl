@@ -1,5 +1,6 @@
 module DiffFusion
 
+using ADOLC
 using ChainRulesCore
 using DelimitedFiles
 using Distributed
