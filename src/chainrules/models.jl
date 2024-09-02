@@ -19,3 +19,7 @@ ChainRulesCore.@non_differentiable parameter_grid(m::MarkovFutureModel)
 ChainRulesCore.@non_differentiable parameter_grid(m::CompositeModel)
 ChainRulesCore.@non_differentiable parameter_grid(m::GaussianHjmModel)
 ChainRulesCore.@non_differentiable parameter_grid(models::Union{AbstractVector, Tuple})
+
+# avoid error from QuadGK.jl v2.11 with try/catch
+# See https://github.com/JuliaMath/QuadGK.jl/issues/117
+ChainRulesCore.@non_differentiable QuadGK.cachedrule(Any...)
