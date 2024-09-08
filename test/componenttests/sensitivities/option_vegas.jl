@@ -3,6 +3,7 @@ using DiffFusion
 using Test
 using Zygote
 using ForwardDiff
+using ADOLC
 
 @testset "Payoff evaluation and sensitivities." begin
 
@@ -234,10 +235,14 @@ using ForwardDiff
             println("Obs_time: " * string(obs_time) * ", model_price: " * string(model_price))
             (v1, g1, l1) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD", Zygote)
             (v2, g2, l2) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD", ForwardDiff)
+            (v3, g3, l3) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD", ADOLC)
             @test v1 == model_price
             @test v2 == model_price
+            @test v3 == model_price
             @test isapprox(g1, g_ref, atol=1.0e-12)
             @test isapprox(g2, g_ref, atol=1.0e-12)
+            @test isapprox(g3, g_ref, atol=1.0e-12)
+            
         end
     end
 

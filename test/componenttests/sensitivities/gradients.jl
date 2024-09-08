@@ -68,13 +68,16 @@ using Test
         (v1, g1) = DiffFusion._function_value_and_gradient(obj_function, arg_x, DiffFusion.ForwardDiff)
         (v2, g2) = DiffFusion._function_value_and_gradient(obj_function, arg_x, DiffFusion.Zygote)
         (v3, g3) = DiffFusion._function_value_and_gradient(obj_function, arg_x, DiffFusion.FiniteDifferences)
+        (v4, g4) = DiffFusion._function_value_and_gradient(obj_function, arg_x, DiffFusion.ADOLC)
 
         @test v1 == zb
         @test v2 == zb
         @test v3 == zb
+        @test v4 == zb
         
         @test isapprox(g1, g2, atol=1.0e-14)
         @test isapprox(g2, g3, atol=1.0e-10)
+        @test isapprox(g2, g4, atol=1.0e-10)
 
         #println(g1)
         #println(g2)
@@ -101,13 +104,16 @@ using Test
         (v1, g1) = DiffFusion._function_value_and_gradient(obj_function, p, DiffFusion.ForwardDiff)
         (v2, g2) = DiffFusion._function_value_and_gradient(obj_function, p, DiffFusion.Zygote)
         (v3, g3) = DiffFusion._function_value_and_gradient(obj_function, p, DiffFusion.FiniteDifferences)
+        (v4, g4) = DiffFusion._function_value_and_gradient(obj_function, p, DiffFusion.ADOLC)
 
         @test v1 == y
         @test v2 == y
         @test v3 == y
+        @test v4 == y
         
         @test isapprox(g1, g2, atol=1.0e-14)
         @test isapprox(g2, g3, atol=1.0e-10)
+        @test isapprox(g2, g4, atol=1.0e-10)
 
         #println(y)
         #println(v2)
@@ -222,12 +228,21 @@ using Test
             nothing,
             DiffFusion.FiniteDifferences
         )
+        (v4, g4, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+            [ A1, A2 ],
+            path,
+            nothing,
+            nothing,
+            DiffFusion.ADOLC
+        )
 
         @test v1 == v2
         @test v2 == v3
+        @test v2 == v4
 
         @test isapprox(g1, g2, atol=1.0e-14)
         @test isapprox(g2, g3, atol=1.0e-8)
+        @test isapprox(g2, g4, atol=1.0e-8)
 
         #println(v1)
         #println(g2)

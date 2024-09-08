@@ -261,13 +261,47 @@ using UnicodePlots
             DiffFusion.ForwardDiff
         )
         print_results(v3, g3, ts_labels)
-        @info "Finished Delta calculation."
+        @info "Finished Delta calculation with ForwardDiff."
         #
         @test abs(sum(g2[1:4])/sum(g1[1:4]) - 1.0) < 1.5e-2   # berm_4y EURIBOR6M Delta
         @test abs(sum(g2[5:8])/sum(g1[5:8]) - 1.0) < 7.5e-2   # berm_4y ESTR
         #
         @test abs(sum(g3[1:4])/sum(g1[1:4]) - 1.0) < 0.27   # berm_10nc2 EURIBOR6M Delta
-        @test abs(sum(g3[5:8])/sum(g1[5:8]) - 1.0) < 0.28   # berm_10nc2 ESTR
+        @test abs(sum(g3[5:8])/sum(g1[5:8]) - 1.0) < 0.28  
+        
+        (v4, g4, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+            DiffFusion.discounted_cashflows(swaption_4y, 1.0),
+            path,
+            1.0,
+            "EUR",
+            DiffFusion.ADOLC
+        )
+        print_results(v4, g4, ts_labels)
+        #
+        (v5, g5, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+            DiffFusion.discounted_cashflows(berm_4y, 1.0),
+            path,
+            1.0,
+            "EUR",
+            DiffFusion.ADOLC
+        )
+        print_results(v5, g5, ts_labels)
+        #
+        (v6, g6, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+            DiffFusion.discounted_cashflows(berm_10nc2, 1.0),
+            path,
+            1.0,
+            "EUR",
+            DiffFusion.ADOLC
+        ) # berm_10nc2 ESTR
+
+        @info "Finished Delta calculation with ADOLC."
+        #
+        @test abs(sum(g5[1:4])/sum(g4[1:4]) - 1.0) < 1.5e-2   # berm_4y EURIBOR6M Delta
+        @test abs(sum(g5[5:8])/sum(g4[5:8]) - 1.0) < 7.5e-2   # berm_4y ESTR
+        #
+        @test abs(sum(g6[1:4])/sum(g4[1:4]) - 1.0) < 0.27   # berm_10nc2 EURIBOR6M Delta
+        @test abs(sum(g6[5:8])/sum(g4[5:8]) - 1.0) < 0.28 
     end
 
 
@@ -312,9 +346,48 @@ using UnicodePlots
             DiffFusion.ForwardDiff
         )
         print_results(v3, g3, ts_labels)
-        @info "Finished Vega calculation."
+        @info "Finished Vega calculation with ForwardDiff."
         #
         @test abs(sum(g2)/sum(g1) - 1.0) < 1.0e-1   # berm_4y IR Vega
+
+        (v4, g4, ts_labels) = DiffFusion.model_price_and_vegas_vector(
+            DiffFusion.discounted_cashflows(swaption_4y, 1.0),
+            hyb_model,
+            sim,
+            ts_list,
+            context,
+            1.0,
+            "EUR",
+            DiffFusion.ADOLC
+        )
+        print_results(v4, g4, ts_labels)
+        #
+        (v5, g5, ts_labels) = DiffFusion.model_price_and_vegas_vector(
+            DiffFusion.discounted_cashflows(berm_4y, 1.0),
+            hyb_model,
+            sim,
+            ts_list,
+            context,
+            1.0,
+            "EUR",
+            DiffFusion.ADOLC
+        )
+        print_results(v5, g5, ts_labels)
+        #
+        (v6, g6, ts_labels) = DiffFusion.model_price_and_vegas_vector(
+            DiffFusion.discounted_cashflows(berm_10nc2, 1.0),
+            hyb_model,
+            sim,
+            ts_list,
+            context,
+            1.0,
+            "EUR",
+            DiffFusion.ADOLC
+        )
+        print_results(v6, g6, ts_labels)
+        @info "Finished Vega calculation with ADOLC."
+        #
+        @test abs(sum(g5)/sum(g4) - 1.0) < 1.0e-1   #
     end
 
 
