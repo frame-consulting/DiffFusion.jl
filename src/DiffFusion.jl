@@ -15,6 +15,7 @@ using ProgressBars
 using QuadGK
 using Random
 using Roots
+using SharedArrays
 using Sobol
 using SparseArrays
 using StatsBase
@@ -100,6 +101,7 @@ include("utils/PolynomialRegression.jl")
 include("utils/PiecewiseRegression.jl")
 
 include("analytics/Scenarios.jl")
+include("analytics/ScenariosParallel.jl")
 include("analytics/Analytics.jl")
 include("analytics/Collateral.jl")
 include("analytics/Valuations.jl")
