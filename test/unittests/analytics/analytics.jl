@@ -1,4 +1,5 @@
 using DiffFusion
+using PerformanceTestTools
 using Test
 
 @testset "Methods for exposure simulation and collateral simulation." begin
@@ -8,4 +9,14 @@ using Test
     include("collateral.jl")
     include("covariances.jl")
 	
+    PerformanceTestTools.@include_foreach(
+        "scenarios_parallel.jl",
+        [
+            nothing,
+            [`--project=.`, `-t 2`],
+            [`--project=.`, `-p 3`],
+            [`--project=.`, `-p 3`, `-t 2`],
+        ],
+    )
+
 end
