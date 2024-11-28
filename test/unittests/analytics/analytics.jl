@@ -14,7 +14,7 @@ using Test
         [
             nothing,
             [`--project=.`, `-t 2`],
-            [`--project=.`, `-p 3`],
+            [`--project=.`, `-p 5`],
             [`--project=.`, `-p 3`, `-t 2`],
         ],
     )
