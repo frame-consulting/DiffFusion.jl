@@ -439,13 +439,14 @@ end
                 ("USD",   DiffFusion.RatesEntry("USD", "USD", Dict(_empty_key => "USD"))),
                 ("EUR",   DiffFusion.RatesEntry("EUR", "EUR", Dict(_empty_key => "EUR"))),
                 #
-                ("NULL",   DiffFusion.RatesEntry("USD", nothing, Dict(_empty_key => "USD"))),
-
+                ("USD_NULL",   DiffFusion.RatesEntry("USD", nothing, Dict(_empty_key => "USD"))),
+                ("EUR_NULL",   DiffFusion.RatesEntry("EUR", nothing, Dict(_empty_key => "EUR"))),
             ]),
             Dict{String, DiffFusion.AssetEntry}([
                 ("DK_MODEL", DiffFusion.AssetEntry("EUR-USD", nothing, "USD", "EUR", "EUR-USD", Dict(_empty_key => "USD"), Dict(_empty_key => "EUR"))),
                 ("ST_DIV_1", DiffFusion.AssetEntry("EUR-USD", nothing, nothing, "EUR", "EUR-USD", Dict(_empty_key => "USD"), Dict(_empty_key => "EUR"))),
                 ("ST_DIV_2", DiffFusion.AssetEntry("EUR-USD", "EUR-USD", nothing, "EUR", "EUR-USD", Dict(_empty_key => "USD"), Dict(_empty_key => "EUR"))),
+                ("RATES", DiffFusion.AssetEntry("EUR-USD", nothing, "USD", nothing, "EUR-USD", Dict(_empty_key => "USD"), Dict(_empty_key => "EUR"))),
             ]),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
@@ -459,13 +460,18 @@ end
         @test isapprox(DiffFusion.forward_asset(p, t, T, "DK_MODEL"), S_t .* P_f ./ P_d, atol=5.0e-15)
         #
         S_t = DiffFusion.asset(p, t, "ST_DIV_1")
-        P_d = DiffFusion.zero_bond(p, t, T, "NULL")
+        P_d = DiffFusion.zero_bond(p, t, T, "USD_NULL")
         P_f = DiffFusion.zero_bond(p, t, T, "EUR")
         @test isapprox(DiffFusion.forward_asset(p, t, T, "ST_DIV_1"), S_t .* P_f ./ P_d, atol=5.0e-15)
         #
         S_t = DiffFusion.asset(p, t, "ST_DIV_2")
-        P_d = DiffFusion.zero_bond(p, t, T, "NULL")
+        P_d = DiffFusion.zero_bond(p, t, T, "USD_NULL")
         P_f = DiffFusion.zero_bond(p, t, T, "EUR")
         @test isapprox(DiffFusion.forward_asset(p, t, T, "ST_DIV_2"), S_t .* P_f ./ P_d, atol=5.0e-15)
+        #
+        S_t = DiffFusion.asset(p, t, "RATES")
+        P_d = DiffFusion.zero_bond(p, t, T, "USD")
+        P_f = DiffFusion.zero_bond(p, t, T, "EUR_NULL")
+        @test isapprox(DiffFusion.forward_asset(p, t, T, "RATES"), S_t .* P_f ./ P_d, atol=5.0e-15)
     end
 end
