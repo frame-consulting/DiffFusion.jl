@@ -75,7 +75,7 @@ end
     # valuation context with deterministic dividend yield
 
     context = DiffFusion.Context("Std",
-        DiffFusion.NumeraireEntry("USD", "USD", Dict(_empty_key => "USD")),
+        DiffFusion.NumeraireEntry("USD", "USD", Dict(_empty_key => "USD", "OIS" => "USD")),
         Dict{String, DiffFusion.RatesEntry}([
             ("USD",   DiffFusion.RatesEntry("USD", "USD", Dict(_empty_key => "USD", "OIS" => "USD", "NO" => "ZERO"))),
             ("EUR",   DiffFusion.RatesEntry("EUR", "EUR", Dict(_empty_key => "EUR", "NO" => "ZERO"))),
@@ -239,6 +239,8 @@ end
         p = DiffFusion.path(sim, ts, context)
         t = 2.0
         @test isapprox(DiffFusion.numeraire(p, t, "USD"), exp(1.0 + 0.03*t) * ones(5), atol=1.0e-15)
+        @test isapprox(DiffFusion.numeraire(p, t, "USD:OIS"), exp(1.0 + 0.03*t) * ones(5), atol=1.0e-15)
+        @test isapprox(DiffFusion.numeraire(p, t, "USD:OIS-OIS"), exp(1.0) * ones(5), atol=1.0e-15)
         #
         @test isapprox(DiffFusion.bank_account(p, t, "USD"), exp(1.0 + 0.03*t) * ones(5), atol=1.0e-15)
         @test isapprox(DiffFusion.bank_account(p, t, "EUR"), exp(1.0 + 0.02*t) * ones(5), atol=1.0e-15)
@@ -425,5 +427,51 @@ end
         @test DiffFusion.swap_rate_variance(p, 1.0, 2.0, [2.0, 3.0], [1.0], "EUR") == zeros(1)
         @test DiffFusion.forward_rate_variance(p, 1.0, 2.0, 2.0, 3.0, "USD") == zeros(1)
         @test DiffFusion.asset_variance(p, 1.0, 2.0, "EUR-USD") == zeros(1)
+    end
+
+    @testset "Forward asset special cases." begin
+        t = 2.0
+        T = 5.0
+        #
+        context = DiffFusion.Context("Std",
+            DiffFusion.NumeraireEntry("USD", "USD", Dict(_empty_key => "USD")),
+            Dict{String, DiffFusion.RatesEntry}([
+                ("USD",   DiffFusion.RatesEntry("USD", "USD", Dict(_empty_key => "USD"))),
+                ("EUR",   DiffFusion.RatesEntry("EUR", "EUR", Dict(_empty_key => "EUR"))),
+                #
+                ("USD_NULL",   DiffFusion.RatesEntry("USD", nothing, Dict(_empty_key => "USD"))),
+                ("EUR_NULL",   DiffFusion.RatesEntry("EUR", nothing, Dict(_empty_key => "EUR"))),
+            ]),
+            Dict{String, DiffFusion.AssetEntry}([
+                ("DK_MODEL", DiffFusion.AssetEntry("EUR-USD", nothing, "USD", "EUR", "EUR-USD", Dict(_empty_key => "USD"), Dict(_empty_key => "EUR"))),
+                ("ST_DIV_1", DiffFusion.AssetEntry("EUR-USD", nothing, nothing, "EUR", "EUR-USD", Dict(_empty_key => "USD"), Dict(_empty_key => "EUR"))),
+                ("ST_DIV_2", DiffFusion.AssetEntry("EUR-USD", "EUR-USD", nothing, "EUR", "EUR-USD", Dict(_empty_key => "USD"), Dict(_empty_key => "EUR"))),
+                ("RATES", DiffFusion.AssetEntry("EUR-USD", nothing, "USD", nothing, "EUR-USD", Dict(_empty_key => "USD"), Dict(_empty_key => "EUR"))),
+            ]),
+            Dict{String, DiffFusion.ForwardIndexEntry}(),
+            Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.FixingEntry}(),
+        )
+        p = DiffFusion.path(sim, ts, context)
+        #
+        S_t = DiffFusion.asset(p, t, "DK_MODEL")
+        P_d = DiffFusion.zero_bond(p, t, T, "USD")
+        P_f = DiffFusion.zero_bond(p, t, T, "EUR")
+        @test isapprox(DiffFusion.forward_asset(p, t, T, "DK_MODEL"), S_t .* P_f ./ P_d, atol=5.0e-15)
+        #
+        S_t = DiffFusion.asset(p, t, "ST_DIV_1")
+        P_d = DiffFusion.zero_bond(p, t, T, "USD_NULL")
+        P_f = DiffFusion.zero_bond(p, t, T, "EUR")
+        @test isapprox(DiffFusion.forward_asset(p, t, T, "ST_DIV_1"), S_t .* P_f ./ P_d, atol=5.0e-15)
+        #
+        S_t = DiffFusion.asset(p, t, "ST_DIV_2")
+        P_d = DiffFusion.zero_bond(p, t, T, "USD_NULL")
+        P_f = DiffFusion.zero_bond(p, t, T, "EUR")
+        @test isapprox(DiffFusion.forward_asset(p, t, T, "ST_DIV_2"), S_t .* P_f ./ P_d, atol=5.0e-15)
+        #
+        S_t = DiffFusion.asset(p, t, "RATES")
+        P_d = DiffFusion.zero_bond(p, t, T, "USD")
+        P_f = DiffFusion.zero_bond(p, t, T, "EUR_NULL")
+        @test isapprox(DiffFusion.forward_asset(p, t, T, "RATES"), S_t .* P_f ./ P_d, atol=5.0e-15)
     end
 end
