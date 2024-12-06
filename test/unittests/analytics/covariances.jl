@@ -165,6 +165,8 @@ using Test
         Dict{String, DiffFusion.FixingEntry}(),
     )
     
+    struct NoModel <: DiffFusion.Model end # dummy model for testing
+
     @testset "Test scaling vector calculation" begin
         ch_full = get_correlation("Std")
         mdl = hybrid_model(ch_full)
@@ -173,6 +175,7 @@ using Test
         #
         # test constraints
         @test_throws ErrorException DiffFusion.reference_rate_scaling("NoKey", 1.0, mdl, ctx)
+        @test_throws ErrorException DiffFusion.reference_rate_scaling("EUR", 1.0, NoModel(), ctx)
         @test_throws AssertionError DiffFusion.reference_rate_scaling("EUR", -1.0, mdl, ctx)
         @test_throws AssertionError DiffFusion.reference_rate_scaling("USD", 0.0, mdl, ctx)
         @test_throws AssertionError DiffFusion.reference_rate_scaling("USD-EUR", 1.0, mdl, ctx)
@@ -359,6 +362,59 @@ using Test
         ]
         @test isapprox(v, v_ref, atol=1.0e-14)
         @test isapprox(C, C_ref, atol=1.0e-5)
+        # display(v)
+        # display(C)
+    end
+
+    @testset "Test degenerated volatility and correlation calculation" begin
+        ch_full = get_correlation("Std")
+        times = [ 0. ]
+        #
+        hjm_eur = DiffFusion.gaussian_hjm_model(
+            "EUR",
+            DiffFusion.flat_parameter([ 1., 10., 20. ]),      # delta
+            DiffFusion.flat_parameter([ 0.01, 0.10, 0.30 ]),  # chi
+            DiffFusion.backward_flat_volatility("",times,[ 0. 0. 0. ]' * 1.0e-4),  # sigma
+            ch_full,
+            nothing,
+        )
+        fx_usd_eur = DiffFusion.lognormal_asset_model(
+            "USD-EUR",
+            DiffFusion.flat_volatility("", 0.0),
+            ch_full,
+            nothing,
+        )
+        hjm_usd = DiffFusion.gaussian_hjm_model(
+            "USD",
+            DiffFusion.flat_parameter([ 1., 10., 20. ]),      # delta
+            DiffFusion.flat_parameter([ 0.01, 0.10, 0.30 ]),  # chi
+            DiffFusion.backward_flat_volatility("",times,[ 0. 0. 0. ]' * 1.0e-4),  # sigma
+            ch_full,
+            fx_usd_eur,
+        )
+        #
+        mdl = DiffFusion.simple_model("Std", [ hjm_eur, fx_usd_eur, hjm_usd])
+        #
+        dt = 0.25
+        (v, C) = DiffFusion.reference_rate_volatility_and_correlation(
+            [
+                ("EUR", 1.0),
+                ("EUR", 5.0),
+                ("EUR", 10.0),
+                ("USD-EUR", 0.0),
+            ],
+            ctx, mdl, ch_full, 0.0, dt
+        )
+        #
+        v_ref = zeros(4)
+        C_ref = [
+            1.0 0.0 0.0 0.0
+            0.0 1.0 0.0 0.0
+            0.0 0.0 1.0 0.0
+            0.0 0.0 0.0 1.0
+        ]
+        @test v == v_ref
+        @test C == C_ref
         # display(v)
         # display(C)
     end

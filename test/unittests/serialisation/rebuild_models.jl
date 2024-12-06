@@ -77,6 +77,15 @@ using Test
         for (a, b) in zip(keys(d), ["EUR", "Std", "Full", "EUR-USD", "SXE50-EUR", "USD"])
             @test a == b
         end
+        # Simple 1F model
+        delta = DiffFusion.flat_parameter([ 1., ])
+        chi = DiffFusion.flat_parameter([ 0.01, ])
+        times =  [ 0. ]
+        values = [ 50. ]' * 1.0e-4
+        sigma_f = DiffFusion.backward_flat_volatility("USD", times, values)
+        hjm_model = DiffFusion.gaussian_hjm_model("md/USD", delta, chi, sigma_f, nothing, nothing)
+        d = DiffFusion.model_parameters(hjm_model)
+        @test d["md/USD"]["correlation_holder"] == nothing  # this is what's different in this test
     end
 
     @testset "Re-build models" begin
@@ -109,6 +118,17 @@ using Test
         model_dict = Dict{String, Any}()
         model = DiffFusion.build_model(DiffFusion.alias(full_model), param_dict, model_dict)
         @test string(model) == string(full_model)
+        # Simple 1F model w/o correlation
+        delta = DiffFusion.flat_parameter([ 1., ])
+        chi = DiffFusion.flat_parameter([ 0.01, ])
+        times =  [ 0. ]
+        values = [ 50. ]' * 1.0e-4
+        sigma_f = DiffFusion.backward_flat_volatility("USD", times, values)
+        hjm_model = DiffFusion.gaussian_hjm_model("md/USD", delta, chi, sigma_f, nothing, nothing)
+        param_dict = DiffFusion.model_parameters(hjm_model)
+        model_dict = Dict{String, Any}()
+        model = DiffFusion.build_model(DiffFusion.alias(hjm_model), param_dict, model_dict)
+        @test string(model) == string(hjm_model)
     end
 
 
@@ -207,6 +227,20 @@ using Test
         end
         DiffFusion.model_parameters!(p_dict, l, v)
         m_dict = Dict{String, Any}()
+        m1 = DiffFusion.build_model(m.alias, p_dict, m_dict)
+        @test string(m1) == string(m)
+        #
+        # Re-build with quanto model
+        quanto_model = DiffFusion.lognormal_asset_model("USD-GBP", σ, ch_full, nothing)
+        m = DiffFusion.cev_asset_model("EUR-USD", σ, γ, ch_full, quanto_model)
+        d = DiffFusion.model_parameters(m)
+        (l, v) = DiffFusion.model_volatility_values(m.alias, d)
+        p_dict = Dict{String, Any}( "Full" => ch_full, )
+        for k in keys(d)
+            p_dict[k] = d[k]
+        end
+        DiffFusion.model_parameters!(p_dict, l, v)
+        m_dict = Dict{String, Any}( "USD-GBP" => quanto_model, )
         m1 = DiffFusion.build_model(m.alias, p_dict, m_dict)
         @test string(m1) == string(m)
         # println(l)

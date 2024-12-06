@@ -47,6 +47,20 @@ using Test
         @test string(DiffFusion.amount(C)) == "(Idx(EURIBOR, -0.50) + 0.0100) * 1.0000"
     end
 
+    @testset "SimpleRate option test" begin
+        C = DiffFusion.SimpleRateCoupon(1.8, 2.0, 3.0, 3.2, 1.0, "EUR6M", nothing, nothing)
+        O = DiffFusion.OptionletCoupon(C, 0.01, +1.0)  # expiry_time from CompoundedRateCoupon
+        @test DiffFusion.pay_time(O) == 3.2
+        @test DiffFusion.year_fraction(O) == 1.0
+        @test string(DiffFusion.amount(O)) == "Max(1.0000 * (L(EUR6M, 1.80; 2.00, 3.00) - 0.0100), 0.0000) * 1.0000"
+        @test string(DiffFusion.expected_amount(O, 0.5)) == "Caplet(L(EUR6M, 0.50; 2.00, 3.00), 0.0100; 1.80) * 1.0000"
+        @test string(DiffFusion.expected_amount(O, 1.0)) == "Caplet(L(EUR6M, 1.00; 2.00, 3.00), 0.0100; 1.80) * 1.0000"
+        @test string(DiffFusion.expected_amount(O, 2.5)) == "Max(1.0000 * (L(EUR6M, 1.80; 2.00, 3.00) - 0.0100), 0.0000) * 1.0000"
+        @test string(DiffFusion.expected_amount(O, 3.0)) == "Max(1.0000 * (L(EUR6M, 1.80; 2.00, 3.00) - 0.0100), 0.0000) * 1.0000"
+        # println(string(DiffFusion.amount(O)))
+        # println(string(DiffFusion.expected_amount(O, 0.0)))
+    end
+
     @testset "CompoundedRateCoupon test" begin
         period_times = 1.0:0.1:2.0
         period_year_fractions = period_times[2:end] - period_times[1:end-1]
@@ -88,6 +102,13 @@ using Test
         @test string(DiffFusion.expected_amount(C, 0.05)) == string(DiffFusion.amount(C))
         @test string(DiffFusion.expected_amount(C, 0.1)) == string(DiffFusion.amount(C))
         @test string(DiffFusion.expected_amount(C, 0.2)) == string(DiffFusion.amount(C))
+        #
+        period_times = [-2.0, -1.5, -1.0]
+        period_year_fractions = [ 0.5, 0.5 ]
+        C = DiffFusion.CompoundedRateCoupon(period_times, period_year_fractions, period_times[end], "USD:SOFR", "SOFR", 0.02)
+        @test string(DiffFusion.amount(C)) == "((((1.0000 + Idx(SOFR, -2.00) * 0.5000) * (1.0000 + Idx(SOFR, -1.50) * 0.5000) - 1.0000) / 1.0000) + 0.0200) * 1.0000"
+        @test string(DiffFusion.expected_amount(C, 0.0)) == string(DiffFusion.amount(C))
+        #
         # println(string(DiffFusion.amount(C)))
         # println(string(DiffFusion.expected_amount(C, 0.0)))
     end
