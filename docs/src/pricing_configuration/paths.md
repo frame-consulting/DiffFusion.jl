@@ -53,6 +53,10 @@ DiffFusion.forward_asset
 ```
 
 ```@docs
+DiffFusion.forward_asset_and_zero_bonds
+```
+
+```@docs
 DiffFusion.fixing
 ```
 

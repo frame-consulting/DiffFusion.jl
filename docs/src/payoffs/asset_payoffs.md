@@ -34,3 +34,6 @@ DiffFusion.IndexConvexityAdjustment
 DiffFusion.VanillaAssetOption
 ```
 
+```@docs
+DiffFusion.BarrierAssetOption
+```

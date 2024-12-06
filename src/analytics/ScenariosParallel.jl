@@ -169,7 +169,7 @@ end
         )
 
 Combined multi-processing (distributed) and multi-threaded calculation of
-`ScenarioCube` or a vector of `CashFlowLeg` objects and a vector of scenario
+`ScenarioCube` for a vector of `CashFlowLeg` objects and a vector of scenario
 observation `times`.
 
 Multi-processing is implemented via `Distributed` module. The number of
