@@ -152,3 +152,25 @@ DiffFusion.bachelier_implied_stdev
 ```@docs
 DiffFusion.bachelier_implied_volatility
 ```
+
+## Barrier Pricing Formulas
+
+```@docs
+DiffFusion.black_scholes_vanilla_price
+```
+
+```@docs
+DiffFusion.black_scholes_barrier_price
+```
+
+```@docs
+DiffFusion.up_hit_probability
+```
+
+```@docs
+DiffFusion.down_hit_probability
+```
+
+```@docs
+DiffFusion.barrier_no_hit_probability
+```

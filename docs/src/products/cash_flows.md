@@ -79,6 +79,11 @@ DiffFusion.RelativeReturnIndexCoupon
 DiffFusion.VanillaAssetOptionFlow
 ```
 
+```@docs
+DiffFusion.BarrierAssetOptionFlow
+```
+
+
 ## Cash Flow and Coupon Methods
 
 ```@docs
