@@ -11,6 +11,7 @@
         yts::YieldTermstructure;
         max_iter::Integer = 5,
         volatility_regularisation::ModelValue = 0.0,
+        scaling_type::BenchmarkTimesScaling = _default_benchmark_time_scaling,
         )
 
 Calibrate a model with flat volatilities and mean reversion
@@ -25,6 +26,7 @@ function gaussian_hjm_model(
     yts::YieldTermstructure;
     max_iter::Integer = 5,
     volatility_regularisation::ModelValue = 0.0,
+    scaling_type::BenchmarkTimesScaling = _default_benchmark_time_scaling,
     )
     #
     # check inputs first
@@ -50,7 +52,7 @@ function gaussian_hjm_model(
         chi_ = vcat([exp_x[1]], exp_x[1] .+ d_chi)   #  ensure monotonicity
         chi = flat_parameter(chi_)
         sigma_f = backward_flat_volatility("", [0.0], reshape(exp_x[d+1:end], (:,1)) )
-        return gaussian_hjm_model(alias, delta, chi, sigma_f, ch, nothing)
+        return gaussian_hjm_model(alias, delta, chi, sigma_f, ch, nothing, scaling_type)
     end
     #
     x0 = log.(vcat(
@@ -104,6 +106,7 @@ end
         yts::YieldTermstructure;
         max_iter::Integer = 5,
         volatility_regularisation::ModelValue = 0.0,
+        scaling_type::BenchmarkTimesScaling = _default_benchmark_time_scaling,
         )
 
 
@@ -123,6 +126,7 @@ function gaussian_hjm_model(
     yts::YieldTermstructure;
     max_iter::Integer = 5,
     volatility_regularisation::ModelValue = 0.0,
+    scaling_type::BenchmarkTimesScaling = _default_benchmark_time_scaling,
     )
     #
     # check inputs first
@@ -154,12 +158,12 @@ function gaussian_hjm_model(
         )
         sigma_f = backward_flat_volatility("", m.sigma_T.sigma_f.times, sigma_f_)
         # TODO: use low-level incremental model construction
-        return gaussian_hjm_model(alias, delta, chi, sigma_f, ch, nothing)
+        return gaussian_hjm_model(alias, delta, chi, sigma_f, ch, nothing, scaling_type)
     end
     #
     x0 = log.(mean(swap_rate_volatilities) * ones(d))
     σ0 = backward_flat_volatility("", option_times, zeros((d, length(option_times))))
-    m0 = gaussian_hjm_model(alias, delta, chi, σ0, ch, nothing)
+    m0 = gaussian_hjm_model(alias, delta, chi, σ0, ch, nothing, scaling_type)
     X = zeros( (length(state_alias(m0)), 1) )
     SX = model_state(X, m0)
     function obj_F(x::AbstractVector, m::GaussianHjmModel, idx::Integer)
