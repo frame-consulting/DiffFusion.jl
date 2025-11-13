@@ -127,6 +127,7 @@ function gaussian_hjm_model(
     max_iter::Integer = 5,
     volatility_regularisation::ModelValue = 0.0,
     scaling_type::BenchmarkTimesScaling = _default_benchmark_time_scaling,
+    swap_maturity_indices::Union{AbstractVector, Nothing} = nothing,
     )
     #
     # check inputs first
@@ -141,6 +142,20 @@ function gaussian_hjm_model(
         @assert swap_maturities[j] > swap_maturities[j-1]
     end
     @assert size(swap_rate_volatilities) == (length(option_times), length(swap_maturities))
+    #
+    if !isnothing(swap_maturity_indices)
+        # an index vector of swap_maturities per element in option_times
+        @assert length(swap_maturity_indices) == length(option_times)
+        for idx_vector in swap_maturity_indices
+            @assert length(idx_vector) >= length(delta())            # no underdetermined calibration
+            @assert length(idx_vector) <= length(swap_maturities)    # not more indices than swap maturities
+            @assert all(isa.(idx_vector, Integer))                   # all elements are Integer
+            @assert issorted(idx_vector)                             # sorted indices for clear spec
+            @assert idx_vector == unique(idx_vector)                 # no duplicate indices for calibration
+            @assert idx_vector[begin] >= minimum(eachindex(swap_maturities))  # valid index in swap maturities
+            @assert idx_vector[end]   <= maximum(eachindex(swap_maturities))  # valid index in swap maturities
+        end
+    end
     #
     @assert volatility_regularisation ≥ 0.0
     @assert volatility_regularisation ≤ 1.0
@@ -168,8 +183,12 @@ function gaussian_hjm_model(
     SX = model_state(X, m0)
     function obj_F(x::AbstractVector, m::GaussianHjmModel, idx::Integer)
         m = model(x, m, idx)
-        σ = model_implied_volatilties(yts, m, option_times[idx:idx], swap_maturities, SX)
-        obj = vec(σ - swap_rate_volatilities[idx:idx,:])
+        swp_idx_vector = eachindex(swap_maturities)  # default behaviour
+        if !isnothing(swap_maturity_indices)
+            swp_idx_vector = swap_maturity_indices[idx]
+        end
+        σ = model_implied_volatilties(yts, m, option_times[idx:idx], swap_maturities[swp_idx_vector], SX)
+        obj = vec(σ - swap_rate_volatilities[idx:idx, swp_idx_vector])
         if volatility_regularisation > 0.0
             model_vol = m.sigma_T.sigma_f.values[:,idx]
             obj_vol = model_vol[begin+1:end] - model_vol[begin:end-1]
