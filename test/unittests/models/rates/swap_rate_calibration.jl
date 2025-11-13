@@ -201,4 +201,91 @@ using Test
     end
 
 
+    @testset "Test piece-wise flat vol calibration with swap_maturity_indices." begin
+        yts = DiffFusion.zero_curve("", [0.0, 10.0], [0.03, 0.03])
+        option_times = [ 1.0, 2.0, 5.0, 10.0 ]
+        swap_maturities = [ 2.0, 10.0, 20.0 ]
+        #
+        c = 0.80
+        ch = DiffFusion.correlation_holder("Full")
+        DiffFusion.set_correlation!(ch, "EUR_f_1", "EUR_f_2", c)
+        DiffFusion.set_correlation!(ch, "EUR_f_2", "EUR_f_3", c)
+        DiffFusion.set_correlation!(ch, "EUR_f_1", "EUR_f_3", c)
+        #
+        delta = DiffFusion.flat_parameter([ 2., 10., 20. ])
+        chi = DiffFusion.flat_parameter([ 0.01, 0.10, 0.33 ])
+
+        swap_maturity_indices = [ [1, 2, 3] for t in option_times ]
+
+        # flat implied vol surface
+        implied_vols = 0.01 * ones((length(option_times), length(swap_maturities)))
+        res = DiffFusion.gaussian_hjm_model(
+            "EUR",
+            delta,
+            chi,
+            ch,
+            option_times,
+            swap_maturities,
+            implied_vols,
+            yts, max_iter = 5,
+            volatility_regularisation = 0.10,
+            scaling_type = DiffFusion.ZeroRateScaling,
+            swap_maturity_indices = swap_maturity_indices,
+        )
+        # display(res)
+        @test all(res.fit .> -2.7e-4)
+        @test all(res.fit .<  2.0e-4)
+        # display(res.model.chi)
+        # display(res.model.sigma_T.sigma_f.times)
+        # display(res.model.sigma_T.sigma_f.values)
+        # display(res.fit * 1e+4)
+    end
+
+
+    @testset "Test piece-wise flat vol calibration with co-terminal swap_maturity_indices." begin
+        yts = DiffFusion.zero_curve("", [0.0, 10.0], [0.03, 0.03])
+        option_times = [ 1.0, 2.0, 5.0, 8.0, ]
+        swap_maturities = [ 1.0, 2.0, 5.0, 8.0, 9.0, 10.0 ]
+        #
+        c = 0.80
+        ch = DiffFusion.correlation_holder("Full")
+        DiffFusion.set_correlation!(ch, "EUR_f_1", "EUR_f_2", c)
+        DiffFusion.set_correlation!(ch, "EUR_f_2", "EUR_f_3", c)
+        DiffFusion.set_correlation!(ch, "EUR_f_1", "EUR_f_3", c)
+        #
+        delta = DiffFusion.flat_parameter([ 2., 10., 20. ])
+        chi = DiffFusion.flat_parameter([ 0.01, 0.10, 0.33 ])
+
+        swap_maturity_indices = [
+            [1, 5, 6 ],
+            [1, 4, 6 ],
+            [1, 3, 6 ],
+            [1, 2, 6 ],
+        ]
+
+        # flat implied vol surface
+        implied_vols = 0.01 * ones((length(option_times), length(swap_maturities)))
+        res = DiffFusion.gaussian_hjm_model(
+            "EUR",
+            delta,
+            chi,
+            ch,
+            option_times,
+            swap_maturities,
+            implied_vols,
+            yts, max_iter = 5,
+            volatility_regularisation = 0.1,
+            scaling_type = DiffFusion.ZeroRateScaling,
+            swap_maturity_indices = swap_maturity_indices,
+        )
+        # display(res)
+        @test all(res.fit .> -3.2e-4)
+        @test all(res.fit .<  4.0e-4)
+        # display(res.model.chi)
+        # display(res.model.sigma_T.sigma_f.times)
+        # display(res.model.sigma_T.sigma_f.values)
+        # display(res.fit * 1e+4)
+    end
+
+
 end
