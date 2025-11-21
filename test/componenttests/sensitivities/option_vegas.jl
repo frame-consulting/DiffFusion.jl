@@ -38,7 +38,7 @@ using ForwardDiff
             payoffs = [ straddle(obs_time) ]
             model_price = DiffFusion.model_price(payoffs, path_, nothing, "USD")
             println("Obs_time: " * string(obs_time) * ", model_price: " * string(model_price))
-            (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD")
+            (v, g) = DiffFusion.model_price_and_vegas_zygote(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD")
             @test v == model_price
             # Vega
             for key in keys(g)
@@ -146,7 +146,7 @@ using ForwardDiff
         path_ = DiffFusion.path(sim_, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
         model_price = DiffFusion.model_price(payoffs, path_, nothing, "USD")
         #
-        (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD")
+        (v, g) = DiffFusion.model_price_and_vegas_zygote(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD")
         @test v == model_price
         #println(g)
     end
@@ -192,7 +192,7 @@ using ForwardDiff
         model_price = DiffFusion.model_price(payoffs, path_, nothing, "USD")
         # println(model_price)
         #
-        (v, g) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, context, nothing, "USD")
+        (v, g) = DiffFusion.model_price_and_vegas_zygote(payoffs, model, sim, TestModels.ts_list, context, nothing, "USD")
         @test v == model_price
         # println(g)
     end
@@ -232,8 +232,8 @@ using ForwardDiff
             payoffs = [ straddle(obs_time) ]
             model_price = DiffFusion.model_price(payoffs, path_, nothing, "USD")
             println("Obs_time: " * string(obs_time) * ", model_price: " * string(model_price))
-            (v1, g1, l1) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD", Zygote)
-            (v2, g2, l2) = DiffFusion.model_price_and_vegas_vector(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD", ForwardDiff)
+            (v1, g1, l1) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD", Zygote)
+            (v2, g2, l2) = DiffFusion.model_price_and_vegas(payoffs, model, sim, TestModels.ts_list, TestModels.context, nothing, "USD", ForwardDiff)
             @test v1 == model_price
             @test v2 == model_price
             @test isapprox(g1, g_ref, atol=1.0e-12)
