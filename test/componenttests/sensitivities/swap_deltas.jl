@@ -26,7 +26,7 @@ using Test
             )
             model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
             # println(model_price)
-            (v, g) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD")
+            (v, g) = DiffFusion.model_price_and_deltas_zygote(payoffs, path, nothing, "USD")
             @test v == model_price
             # test deltas via manual FD
             shift = 1.0e-7

@@ -199,7 +199,7 @@ using Test
             "EUR",
         )
 
-        (v1, g1, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+        (v1, g1, ts_labels) = DiffFusion.model_price_and_deltas(
             [ A1, A2 ],
             path,
             nothing,
@@ -207,7 +207,7 @@ using Test
             DiffFusion.ForwardDiff
         )
 
-        (v2, g2, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+        (v2, g2, ts_labels) = DiffFusion.model_price_and_deltas(
             [ A1, A2 ],
             path,
             nothing,
@@ -215,7 +215,7 @@ using Test
             DiffFusion.Zygote
         )
 
-        (v3, g3, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+        (v3, g3, ts_labels) = DiffFusion.model_price_and_deltas(
             [ A1, A2 ],
             path,
             nothing,

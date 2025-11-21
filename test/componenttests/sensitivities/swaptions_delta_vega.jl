@@ -235,7 +235,7 @@ using UnicodePlots
     @testset "Test Delta calculation" begin
         @info "Start Delta calculation..."
         #
-        (v1, g1, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+        (v1, g1, ts_labels) = DiffFusion.model_price_and_deltas(
             DiffFusion.discounted_cashflows(swaption_4y, 1.0),
             path,
             1.0,
@@ -244,7 +244,7 @@ using UnicodePlots
         )
         print_results(v1, g1, ts_labels)
         #
-        (v2, g2, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+        (v2, g2, ts_labels) = DiffFusion.model_price_and_deltas(
             DiffFusion.discounted_cashflows(berm_4y, 1.0),
             path,
             1.0,
@@ -253,7 +253,7 @@ using UnicodePlots
         )
         print_results(v2, g2, ts_labels)
         #
-        (v3, g3, ts_labels) = DiffFusion.model_price_and_deltas_vector(
+        (v3, g3, ts_labels) = DiffFusion.model_price_and_deltas(
             DiffFusion.discounted_cashflows(berm_10nc2, 1.0),
             path,
             1.0,
@@ -277,7 +277,7 @@ using UnicodePlots
         hyb_model = DiffFusion.simple_model("Std", [model])
         sim(model, ch) = DiffFusion.simple_simulation(model, ch, times, n_paths, with_progress_bar = false, brownian_increments = DiffFusion.sobol_brownian_increments)
         #
-        (v1, g1, ts_labels) = DiffFusion.model_price_and_vegas_vector(
+        (v1, g1, ts_labels) = DiffFusion.model_price_and_vegas(
             DiffFusion.discounted_cashflows(swaption_4y, 1.0),
             hyb_model,
             sim,
@@ -289,7 +289,7 @@ using UnicodePlots
         )
         print_results(v1, g1, ts_labels)
         #
-        (v2, g2, ts_labels) = DiffFusion.model_price_and_vegas_vector(
+        (v2, g2, ts_labels) = DiffFusion.model_price_and_vegas(
             DiffFusion.discounted_cashflows(berm_4y, 1.0),
             hyb_model,
             sim,
@@ -301,7 +301,7 @@ using UnicodePlots
         )
         print_results(v2, g2, ts_labels)
         #
-        (v3, g3, ts_labels) = DiffFusion.model_price_and_vegas_vector(
+        (v3, g3, ts_labels) = DiffFusion.model_price_and_vegas(
             DiffFusion.discounted_cashflows(berm_10nc2, 1.0),
             hyb_model,
             sim,
