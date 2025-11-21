@@ -106,6 +106,10 @@ include("analytics/Analytics.jl")
 include("analytics/Collateral.jl")
 include("analytics/Valuations.jl")
 include("analytics/Covariances.jl")
+if VERSION < v"1.12"
+    # Zygote yields segfault with v1.12
+    include("analytics/ValuationsViaZygote.jl")
+end
 
 include("serialisation/Serialisations.jl")
 include("serialisation/Array.jl")
