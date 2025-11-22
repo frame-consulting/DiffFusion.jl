@@ -10,4 +10,4 @@ using Test
 
 end
 
-@info "Start componenttests_all.jl."
+@info "Finished componenttests_all.jl."
