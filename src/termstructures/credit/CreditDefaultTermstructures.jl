@@ -77,10 +77,10 @@ function survival_curve(
     @assert length(times) > 0
     @assert length(times) == length(survival_probs)
     if times[begin] != 0.0
-        @warn "First time should typically be 0.0." times[begin]
+        non_differentiable_warn("First time should typically be 0.0.", times[begin])
     end
     if survival_probs[begin] != 1.0
-        @warn "First survival probability should typically be 1.0." survival_probs[begin]
+        non_differentiable_warn("First survival probability should typically be 1.0.", survival_probs[begin])
     end
     values = log.(survival_probs)
     return LogSurvivalCurve(alias, times, values, interp_method(times, values))
