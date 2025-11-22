@@ -106,10 +106,6 @@ include("analytics/Analytics.jl")
 include("analytics/Collateral.jl")
 include("analytics/Valuations.jl")
 include("analytics/Covariances.jl")
-if VERSION < v"1.12"
-    # Zygote yields segfault with v1.12
-    include("analytics/ValuationsViaZygote.jl")
-end
 
 include("serialisation/Serialisations.jl")
 include("serialisation/Array.jl")
@@ -134,9 +130,18 @@ module Examples
     include("examples/Products.jl")
 end # module
 
-include("chainrules/models.jl")
-include("chainrules/termstructures.jl")
-include("chainrules/simulations.jl")
+# Zygote is broken with Julia 1.12; we exclude Zygote until it is fixed
+if VERSION < v"1.12"
+    const _use_zygote = true
+else
+    const _use_zygote = false
+end
+if _use_zygote
+    include("analytics/ValuationsViaZygote.jl")
+    include("chainrules/models.jl")
+    include("chainrules/termstructures.jl")
+    include("chainrules/simulations.jl")
+end
 
 "List of function names eligible for de-serialisation."
 const _eligible_func_names = [ string(n) for n in names(DiffFusion; all = true, imported = false) ]

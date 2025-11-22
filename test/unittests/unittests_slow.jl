@@ -6,7 +6,7 @@ using Test
 @testset verbose=true "unittests_slow.jl" begin
 
     include("analytics/valuations.jl")
-    if VERSION < v"1.12"
+    if DiffFusion._use_zygote
         # Zygote yields segfault with v1.12
         include("analytics/valuations_zygote.jl")
     end
