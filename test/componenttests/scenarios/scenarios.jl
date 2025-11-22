@@ -351,7 +351,8 @@ using YAML
             payoffs = DiffFusion.discounted_cashflows(legs[k], times[j])
             for payoff in payoffs
                 X[:,j,k] += payoff(path)
-                dist[Threads.threadid()] += 1
+                idx = Threads.threadid() % Threads.nthreads() + 1  # beware interactive thread in Julia 1.12
+                dist[idx] += 1
             end
         end
         if !isnothing(discount_curve_key)
