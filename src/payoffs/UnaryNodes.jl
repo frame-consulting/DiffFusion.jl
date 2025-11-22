@@ -25,7 +25,7 @@ Create a Pay object and check for consistency.
 function Pay(x::Payoff, pay_time::ModelTime)
     obs_time_x = obs_time(x)
     if pay_time < obs_time_x
-        @warn "Pay time is before observation time." pay_time obs_time_x
+        non_differentiable_warn("Pay time is before observation time.", (pay_time, obs_time_x))
     end
     return Pay(x, pay_time, true)
 end

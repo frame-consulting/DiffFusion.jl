@@ -130,14 +130,11 @@ module Examples
     include("examples/Products.jl")
 end # module
 
-# Zygote is broken with Julia 1.12; we exclude Zygote until it is fixed
-if VERSION < v"1.12"
-    const _use_zygote = true
-else
-    const _use_zygote = false
-end
+# Zygote is broken with Julia 1.12; we may exclude Zygote at some point
+const _use_zygote = true
 if _use_zygote
     include("analytics/ValuationsViaZygote.jl")
+    include("chainrules/control.jl")
     include("chainrules/models.jl")
     include("chainrules/termstructures.jl")
     include("chainrules/simulations.jl")

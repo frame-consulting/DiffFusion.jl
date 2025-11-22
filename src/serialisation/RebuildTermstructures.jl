@@ -115,7 +115,7 @@ function termstructure_dictionary!(
             continue
         end
         if isa(ts_dict[ts_alias], ZeroCurve)
-            @warn "ZeroCurve rebuild does not work with Zygote. Consider using LinearZeroCurve."
+            non_differentiable_warn("ZeroCurve rebuild does not work with Zygote. Consider using LinearZeroCurve.")
             ts_dict[ts_alias] = zero_curve(ts_dict[ts_alias].alias, ts_dict[ts_alias].times, values)
             continue
         end
