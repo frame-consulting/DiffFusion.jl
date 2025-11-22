@@ -39,7 +39,7 @@ function model_price_and_deltas_zygote(
         return mean( X )
     end
     # res = obj_function(path_obj.ts_dict)
-    (v, g) = _function_value_and_gradient(obj_function, path_obj.ts_dict, Zygote)
+    (v, g) = _function_value_and_gradient(obj_function, path_obj.ts_dict)
     return (v, g)
 end
 
@@ -118,6 +118,6 @@ function model_price_and_vegas_zygote(
         return price
     end
     # res = obj_function(param_dict)
-    (v, g) = _function_value_and_gradient(obj_function, param_dict, Zygote)
+    (v, g) = _function_value_and_gradient(obj_function, param_dict)
     return (v, g)
 end
