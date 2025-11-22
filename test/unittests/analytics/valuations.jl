@@ -3,6 +3,8 @@ using DiffFusion
 using Test
 using FiniteDifferences
 using ForwardDiff
+using DifferentiationInterface
+
 
 @testset "Payoff evaluation and sensitivities." begin
     @info "Testing AD sensitivities. This takes some time for compilation."
@@ -43,21 +45,29 @@ using ForwardDiff
         @info "Start testing AD Deltas..."
         payoffs = [ DiffFusion.Asset(2.0, "EUR-USD")]
         #
+        adTypes = [
+            AutoFiniteDifferences(;fdm = FiniteDifferences.central_fdm(3, 1)),
+            AutoForwardDiff(),
+            ForwardDiff,
+            FiniteDifferences,
+        ]
+        #
         model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
-        (v2, g2, l2) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD", ForwardDiff)
-        (v3, g3, l3) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD", FiniteDifferences)
-        @test v2 == model_price
-        @test v3 == model_price
-        @test isapprox(g2, g3, atol=1.0e-10)
+        (v0, g0, l0) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD", adTypes[begin])
+        for adType in adTypes[begin+1:end]
+            (v, g, l) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD", adType)
+            @test isapprox(v, model_price, atol=1.0e-14)
+            @test isapprox(g, g0, atol=1.0e-10)
+        end
         #
         model_price = DiffFusion.model_price(payoffs, path, nothing, nothing)
-        (v2, g2, l2) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, nothing, ForwardDiff)
-        (v3, g3, l3) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, nothing, FiniteDifferences)
-        @test v2 == model_price
-        @test v3 == model_price
-        @test isapprox(g2, g3, atol=1.0e-9)
+        (v0, g0, l0) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, nothing, adTypes[begin])
+        for adType in adTypes[begin+1:end]
+            (v, g, l) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, nothing, adType)
+            @test isapprox(v, model_price, atol=1.0e-14)
+            @test isapprox(g, g0, atol=1.0e-9)
+        end
         @info "Finished."
-        #println(g2)
     end
 
     @testset "Vega calculation" begin
@@ -66,12 +76,20 @@ using ForwardDiff
         #
         payoffs = [ DiffFusion.Asset(2.0, "EUR-USD")]
         #
+        adTypes = [
+            AutoFiniteDifferences(;fdm = FiniteDifferences.central_fdm(3, 1)),
+            AutoForwardDiff(),
+            ForwardDiff,
+            FiniteDifferences,
+        ]
+        #
         model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
-        (v2, g2, l2) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "USD", ForwardDiff)
-        (v3, g3, l3) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "USD", FiniteDifferences)
-        @test v2 == model_price
-        @test v3 == model_price
-        @test isapprox(g2, g3, atol=1.0e-10)
+        (v0, g0, l0) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "USD", adTypes[begin])
+        for adType in adTypes[begin+1:end]
+            (v, g, l) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "USD", adType)
+            @test isapprox(v, model_price, atol=1.0e-14)
+            @test isapprox(g, g0, atol=1.0e-10)
+        end
         @info "Finished."
         # println(g1)
     end
@@ -91,32 +109,38 @@ using ForwardDiff
         #
         @info "Testing Zero AD Deltas..."
         #
+        adTypes = [
+            AutoFiniteDifferences(;fdm = FiniteDifferences.central_fdm(3, 1)),
+            AutoForwardDiff(),
+            AutoZygote(),
+            ForwardDiff,
+            FiniteDifferences,
+        ]
+        #
         model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
-        (v2, g2, l2) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD", ForwardDiff)
-        (v3, g3, l3) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD", FiniteDifferences)
-        @test v2 == model_price
-        @test v2 == model_price
-        # @test isapprox(g2, g3, atol=1.0e-10)
+        (v0, g0, l0) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD", adTypes[begin])
+        for adType in adTypes[begin+1:end]
+            (v, g, l) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD", adType)
+            @test v == model_price
+        end
         #
         model_price = DiffFusion.model_price(payoffs, path, nothing, nothing)
-        (v2, g2, l2) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, nothing, ForwardDiff)
-        (v3, g3, l3) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, nothing, FiniteDifferences)
-        @test v2 == model_price
-        @test v3 == model_price
-        # @test isapprox(g1, g2, atol=1.0e-12)
-        # @test isapprox(g2, g3, atol=1.0e-9)
+        (v0, g0, l0) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, nothing, adTypes[begin])
+        for adType in adTypes[begin+1:end]
+            (v, g, l) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, nothing, FiniteDifferences)
+            @test v == model_price
+        end
         #
         @info "Testing Zero AD Vegas..."
         #
         model = DiffFusion.simple_model("Std", [fx_model])
         #
         model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
-        (v2, g2, l2) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "USD", ForwardDiff)
-        (v3, g3, l3) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "USD", FiniteDifferences)
-        @test v2 == model_price
-        @test v3 == model_price
-        # @test isapprox(g1, g2, atol=1.0e-12)
-        # @test isapprox(g2, g3, atol=1.0e-10)
+        (v0, g0, l0) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "USD", adTypes[begin])
+        for adType in adTypes[begin+1:end]
+            (v, g, l) = DiffFusion.model_price_and_vegas(payoffs, model, sim_func, ts_list, context, nothing, "USD", FiniteDifferences)
+            @test v == model_price
+        end
     end
 
 end

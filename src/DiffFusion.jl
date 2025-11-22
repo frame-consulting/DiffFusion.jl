@@ -1,11 +1,8 @@
 module DiffFusion
 
-using ChainRulesCore
 using DelimitedFiles
 using Distributed
 using Distributions
-using FiniteDifferences
-using ForwardDiff
 using Interpolations
 using LinearAlgebra
 using LsqFit
@@ -19,7 +16,13 @@ using SharedArrays
 using Sobol
 using SparseArrays
 using StatsBase
-using Zygote
+
+# AD modules
+using ChainRulesCore
+using DifferentiationInterface
+using FiniteDifferences: FiniteDifferences
+using ForwardDiff: ForwardDiff
+using Zygote: Zygote
 
 import Base.length
 import Base.string
