@@ -65,14 +65,17 @@ using Test
 
         @test zb == obj_function(arg_x)
 
-        (v1, g1) = DiffFusion._function_value_and_gradient(obj_function, arg_x, DiffFusion.ForwardDiff)
-        (v2, g2) = DiffFusion._function_value_and_gradient(obj_function, arg_x, DiffFusion.FiniteDifferences)
+        (v2, g2) = DiffFusion._function_value_and_gradient(obj_function, arg_x, DiffFusion.Zygote)
+        (v3, g3) = DiffFusion._function_value_and_gradient(obj_function, arg_x, DiffFusion.FiniteDifferences)
 
-        @test v1 == zb
         @test v2 == zb
+        @test v3 == zb
         
-        @test isapprox(g1, g2, atol=1.0e-10)
+        @test isapprox(g2, g3, atol=1.0e-10)
 
+        #println(g1)
+        #println(g2)
+        #println(g3)
     end
 
 
@@ -92,13 +95,17 @@ using Test
 
         y = obj_function(p)
 
-        (v1, g1) = DiffFusion._function_value_and_gradient(obj_function, p, DiffFusion.ForwardDiff)
-        (v2, g2) = DiffFusion._function_value_and_gradient(obj_function, p, DiffFusion.FiniteDifferences)
+        (v2, g2) = DiffFusion._function_value_and_gradient(obj_function, p, DiffFusion.Zygote)
+        (v3, g3) = DiffFusion._function_value_and_gradient(obj_function, p, DiffFusion.FiniteDifferences)
 
-        @test v1 == y
         @test v2 == y
+        @test v3 == y
         
-        @test isapprox(g1, g2, atol=1.0e-10)
+        @test isapprox(g2, g3, atol=1.0e-10)
+
+        #println(y)
+        #println(v2)
+        #println(g2)
 
     end
 
@@ -186,15 +193,15 @@ using Test
             "EUR",
         )
 
-        (v1, g1, ts_labels) = DiffFusion.model_price_and_deltas(
+        (v2, g2, ts_labels) = DiffFusion.model_price_and_deltas(
             [ A1, A2 ],
             path,
             nothing,
             nothing,
-            DiffFusion.ForwardDiff
+            DiffFusion.Zygote
         )
 
-        (v2, g2, ts_labels) = DiffFusion.model_price_and_deltas(
+        (v3, g3, ts_labels) = DiffFusion.model_price_and_deltas(
             [ A1, A2 ],
             path,
             nothing,
@@ -202,9 +209,9 @@ using Test
             DiffFusion.FiniteDifferences
         )
 
-        @test v1 == v2
+        @test v2 == v3
 
-        @test isapprox(g1, g2, atol=1.0e-8)
+        @test isapprox(g2, g3, atol=1.0e-8)
 
         #println(v1)
         #println(g2)

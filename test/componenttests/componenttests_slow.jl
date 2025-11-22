@@ -5,14 +5,17 @@ using Test
 
 @testset verbose=true "componenttests_slow.jl" begin
 
-    include("sensitivities/forwards_deltas.jl")
-    include("sensitivities/option_deltas.jl")
-    include("sensitivities/swap_deltas.jl")
-    include("sensitivities/option_vegas.jl")
+    include("sensitivities/gradients.jl")
     include("sensitivities/swaptions_delta_vega.jl")
 
-    include("sensitivities/gradients.jl")
+    if VERSION < v"1.12"
+        # Zygote segfaults with v1.12
+        include("sensitivities/forwards_deltas_zygote.jl")
+        include("sensitivities/option_deltas_zygote.jl")
+        include("sensitivities/swap_deltas_zygote.jl")
+        include("sensitivities/option_vegas_zygote.jl")
+    end
 
 end
 
-@info "Start componenttests_slow.jl."
+@info "Finished componenttests_slow.jl."

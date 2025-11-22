@@ -15,4 +15,4 @@ using Test
 
 end
 
-@info "Start componenttests_fast.jl."
+@info "Finishes componenttests_fast.jl."
