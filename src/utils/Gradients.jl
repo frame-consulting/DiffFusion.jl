@@ -29,14 +29,14 @@ function _function_value_and_gradient(
         return (v, g)
     end
     if m == Zygote
-        (v, g) = withgradient(f, x)
+        (v, g) = Zygote.withgradient(f, x)
         @assert length(g) == 1
         return (v, g[1])
     end
     if m == FiniteDifferences
         v = f(x)
-        m = central_fdm(3, 1)
-        g = grad(m, f, x)
+        m = FiniteDifferences.central_fdm(3, 1)
+        g = FiniteDifferences.grad(m, f, x)
         return (v, g[1])
     end
     error("Unknown module " * string(m) * ".")
@@ -56,7 +56,26 @@ function _function_value_and_gradient(
     x::Dict,
     )
     # only Zygote supports Dict
-    (v, g) = withgradient(f, x)
+    (v, g) = Zygote.withgradient(f, x)
     @assert length(g) == 1
     return (v, g[1])
+end
+
+
+"""
+    _function_value_and_gradient(
+        f::Function,
+        x::AbstractVector,
+        adType::DifferentiationInterface.AbstractADType,
+        )
+
+Calculate the function value and gradient of a function using DifferentiationInterface.
+"""
+function _function_value_and_gradient(
+    f::Function,
+    x::AbstractVector,
+    adType::DifferentiationInterface.AbstractADType,
+    )
+    #
+    return value_and_gradient(f, adType, x)
 end

@@ -66,7 +66,7 @@ end
         path_obj::Path,
         pay_time::Union{ModelTime, Nothing} = nothing,
         discount_curve_key::Union{String,Nothing} = nothing,
-        ad_module::Module = ForwardDiff,
+        ad_module::Union{Module, DifferentiationInterface.AbstractADType} = ForwardDiff,
         )
 
 Calculate model price and curve sensitivities. Sensitivities are
@@ -88,7 +88,7 @@ function model_price_and_deltas(
     path_obj::Path,
     pay_time::Union{ModelTime, Nothing} = nothing,
     discount_curve_key::Union{String,Nothing} = nothing,
-    ad_module::Module = ForwardDiff,
+    ad_module::Union{Module, DifferentiationInterface.AbstractADType} = ForwardDiff,
     )
     #
     if has_amc_payoff(payoffs) && (ad_module == Zygote)
@@ -131,7 +131,7 @@ end
         context::Context,
         pay_time::Union{ModelTime, Nothing} = nothing,
         discount_curve_key::Union{String,Nothing} = nothing,
-        ad_module::Module = ForwardDiff,
+        ad_module::Union{Module, DifferentiationInterface.AbstractADType} = ForwardDiff,
         )
 
 Calculate model price and model sensitivities. Sensitivities are
@@ -162,7 +162,7 @@ function model_price_and_vegas(
     context::Context,
     pay_time::Union{ModelTime, Nothing} = nothing,
     discount_curve_key::Union{String,Nothing} = nothing,
-    ad_module::Module = ForwardDiff,
+    ad_module::Union{Module, DifferentiationInterface.AbstractADType} = ForwardDiff,
     )
     #
     if has_amc_payoff(payoffs) && (ad_module == Zygote)

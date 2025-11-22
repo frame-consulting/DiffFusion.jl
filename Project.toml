@@ -1,11 +1,12 @@
 name = "DiffFusion"
 uuid = "be7e520c-a8fa-4f26-8f65-6d6d1049182e"
-authors = ["Sebastian Schlenkrich <sebastian.schlenkrich@frame-consult.de> and contributors"]
 version = "0.7.1"
+authors = ["Sebastian Schlenkrich <sebastian.schlenkrich@frame-consult.de> and contributors"]
 
 [deps]
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+DifferentiationInterface = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
@@ -33,6 +34,7 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 [compat]
 ChainRulesCore = "1"
 DelimitedFiles = "1"
+DifferentiationInterface = "0.7.12"
 Distributions = "0.25"
 FiniteDifferences = "0.12"
 ForwardDiff = "0.10, 1"

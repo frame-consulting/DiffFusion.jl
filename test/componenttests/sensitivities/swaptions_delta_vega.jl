@@ -235,39 +235,50 @@ using UnicodePlots
     @testset "Test Delta calculation" begin
         @info "Start Delta calculation..."
         #
-        (v1, g1, ts_labels) = DiffFusion.model_price_and_deltas(
-            DiffFusion.discounted_cashflows(swaption_4y, 1.0),
-            path,
-            1.0,
-            "EUR",
-            DiffFusion.ForwardDiff
-        )
-        print_results(v1, g1, ts_labels)
-        #
-        (v2, g2, ts_labels) = DiffFusion.model_price_and_deltas(
-            DiffFusion.discounted_cashflows(berm_4y, 1.0),
-            path,
-            1.0,
-            "EUR",
-            DiffFusion.ForwardDiff
-        )
-        print_results(v2, g2, ts_labels)
-        #
-        (v3, g3, ts_labels) = DiffFusion.model_price_and_deltas(
-            DiffFusion.discounted_cashflows(berm_10nc2, 1.0),
-            path,
-            1.0,
-            "EUR",
-            DiffFusion.ForwardDiff
-        )
-        print_results(v3, g3, ts_labels)
-        @info "Finished Delta calculation."
-        #
-        @test abs(sum(g2[1:4])/sum(g1[1:4]) - 1.0) < 1.5e-2   # berm_4y EURIBOR6M Delta
-        @test abs(sum(g2[5:8])/sum(g1[5:8]) - 1.0) < 7.5e-2   # berm_4y ESTR
-        #
-        @test abs(sum(g3[1:4])/sum(g1[1:4]) - 1.0) < 0.27   # berm_10nc2 EURIBOR6M Delta
-        @test abs(sum(g3[5:8])/sum(g1[5:8]) - 1.0) < 0.28   # berm_10nc2 ESTR
+        adTypes = [
+            AutoFiniteDifferences(;fdm = FiniteDifferences.central_fdm(3, 1)),
+            AutoForwardDiff(),
+            # AutoZygote(),
+            ForwardDiff,
+            FiniteDifferences,
+        ]
+        for adType in adTypes
+            @info "Calculate " * string(adType)
+            #
+            (v1, g1, ts_labels) = DiffFusion.model_price_and_deltas(
+                DiffFusion.discounted_cashflows(swaption_4y, 1.0),
+                path,
+                1.0,
+                "EUR",
+                adType,
+            )
+            print_results(v1, g1, ts_labels)
+            #
+            (v2, g2, ts_labels) = DiffFusion.model_price_and_deltas(
+                DiffFusion.discounted_cashflows(berm_4y, 1.0),
+                path,
+                1.0,
+                "EUR",
+                adType,
+            )
+            print_results(v2, g2, ts_labels)
+            #
+            (v3, g3, ts_labels) = DiffFusion.model_price_and_deltas(
+                DiffFusion.discounted_cashflows(berm_10nc2, 1.0),
+                path,
+                1.0,
+                "EUR",
+                adType,
+            )
+            print_results(v3, g3, ts_labels)
+            @info "Finished Delta calculation."
+            #
+            @test abs(sum(g2[1:4])/sum(g1[1:4]) - 1.0) < 1.5e-2   # berm_4y EURIBOR6M Delta
+            @test abs(sum(g2[5:8])/sum(g1[5:8]) - 1.0) < 7.5e-2   # berm_4y ESTR
+            #
+            @test abs(sum(g3[1:4])/sum(g1[1:4]) - 1.0) < 0.27   # berm_10nc2 EURIBOR6M Delta
+            @test abs(sum(g3[5:8])/sum(g1[5:8]) - 1.0) < 0.28   # berm_10nc2 ESTR
+        end
     end
 
 
@@ -277,44 +288,55 @@ using UnicodePlots
         hyb_model = DiffFusion.simple_model("Std", [model])
         sim(model, ch) = DiffFusion.simple_simulation(model, ch, times, n_paths, with_progress_bar = false, brownian_increments = DiffFusion.sobol_brownian_increments)
         #
-        (v1, g1, ts_labels) = DiffFusion.model_price_and_vegas(
-            DiffFusion.discounted_cashflows(swaption_4y, 1.0),
-            hyb_model,
-            sim,
-            ts_list,
-            context,
-            1.0,
-            "EUR",
-            DiffFusion.ForwardDiff
-        )
-        print_results(v1, g1, ts_labels)
-        #
-        (v2, g2, ts_labels) = DiffFusion.model_price_and_vegas(
-            DiffFusion.discounted_cashflows(berm_4y, 1.0),
-            hyb_model,
-            sim,
-            ts_list,
-            context,
-            1.0,
-            "EUR",
-            DiffFusion.ForwardDiff
-        )
-        print_results(v2, g2, ts_labels)
-        #
-        (v3, g3, ts_labels) = DiffFusion.model_price_and_vegas(
-            DiffFusion.discounted_cashflows(berm_10nc2, 1.0),
-            hyb_model,
-            sim,
-            ts_list,
-            context,
-            1.0,
-            "EUR",
-            DiffFusion.ForwardDiff
-        )
-        print_results(v3, g3, ts_labels)
-        @info "Finished Vega calculation."
-        #
-        @test abs(sum(g2)/sum(g1) - 1.0) < 1.0e-1   # berm_4y IR Vega
+        adTypes = [
+            AutoFiniteDifferences(;fdm = FiniteDifferences.central_fdm(3, 1)),
+            AutoForwardDiff(),
+            # AutoZygote(),  # this takes some minutes to compile
+            ForwardDiff,
+            FiniteDifferences,
+        ]
+        for adType in adTypes
+            @info "Calculate " * string(adType)
+            #
+            (v1, g1, ts_labels) = DiffFusion.model_price_and_vegas(
+                DiffFusion.discounted_cashflows(swaption_4y, 1.0),
+                hyb_model,
+                sim,
+                ts_list,
+                context,
+                1.0,
+                "EUR",
+                adType
+            )
+            print_results(v1, g1, ts_labels)
+            #
+            (v2, g2, ts_labels) = DiffFusion.model_price_and_vegas(
+                DiffFusion.discounted_cashflows(berm_4y, 1.0),
+                hyb_model,
+                sim,
+                ts_list,
+                context,
+                1.0,
+                "EUR",
+                adType
+            )
+            print_results(v2, g2, ts_labels)
+            #
+            (v3, g3, ts_labels) = DiffFusion.model_price_and_vegas(
+                DiffFusion.discounted_cashflows(berm_10nc2, 1.0),
+                hyb_model,
+                sim,
+                ts_list,
+                context,
+                1.0,
+                "EUR",
+                adType
+            )
+            print_results(v3, g3, ts_labels)
+            @info "Finished Vega calculation."
+            #
+            @test abs(sum(g2)/sum(g1) - 1.0) < 1.0e-1   # berm_4y IR Vega
+        end
     end
 
 
