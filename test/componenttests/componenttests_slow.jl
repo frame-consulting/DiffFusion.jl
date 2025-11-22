@@ -8,7 +8,7 @@ using Test
     include("sensitivities/gradients.jl")
     include("sensitivities/swaptions_delta_vega.jl")
 
-    if VERSION < v"1.12"
+    if DiffFusion._use_zygote
         # Zygote segfaults with v1.12
         include("sensitivities/forwards_deltas_zygote.jl")
         include("sensitivities/option_deltas_zygote.jl")
