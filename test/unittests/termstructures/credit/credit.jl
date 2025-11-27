@@ -30,4 +30,15 @@ using Test
         @test isapprox(cv(3.0), 0.5 * exp(-0.23104906018664842), atol=1.0e-14)
     end
 
+   @testset "Test warnings in LogSurvivalCurve" begin
+        times = [1.0, 2.0, 5.0]
+        survival_probs = [1.0, 0.5, 0.25]
+        @test_warn "First time should typically be 0.0." DiffFusion.survival_curve("Std", times, survival_probs)
+        #
+        times = [0.0, 2.0, 5.0]
+        survival_probs = [0.9, 0.5, 0.25]
+        DiffFusion.survival_curve("Std", times, survival_probs)
+        @test_warn "First survival probability should typically be 1.0." DiffFusion.survival_curve("Std", times, survival_probs)
+   end
+
 end
