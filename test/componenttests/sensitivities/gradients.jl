@@ -1,4 +1,7 @@
 using DiffFusion
+using DifferentiationInterface
+using FiniteDifferences
+using ForwardDiff
 using StatsBase
 using Test
 
