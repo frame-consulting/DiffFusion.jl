@@ -200,7 +200,7 @@ end
 
 """
     simulation_parameters(
-        m::GaussianHjmModel,
+        m::LognormalAssetModel,
         ch::Union{CorrelationHolder, Nothing},
         s::ModelTime,
         t::ModelTime,
