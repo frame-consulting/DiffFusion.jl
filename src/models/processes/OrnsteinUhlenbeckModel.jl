@@ -46,7 +46,7 @@ parameter_grid(m::OrnsteinUhlenbeckModel) = m.sigma_x.times
 """
 Return whether Theta requires a state vector input X.
 """
-state_dependent_Theta(m::OrnsteinUhlenbeckModel) = false
+state_dependent_Theta(m::OrnsteinUhlenbeckModel) = false  # COV_EXCL_LINE
 
 """
 Return a list of state alias strings required for (H * X) calculation.
@@ -56,7 +56,7 @@ state_alias_H(m::OrnsteinUhlenbeckModel) = state_alias(m)
 """
 Return whether H requires a state vector input X.
 """
-state_dependent_H(m::OrnsteinUhlenbeckModel) = false
+state_dependent_H(m::OrnsteinUhlenbeckModel) = false  # COV_EXCL_LINE
 
 """
 Return a list of factor alias strings required for (Sigma(u)^T Gamma Sigma(u)) calculation.
@@ -66,7 +66,7 @@ factor_alias_Sigma(m::OrnsteinUhlenbeckModel) = factor_alias(m)
 """
 Return whether Sigma requires a state vector input X.
 """
-state_dependent_Sigma(m::OrnsteinUhlenbeckModel) = false
+state_dependent_Sigma(m::OrnsteinUhlenbeckModel) = false  # COV_EXCL_LINE
 
 
 """
