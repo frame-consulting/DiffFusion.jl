@@ -77,6 +77,7 @@ using Test
     include("futures/futures.jl")
     include("hybrid/hybrid.jl")
     include("inflation/inflation.jl")
+    include("processes/ornstein_uhlenbeck_model.jl")
     include("rates/rates.jl")
 
 end
