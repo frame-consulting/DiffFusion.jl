@@ -95,6 +95,22 @@ end
 
 
 """
+    serialise(o::OrnsteinUhlenbeckModel)
+
+Serialise OrnsteinUhlenbeckModel.
+"""
+function serialise(o::OrnsteinUhlenbeckModel)
+    d = OrderedDict{String, Any}()
+    d["typename"]    = string(typeof(o))
+    d["constructor"] = "ornstein_uhlenbeck_model"
+    d["alias"]       = serialise(o.alias)
+    d["chi"]         = serialise(o.chi)
+    d["sigma_x"]     = serialise(o.sigma_x)
+    return d
+end
+
+
+"""
     serialise(o::SimpleModel)
 
 Serialise SimpleModel.

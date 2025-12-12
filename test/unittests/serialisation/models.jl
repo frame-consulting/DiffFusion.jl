@@ -338,6 +338,40 @@ using YAML
         @test string(o) == string(m)
     end
 
+    @testset "OrnsteinUhlenbeckModel (de-)serialisation." begin
+        χ = DiffFusion.flat_parameter(0.50)
+        σ = DiffFusion.flat_volatility(0.15)
+        m = DiffFusion.ornstein_uhlenbeck_model("OU", χ, σ)
+        #
+        ref_dict = Dict()
+        s = DiffFusion.serialise(m)
+        d = OrderedDict(
+            "typename" => "DiffFusion.OrnsteinUhlenbeckModel",
+            "constructor" => "ornstein_uhlenbeck_model",
+            "alias" => "OU",
+            "chi" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatParameter",
+                "constructor" => "BackwardFlatParameter",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.50]]
+                ),
+            "sigma_x" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatVolatility",
+                "constructor" => "BackwardFlatVolatility",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.15]]
+                ),
+        )
+        o = DiffFusion.deserialise(d, ref_dict)
+        @test s == d
+        @test string(o) == string(m)
+
+
+
+    end
+
     @testset "SimpleModel (de-)serialisation." begin
         models = setup_models(ch_one)
         ref_dict = Dict(
