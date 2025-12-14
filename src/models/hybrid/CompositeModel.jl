@@ -351,7 +351,7 @@ end
 """
     _coo_matrix(A::AbstractMatrix, i_offset::Integer = 0, j_offset::Integer = 0)
 
-Return the COO format for a matrix A.
+Return the COO format for a matrix A. Default implementation.
 
 This method is used in `SimpleModel` `H_T(...)` and `Sigma_T(...)` calculation.
 """
@@ -360,4 +360,16 @@ function _coo_matrix(A::AbstractMatrix, i_offset::Integer = 0, j_offset::Integer
     I = vec([ i for i in (1+i_offset):(m+i_offset), j in (1+j_offset):(n+j_offset) ])
     J = vec([ j for i in (1+i_offset):(m+i_offset), j in (1+j_offset):(n+j_offset) ])
     return I, J, vec(A)
+end
+
+"""
+    _coo_matrix(A::SparseMatrixCSC, i_offset::Integer = 0, j_offset::Integer = 0)
+
+Return the COO format for a sparse matrix A.
+
+This method is used in `SimpleModel` `H_T(...)` and `Sigma_T(...)` calculation.
+"""
+function _coo_matrix(A::SparseMatrixCSC, i_offset::Integer = 0, j_offset::Integer = 0)
+    I, J, V = findnz(A)
+    return I .+ i_offset, J .+ j_offset, V
 end
