@@ -496,9 +496,10 @@ function covariance(
         Gamma = ch(factor_alias(m))
     end
     d = length(state_alias(m))
-    f(u) = vec(Sigma_T(m,s,t,X)(u) * Gamma * Sigma_T(m,s,t,X)(u)')
+    sigma_T = Sigma_T(m,s,t,X)
+    f(u) = vec(sigma_T(u) * Gamma * sigma_T(u)')
     cov_vec = _vector_integral(f, s, t, parameter_grid(m))
-    cov = reshape(cov_vec, (d,d))
+    cov = reshape(cov_vec, (d, d))
     return cov
 end
 
