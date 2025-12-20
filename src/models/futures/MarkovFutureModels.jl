@@ -116,6 +116,13 @@ Return whether H requires a state vector input X.
 state_dependent_H(m::MarkovFutureModel) = state_dependent_H(m.hjm_model)
 
 """
+    state_alias_Sigma(m::MarkovFutureModel)
+
+Return a list of state alias strings required for (Sigma(u)' Gamma Sigma(u)) calculation.
+"""
+state_alias_Sigma(m::MarkovFutureModel) = state_alias(m::MarkovFutureModel)
+
+"""
     factor_alias_Sigma(m::MarkovFutureModel)
 
 Return a list of factor alias strings required for (Sigma(u)^T Gamma Sigma(u)) calculation.

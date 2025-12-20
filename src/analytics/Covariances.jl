@@ -11,9 +11,13 @@
 Return the scaling vector of a reference rate.
 
 A reference rate is specified as a stochastic process random variable
-`Y = A' X + b`. Here, `X` reprsents the model state variable, `A` is
+`Y = A' X + b`. Here, `X` represents the model state variable, `A` is
 the resulting scaling vector and `b` is a deterministic function (not
 relevant for this purpose).
+
+Note: We aim to calculate `A' ⋅ Cov ⋅ A`. Consequently, the model state
+variable `X` is supposed to consist of the states that do depend on
+the Brownian motion movements.
 
 Reference rates are continuous compounded zero rates and FX rates (or
 asset prices). Reference rates are identified by a `context_key`. In
@@ -47,8 +51,8 @@ function reference_rate_scaling(
         end
         G = G_hjm(hjm_mdl, 0.0, term)
         #
-        s_alias = state_alias(mdl)
-        first_alias = state_alias(hjm_mdl)[begin]
+        s_alias = state_alias_Sigma(mdl)
+        first_alias = state_alias_Sigma(hjm_mdl)[begin]
         idx = findall(x->x==first_alias, s_alias)[begin]
         A = vcat(
             zeros(idx - 1),
@@ -60,8 +64,6 @@ function reference_rate_scaling(
         # we model an FX rate or asset price
         @assert term == 0.0
         @assert isa(mdl, CompositeModel)
-        #
-        s_alias = state_alias(mdl)
         #
         asset_model_alias = ctx.assets[context_key].asset_model_alias
         @assert !isnothing(asset_model_alias) # handle this case later
@@ -83,13 +85,13 @@ function reference_rate_scaling(
             if alias(m) == asset_model_alias
                 A = vcat(A, [1.0])
             elseif alias(m) == dom_model_alias
-                n = length(state_alias(dom_model))
+                n = length(state_alias_Sigma(dom_model))
                 A = vcat(A, zeros(n-1), [1.0])
             elseif alias(m) == for_model_alias
-                n = length(state_alias(for_model))
+                n = length(state_alias_Sigma(for_model))
                 A = vcat(A, zeros(n-1), [-1.0])
             else
-                n = length(state_alias(m))
+                n = length(state_alias_Sigma(m))
                 A = vcat(A, zeros(n))
             end
         end

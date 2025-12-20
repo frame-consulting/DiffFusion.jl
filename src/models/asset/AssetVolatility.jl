@@ -33,12 +33,12 @@ function asset_variance(
     end
     if !isnothing(dom_model)
         models_ = vcat(models_, dom_model)
-        n = length(state_alias(dom_model))
+        n = length(state_alias_Sigma(dom_model))
         e = vcat(e, zeros(n-1), ones(1))
     end
     if !isnothing(for_model)
         models_ = vcat(models_, for_model)
-        n = length(state_alias(for_model))
+        n = length(state_alias_Sigma(for_model))
         e = vcat(e, zeros(n-1), -1.0*ones(1))
     end
     model = simple_model("", models_)

@@ -437,7 +437,13 @@ observation time.
 The state vector is required if Sigma(u) depends on X_s.
     
 The result of an evaluation of `Sigma_T(...)(u)` is a matrix of size
-`(length(state_alias), length(factor_alias_Sigma))`.
+`(length(state_alias_Sigma), length(factor_alias_Sigma))`.
+
+Models may have state variables that do *not* depend on Brownian motion. The state
+aliases of such state variables are excluded from state_alias_Sigma. Consequently,
+state_alias_Sigma lists all state variables that actually do depend on the Brownian
+motions. The specification of state_alias_Sigma allows for the calculation of a
+full-rank covariance matrix without large blocks of zero entries.
 
 The Brownian motion relevant for a model may effectively be a subset of all Brownian
 motions. To accommodate this, we use a dedicated list of factor aliases
@@ -452,6 +458,15 @@ function Sigma_T(
     X::Union{ModelState, Nothing} = nothing,
     )
     error("Model needs to implement Sigma_T method.")
+end
+
+"""
+    state_alias_Sigma(m::Model)
+
+Return a list of state alias strings required for (Sigma(u)' Gamma Sigma(u)) calculation.
+"""
+function state_alias_Sigma(m::Model)
+    error("Model needs to implement state_alias_Sigma method.")
 end
 
 """
@@ -495,7 +510,7 @@ function covariance(
     else
         Gamma = ch(factor_alias(m))
     end
-    d = length(state_alias(m))
+    d = length(state_alias_Sigma(m))
     sigma_T = Sigma_T(m,s,t,X)
     f(u) = vec(sigma_T(u) * Gamma * sigma_T(u)')
     cov_vec = _vector_integral(f, s, t, parameter_grid(m))
@@ -523,7 +538,7 @@ function volatility_and_correlation(
     X::Union{ModelState, Nothing} = nothing,
     vol_eps::ModelValue = 1.0e-8,  # avoid division by zero
     )
-    d = length(state_alias(m))
+    d = length(state_alias_Sigma(m))
     cov = covariance(m,ch,s,t,X)
     vol = sqrt.([ cov[i,i] for i in 1:d ] * (1.0/(t-s) ))
     #

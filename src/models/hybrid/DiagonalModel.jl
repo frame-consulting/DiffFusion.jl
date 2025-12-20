@@ -118,14 +118,15 @@ function Sigma_T(
     @assert size(X.X)[2] == 1  # require a single state
     @assert isa(X.params, NamedTuple)
     for cm in m.models
-        @assert factor_alias(cm) == factor_alias_Sigma(cm)  # deal with general case later...
+        @assert state_alias(cm) == state_alias_Sigma(cm)  # deal with general case later...
+        @assert factor_alias(cm) == factor_alias_Sigma(cm)
     end
     Sigma_T_s = (
         (!state_dependent_Sigma(cm)) ? (Sigma_T(cm, s, t)) : (Sigma_T(cm, s, t, ModelState(X.X, X.idx, P)))
         for (cm, P) in zip(m.models, X.params.P)
         )
-    N = length(state_alias(m))
-    M = length(factor_alias(m))
+    M = length(state_alias_Sigma(m))
+    N = length(factor_alias_Sigma(m))
     f(u) = begin
         I = Int[]
         J = Int[]
@@ -137,11 +138,9 @@ function Sigma_T(
             I = vcat(I, I_)
             J = vcat(J, J_)
             V = vcat(V, V_)
-            idx_i += length(state_alias(cm))
+            idx_i += length(state_alias_Sigma(cm))
             idx_j += length(factor_alias_Sigma(cm))
         end
-        M = length(state_alias(m))
-        N = length(factor_alias_Sigma(m))
         sigma_T = sparse(I, J, V, M, N)
         return sigma_T
     end

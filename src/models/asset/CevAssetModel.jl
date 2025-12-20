@@ -86,6 +86,13 @@ Return whether H requires a state vector input X.
 state_dependent_H(m::CevAssetModel) = false
 
 """
+    state_alias_Sigma(m::CevAssetModel)
+
+Return a list of state alias strings required for (Sigma(u)' Gamma Sigma(u)) calculation.
+"""
+state_alias_Sigma(m::CevAssetModel) = state_alias(m::CevAssetModel)
+
+"""
     factor_alias_Sigma(m::CevAssetModel)
 
 Return a list of factor alias strings required for (Sigma(u)^T Gamma Sigma(u)) calculation.

@@ -328,6 +328,15 @@ function state_dependent_H(m::CompositeModel)
 end
 
 """
+    state_alias_Sigma(m::CompositeModel)
+
+Return a list of state alias strings required for (Sigma(u)' Gamma Sigma(u)) calculation.
+
+This is a default behaviour. It is supposed to be overwritten for derived Model types.
+"""
+state_alias_Sigma(m::CompositeModel) = state_alias(m::CompositeModel)
+
+"""
     factor_alias_Sigma(m::CompositeModel)
 
 Return a list of factor alias strings required for (Sigma(u)^T Gamma Sigma(u)) calculation.
