@@ -168,7 +168,7 @@ end
 
 Return whether Theta requires a state vector input X.
 """
-state_dependent_Theta(m::CoxIngersollRossModel) = true
+state_dependent_Theta(m::CoxIngersollRossModel) = true  # COV_EXCL_LINE
 
 """
     state_alias_H(m::CoxIngersollRossModel)
@@ -182,7 +182,7 @@ state_alias_H(m::CoxIngersollRossModel) = state_alias(m)
 
 Return whether H requires a state vector input X.
 """
-state_dependent_H(m::CoxIngersollRossModel) = false
+state_dependent_H(m::CoxIngersollRossModel) = false  # COV_EXCL_LINE
 
 """
     state_alias_Sigma(m::CoxIngersollRossModel)
@@ -203,7 +203,7 @@ factor_alias_Sigma(m::CoxIngersollRossModel) = factor_alias(m)
 
 Return whether Sigma requires a state vector input X.
 """
-state_dependent_Sigma(m::CoxIngersollRossModel) = true
+state_dependent_Sigma(m::CoxIngersollRossModel) = true  # COV_EXCL_LINE
 
 
 """

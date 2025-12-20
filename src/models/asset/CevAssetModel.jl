@@ -69,7 +69,7 @@ end
 
 Return whether Theta requires a state vector input X.
 """
-state_dependent_Theta(m::CevAssetModel) = true
+state_dependent_Theta(m::CevAssetModel) = true  # COV_EXCL_LINE
 
 """
     state_alias_H(m::CevAssetModel)
@@ -83,7 +83,7 @@ state_alias_H(m::CevAssetModel) = state_alias(m)
 
 Return whether H requires a state vector input X.
 """
-state_dependent_H(m::CevAssetModel) = false
+state_dependent_H(m::CevAssetModel) = false  # COV_EXCL_LINE
 
 """
     state_alias_Sigma(m::CevAssetModel)
@@ -104,7 +104,7 @@ factor_alias_Sigma(m::CevAssetModel) = factor_alias(m)
 
 Return whether Sigma requires a state vector input X.
 """
-state_dependent_Sigma(m::CevAssetModel) = true
+state_dependent_Sigma(m::CevAssetModel) = true  # COV_EXCL_LINE
 
 
 """

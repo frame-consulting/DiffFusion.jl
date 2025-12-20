@@ -76,7 +76,7 @@ state_alias_H(m::LognormalAssetModel) = state_alias(m)
 
 Return whether H requires a state vector input X.
 """
-state_dependent_H(m::LognormalAssetModel) = false
+state_dependent_H(m::LognormalAssetModel) = false  # COV_EXCL_LINE
 
 """
     state_alias_Sigma(m::LognormalAssetModel)
@@ -97,7 +97,7 @@ factor_alias_Sigma(m::LognormalAssetModel) = factor_alias(m)
 
 Return whether Sigma requires a state vector input X.
 """
-state_dependent_Sigma(m::LognormalAssetModel) = false
+state_dependent_Sigma(m::LognormalAssetModel) = false  # COV_EXCL_LINE
 
 """
     asset_volatility(
