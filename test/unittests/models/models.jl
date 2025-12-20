@@ -43,6 +43,7 @@ using Test
         #
         @test_throws ErrorException DiffFusion.Sigma_T(m, 1.0, 2.0)
         @test_throws ErrorException DiffFusion.Sigma_T(m, 1.0, 2.0, SX)
+        @test_throws ErrorException DiffFusion.state_alias_Sigma(m)
         @test_throws ErrorException DiffFusion.factor_alias_Sigma(m)
         @test_throws ErrorException DiffFusion.state_dependent_Sigma(m)
         #

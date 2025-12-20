@@ -48,8 +48,9 @@ function simple_simulation(
     brownian_increments::Function = pseudo_brownian_increments,
     store_brownian_increments::Bool = false,
     )
+    @assert state_alias(model) == state_alias_Sigma(model)  # deal with general case later...
     dZ = brownian_increments(
-        length(state_alias(model)),
+        length(state_alias_Sigma(model)),
         n_paths,
         length(times) - 1,
     )
@@ -63,7 +64,7 @@ function simple_simulation(
         X_t = Theta(model,times[k-1],times[k]) .+ H_T(model,times[k-1],times[k])' * X[:,:,k-1]
         (vol, corr) = volatility_and_correlation(model,ch,times[k-1],times[k])
         L = cholesky(corr).L
-        # apply diffusion
+        # apply diffusion, require state_alias == state_alias_Sigma
         X_t += (sqrt(times[k] - times[k-1]) * (L .* vol)) * dZ[:,:,k-1]
         X = cat(X, X_t, dims=3)
     end
@@ -97,8 +98,9 @@ function diagonal_simulation(
     brownian_increments::Function = pseudo_brownian_increments,
     store_brownian_increments::Bool = false,
     )
+    @assert state_alias(model) == state_alias_Sigma(model)  # deal with general case later...
     dZ = brownian_increments(
-        length(state_alias(model)),
+        length(state_alias_Sigma(model)),
         n_paths,
         length(times) - 1,
     )
@@ -121,7 +123,7 @@ function diagonal_simulation(
         SX = model_state(X[:,:,k-1], idx, params)
         Vol = diagonal_volatility(model, times[k-1], times[k], SX)
         L = cholesky(corr).L
-        # apply diffusion
+        # apply diffusion, require state_alias == state_alias_Sigma
         X_t += sqrt(times[k] - times[k-1]) * L * dZ[:,:,k-1] .* Vol
         X = cat(X, X_t, dims=3)
     end

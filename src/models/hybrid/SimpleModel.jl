@@ -117,11 +117,12 @@ function Sigma_T(
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
     for cm in m.models
-        @assert factor_alias(cm) == factor_alias_Sigma(cm)  # deal with general case later...
+        @assert state_alias(cm) == state_alias_Sigma(cm)  # deal with general case later...
+        @assert factor_alias(cm) == factor_alias_Sigma(cm)
     end
     Sigma_T_s = ( Sigma_T(cm,s,t,X) for cm in m.models )
-    N = length(state_alias(m))
-    M = length(factor_alias(m))
+    M = length(state_alias_Sigma(m))
+    N = length(factor_alias_Sigma(m))
     f(u) = begin
         I = Int[]
         J = Int[]
@@ -133,11 +134,9 @@ function Sigma_T(
             I = vcat(I, I_)
             J = vcat(J, J_)
             V = vcat(V, V_)
-            idx_i += length(state_alias(cm))
+            idx_i += length(state_alias_Sigma(cm))
             idx_j += length(factor_alias_Sigma(cm))
         end
-        M = length(state_alias(m))
-        N = length(factor_alias_Sigma(m))
         sigma_T = sparse(I, J, V, M, N)
         return sigma_T
     end

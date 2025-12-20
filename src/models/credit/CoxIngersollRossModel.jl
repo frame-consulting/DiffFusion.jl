@@ -164,26 +164,43 @@ end
 # Model interface
 
 """
+    state_dependent_Theta(m::CoxIngersollRossModel)
+
 Return whether Theta requires a state vector input X.
 """
 state_dependent_Theta(m::CoxIngersollRossModel) = true
 
 """
+    state_alias_H(m::CoxIngersollRossModel)
+
 Return a list of state alias strings required for (H * X) calculation.
 """
 state_alias_H(m::CoxIngersollRossModel) = state_alias(m)
 
 """
+    state_dependent_H(m::CoxIngersollRossModel)
+
 Return whether H requires a state vector input X.
 """
 state_dependent_H(m::CoxIngersollRossModel) = false
 
 """
+    state_alias_Sigma(m::CoxIngersollRossModel)
+
+Return a list of state alias strings required for (Sigma(u)' Gamma Sigma(u)) calculation.
+"""
+state_alias_Sigma(m::CoxIngersollRossModel) = state_alias(m::CoxIngersollRossModel)
+
+"""
+    factor_alias_Sigma(m::CoxIngersollRossModel)
+
 Return a list of factor alias strings required for (Sigma(u)^T Gamma Sigma(u)) calculation.
 """
 factor_alias_Sigma(m::CoxIngersollRossModel) = factor_alias(m)
 
 """
+    state_dependent_Sigma(m::CoxIngersollRossModel)
+
 Return whether Sigma requires a state vector input X.
 """
 state_dependent_Sigma(m::CoxIngersollRossModel) = true
