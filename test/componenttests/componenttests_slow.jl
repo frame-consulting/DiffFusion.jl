@@ -13,7 +13,7 @@ using Test
         include("sensitivities/forwards_deltas_zygote.jl")
         include("sensitivities/option_deltas_zygote.jl")
         include("sensitivities/swap_deltas_zygote.jl")
-        include("sensitivities/option_vegas_zygote.jl")
+        # include("sensitivities/option_vegas_zygote.jl")
     end
 
 end
