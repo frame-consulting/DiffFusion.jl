@@ -162,7 +162,7 @@ state_alias_H(m::GaussianHjmModel) = state_alias(m)
 
 Return whether H requires a state vector input X.
 """
-state_dependent_H(m::GaussianHjmModel) = false
+state_dependent_H(m::GaussianHjmModel) = false  # COV_EXCL_LINE
 
 """
     state_alias_Sigma(m::GaussianHjmModel)
@@ -183,7 +183,7 @@ factor_alias_Sigma(m::GaussianHjmModel) = factor_alias(m)
 
 Return whether Sigma requires a state vector input X.
 """
-state_dependent_Sigma(m::GaussianHjmModel) = false
+state_dependent_Sigma(m::GaussianHjmModel) = false  # COV_EXCL_LINE
 
 
 """
