@@ -94,6 +94,7 @@ include("products/MtMCashFlowLeg.jl")
 include("products/CashAndAssetLegs.jl")
 include("products/BermudanSwaptionLeg.jl")
 
+include("utils/AliasMapping.jl")
 include("utils/Bachelier.jl")
 include("utils/Barriers.jl")
 include("utils/Black.jl")
