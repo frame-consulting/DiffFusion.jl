@@ -3,8 +3,8 @@
     struct SimpleModel <: Model
         alias::String
         models::Tuple
-        state_alias
-        factor_alias
+        state_alias::AbstractVector
+        factor_alias::AbstractVector
         model_dict::Dict{String,Int}
     end
 
@@ -16,8 +16,8 @@ It is supposed to be used with a `simple_simulation()` method.
 struct SimpleModel <: CompositeModel
     alias::String
     models::Tuple
-    state_alias
-    factor_alias
+    state_alias::AbstractVector
+    factor_alias::AbstractVector
     model_dict::Dict{String,Int}
 end
 
