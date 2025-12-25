@@ -86,4 +86,10 @@ using Test
     include("rates/rates.jl")
     include("volatility/volatility.jl")
 
+    @testset "Piece-wise constant properties" begin
+        struct NoTermstructure <: DiffFusion.Termstructure end
+        ts = NoTermstructure()
+        @test_throws ErrorException DiffFusion.is_constant(ts, 2.0, 3.0)
+    end
+
 end

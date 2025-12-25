@@ -59,4 +59,25 @@ using Test
         @test string(DiffFusion.flat_volatility( 0.01 )) == string(DiffFusion.flat_volatility("", 0.01))
     end
 
+    @testset "Piece-wise constant properties" begin
+        times =  [ 1.0, 2.0, 5.0, 10.0 ]
+        values = [ 0.5, 1.0, 2.0, 0.5  ]
+        ts = DiffFusion.backward_flat_volatility("", times, values)
+        @test DiffFusion.is_constant(ts, 0.0, 0.5) == true
+        @test DiffFusion.is_constant(ts, 0.0, 1.0) == true
+        @test DiffFusion.is_constant(ts, 1.0, 1.0) == true
+        @test DiffFusion.is_constant(ts, 1.0, 1.5) == true
+        @test DiffFusion.is_constant(ts, 1.0, 2.0) == true
+        @test DiffFusion.is_constant(ts, 2.0, 3.0) == true
+        @test DiffFusion.is_constant(ts, 3.0, 4.0) == true
+        @test DiffFusion.is_constant(ts, 4.0, 5.0) == true
+        @test DiffFusion.is_constant(ts, 10.0, 12.0) == true
+        @test DiffFusion.is_constant(ts, 7.5, 12.5) == true
+        @test DiffFusion.is_constant(ts, 11.5, 12.5) == true
+        #
+        @test DiffFusion.is_constant(ts, 0.0, 1.5) == false
+        @test DiffFusion.is_constant(ts, 1.0, 2.5) == false
+        @test DiffFusion.is_constant(ts, 0.5, 7.5) == false
+    end
+
 end
