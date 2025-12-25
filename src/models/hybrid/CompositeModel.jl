@@ -8,8 +8,8 @@ A `CompositeModel` represents a collection of (coupled) component models.
 
     alias::String
     models::Tuple
-    state_alias
-    factor_alias
+    state_alias::AbstractVector
+    factor_alias::AbstractVector
     model_dict::Dict{String,Int}
 
 For concrete types, see `SimpleModel` and `DiagonalModel`.
@@ -240,7 +240,7 @@ function asset_variance(
         return 0.0
     end
     if !state_dependent_Sigma(m)
-        # We need to make sure that the Sigma_T(...) call in covaiance(...)
+        # We need to make sure that the Sigma_T(...) call in covariance(...)
         # method can be executed.
         X = nothing
     end
