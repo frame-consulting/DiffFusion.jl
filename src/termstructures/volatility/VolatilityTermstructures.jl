@@ -112,3 +112,28 @@ function volatility(ts::BackwardFlatVolatility, t::ModelTime, result_size::Terms
         return ts.values[1,min(k, length(ts.times))]  # flat extrapolation
     end
 end
+
+
+"""
+    is_constant(ts::BackwardFlatVolatility, s::ModelTime, t::ModelTime)
+
+Determine whether volatility values are constant on the
+intervall (s, t).
+"""
+function is_constant(ts::BackwardFlatVolatility, s::ModelTime, t::ModelTime)
+    @assert s ≤ t
+    idx_s = min(time_idx(ts, s), length(ts.times))  # capture flat extrapolation
+    idx_t = min(time_idx(ts, t), length(ts.times))
+    if idx_s == idx_t
+        return true
+    end
+    # handle edge cases of piece-wise constant term structures
+    if time_idx(ts, s + _ts_epsilon) == idx_t
+        return true
+    end
+    if idx_s == time_idx(ts, t - _ts_epsilon)
+        return true
+    end
+    # term structure is not constant on (s, t)
+    return false
+end

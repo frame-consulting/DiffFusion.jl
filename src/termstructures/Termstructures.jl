@@ -289,3 +289,16 @@ end
 Syntactic sugar for volatility call.
 """
 (ts::VolatilityTermstructure)(args...) = volatility(ts, args...)
+
+const _ts_epsilon = sqrt(eps())
+
+
+"""
+    is_constant(ts::Termstructure, s::ModelTime, t::ModelTime)
+
+Determine whether term structure values are constant on the
+intervall (s, t).
+"""
+function is_constant(ts::Termstructure, s::ModelTime, t::ModelTime)
+    error("Termstructure needs to implement is_constant method.")
+end
