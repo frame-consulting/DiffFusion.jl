@@ -69,7 +69,7 @@ end
         scaling_type::BenchmarkTimesScaling = ForwardRateScaling,
         )
 
-Create a Gausian HJM model.
+Create a Gaussian HJM model.
 """
 function gaussian_hjm_model(
     alias::String,

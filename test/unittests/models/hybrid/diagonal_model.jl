@@ -296,4 +296,50 @@ using Test
         @test Sigma0T[9:9,7:7] == DiffFusion.Sigma_T(mkv_model,s,t)(0.5*(s+t))
     end
 
+    @testset "Model setup with quasi-Gaussian model" begin
+        times = hjm_model_dom.sigma_T.sigma_f.times
+        slope_d = DiffFusion.backward_flat_parameter("Std", times, zeros(3, length(times)))
+        slope_u = DiffFusion.backward_flat_parameter("Std", times, zeros(3, length(times)))
+        sigma_min = 1.0e-4
+        sigma_max = 5.0e-2
+        #
+        volatility_model = DiffFusion.ornstein_uhlenbeck_model(
+            "OU",
+            DiffFusion.flat_parameter("Std", 0.10),  # chi
+            DiffFusion.flat_volatility("Std", 0.20),  # sigma_x
+        )
+        volatility_function = exp
+        #
+        quasi_gaussian_model = DiffFusion.quasi_gaussian_model(
+            hjm_model_dom, slope_d, slope_u, sigma_min, sigma_max,
+            volatility_model, volatility_function,
+        )
+        #
+        m = DiffFusion.diagonal_model(
+            "Std",
+            [ quasi_gaussian_model, volatility_model ],
+        )
+        #
+        @test DiffFusion.state_alias_Sigma(m) == ["USD_x_1", "USD_x_2", "USD_x_3", "USD_s", "OU_x"]
+        #
+        idx_list = DiffFusion.alias_mapping(
+            DiffFusion.state_alias(m),
+            DiffFusion.state_alias_Sigma(m)
+        )
+        @test idx_list == [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 5]
+        #
+        m = DiffFusion.diagonal_model(
+            "Std",
+            [ volatility_model, quasi_gaussian_model ],
+        )
+        #
+        @test DiffFusion.state_alias_Sigma(m) == ["OU_x", "USD_x_1", "USD_x_2", "USD_x_3", "USD_s"]
+        #
+        idx_list = DiffFusion.alias_mapping(
+            DiffFusion.state_alias(m),
+            DiffFusion.state_alias_Sigma(m)
+        )
+        @test idx_list == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    end
+
 end
