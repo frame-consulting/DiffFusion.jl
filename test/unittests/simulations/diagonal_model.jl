@@ -6,7 +6,7 @@ using Test
 @testset "Diagonal model simulation" begin
 
     if !@isdefined(TestModels)
-        include("../test_models.jl")
+        include("../../test_models.jl")
     end
 
 
