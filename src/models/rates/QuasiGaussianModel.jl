@@ -373,7 +373,13 @@ function Theta(
     y(u) = func_y(y0, chi, sigma_T, s, u)
     # make sure we do not apply correlations twice in quanto adjustment!
     sigma_T_hyb(u) = func_sigma_T_hyb(m, sigma_f)
-    alpha = quanto_drift(m.gaussian_model.factor_alias, m.gaussian_model.quanto_model, s, t, X)
+    # take into account quanto adjustment
+    qm = m.gaussian_model.quanto_model
+    if !isnothing(qm) && state_dependent_Sigma(qm)
+        alpha = quanto_drift(m.gaussian_model.factor_alias, qm, s, t, X)
+    else
+        alpha = quanto_drift(m.gaussian_model.factor_alias, qm, s, t, nothing)
+    end
     return vcat(
         func_Theta_x_integrate_y(chi, y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
         func_Theta_s(chi, y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
