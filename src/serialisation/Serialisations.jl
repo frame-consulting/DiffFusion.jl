@@ -175,7 +175,7 @@ function deserialise(o::AbstractDict, d::Union{AbstractDict, Nothing} = nothing)
     return Dict(((key, deserialise(o[key], d)) for key in keys(o)))
 end
 
-const _type_pattern = r"^[A-Za-z][A-Za-z0-9]*\.*[A-Za-z][A-Za-z0-9]*$"
+const _type_pattern = r"\A(DiffFusion\.|)([A-Za-z]+)(\{[A-Za-z0-9]+\})?\Z"
 
 """
     deserialise_object(o::OrderedDict, d::Union{AbstractDict, Nothing} = nothing)
