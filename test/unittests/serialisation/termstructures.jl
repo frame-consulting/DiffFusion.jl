@@ -87,7 +87,7 @@ using Test
         DiffFusion.set_correlation!(ch, "USD", "EUR-USD", -0.4)
         d = DiffFusion.serialise(ch)
         @test d == OrderedDict{String, Any}(
-            "typename" => "DiffFusion.CorrelationHolder",
+            "typename" => "DiffFusion.CorrelationHolder{Float64}",
             "constructor" => "correlation_holder",
             "alias" => "Std",
             "correlations" => OrderedDict{String, Any}(
