@@ -99,6 +99,15 @@ Serialise Float.
 serialise(o::ModelValue) = Float64(o)
 
 """
+    serialise(o::Function)
+
+Serialise a Function object.
+
+Note, the result is not directly de-serialisable. Set key/value in dictionary.
+"""
+serialise(o::Function) = serialise_key(string(o))
+
+"""
     serialise(o::AbstractDict)
 
 Serialise dictionaries.
