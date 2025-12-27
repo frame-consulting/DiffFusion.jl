@@ -460,3 +460,95 @@ function simulation_parameters(
     #
     return nothing
 end
+
+
+"""
+    log_bank_account(m::QuasiGaussianModel, model_alias::String, t::ModelTime, X::ModelState)
+
+Retrieve the integral over sum of state variables s(t) from interest rate model.
+"""
+function log_bank_account(m::QuasiGaussianModel, model_alias::String, t::ModelTime, X::ModelState)
+    @assert alias(m) == model_alias
+    return vec(integrated_state_variable(m, X))
+end
+
+function _func_GyG(G::AbstractVector, y::AbstractArray)
+    return [
+        sum(G[i] * sum(y[i,j,p] * G[j] for j in axes(y, 2)) for i in axes(y, 1))
+        for p in axes(y, 3)
+    ]
+end
+
+"""
+    log_zero_bond(m::QuasiGaussianModel, model_alias::String, t::ModelTime, T::ModelTime, X::ModelState)
+
+Calculate the zero bond term [G(t,T)' x(t) + 0.5 G(t,T)' y(t) G(t,T)]' from rates model.
+"""
+function log_zero_bond(m::QuasiGaussianModel, model_alias::String, t::ModelTime, T::ModelTime, X::ModelState)
+    @assert alias(m) == model_alias
+    #
+    G = G_hjm(m.gaussian_model, t, T) # (d,) vector
+    X_ = state_variable(m, X)      # (d, p) matrix
+    Y_ = auxiliary_variable(m, X)  # (d, d, p) array
+    #
+    GyG = _func_GyG(G, Y_)  # (p,) vector
+    #
+    return X_' * G .+ (0.5 .* GyG)
+end
+
+"""
+    log_zero_bonds(m::QuasiGaussianModel, model_alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+
+Calculate the zero bond terms [G(t,T)' x(t) + 0.5 G(t,T)' y(t) G(t,T)]' from rates model.
+"""
+function log_zero_bonds(m::QuasiGaussianModel, model_alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+    @assert alias(m) == model_alias
+    #
+    G = G_hjm(m.gaussian_model, t, T)  # (d, m) matrix with m = length(T)
+    X_ = state_variable(m, X)      # (d, p) matrix
+    Y_ = auxiliary_variable(m, X)  # (d, d, p) array
+    #
+    GyG = hcat([
+        _func_GyG(@view(G[:, k]), Y_) for k in axes(G, 2)
+    ]...)  # (p, m) matrix
+    #
+    return X_' * G .+ (0.5 .* GyG)
+end
+
+"""
+    log_compounding_factor(
+        m::QuasiGaussianModel,
+        model_alias::String,
+        t::ModelTime,
+        T1::ModelTime,
+        T2::ModelTime,
+        X::ModelState,
+        )
+
+Calculate the forward compounding factor term
+[G(t,T2) - G(t,T1)]' x(t) + 0.5 * [G(t,T2)' y(t) G(t,T2) - G(t,T1)' y(t) G(t,T1)].
+
+This is used for Libor forward rate calculation.
+"""
+function log_compounding_factor(
+    m::QuasiGaussianModel,
+    model_alias::String,
+    t::ModelTime,
+    T1::ModelTime,
+    T2::ModelTime,
+    X::ModelState,
+    )
+    #
+    @assert alias(m) == model_alias
+    #
+    G1 = G_hjm(m.gaussian_model, t, T1)  # (d,) vector
+    G2 = G_hjm(m.gaussian_model, t, T2)
+    #
+    X_ = state_variable(m, X)      # (d, p) matrix
+    Y_ = auxiliary_variable(m, X)  # (d, d, p) array
+    #
+    G1yG1 = _func_GyG(G1, Y_)  # (p,) vector
+    G2yG2 = _func_GyG(G2, Y_)  # (p,) vector
+    #
+    return X_' * (G2 .- G1) .+ (0.5 .* (G2yG2 .- G1yG1))
+end
