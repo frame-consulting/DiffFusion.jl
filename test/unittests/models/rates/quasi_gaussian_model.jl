@@ -311,6 +311,35 @@ using Test
                 @test s_tst == s_ref
             end
         end
+    end
+
+    @testset "Access model state variables" begin
+        m1 = DiffFusion.gaussian_hjm_model(
+            "Std", delta, chi, sigma_f, ch, quanto_model,
+        )
+        #
+        m2 = DiffFusion.quasi_gaussian_model(
+            m1, slope_d, slope_u, sigma_min, sigma_max,
+            nothing, nothing,
+        )
+        #
+        x = rand(3, 2) * 1.0e-2 * 2.0
+        s = rand(1, 2) * 1.0e-2 * 2.0
+        y = vec(DiffFusion.func_y(m1, 3.0)) .* ones(1, 2)
+        #
+        SX1 = DiffFusion.model_state(vcat(x, s), m1)
+        SX2 = DiffFusion.model_state(vcat(x, s, y), m2)
+        #
+        s = 3.0
+        t = 5.0
+        T = [ 4.0, 5.0, 6.0 ]
+        t1 = 4.0
+        t2 = 6.0
+        #
+        @test DiffFusion.log_bank_account(m2, "Std", s, SX2) == DiffFusion.log_bank_account(m1, "Std", s, SX1)
+        @test DiffFusion.log_zero_bond(m2, "Std", s, t, SX2) == DiffFusion.log_zero_bond(m1, "Std", s, t, SX1)
+        @test DiffFusion.log_zero_bonds(m2, "Std", s, T, SX2) == DiffFusion.log_zero_bonds(m1, "Std", s, T, SX1)
+        @test DiffFusion.log_compounding_factor(m2, "Std", s, t1, t2, SX2) == DiffFusion.log_compounding_factor(m1, "Std", s, t1, t2, SX1)
 
     end
 end
