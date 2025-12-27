@@ -41,4 +41,14 @@ using Test
         @test DiffFusion.deserialise(o) == Dict("A" => 1, "B" => 2.0, "C" => "Std" )
     end
 
+    @testset "Function name serialisation" begin
+        ufo(x) = "ufo" * string(x)
+        @test DiffFusion.serialise(exp) == "{exp}"
+        @test DiffFusion.serialise(ufo) == "{ufo}"
+        #
+        d = Dict("exp" => exp, "ufo" => "ufo")
+        @test DiffFusion.deserialise("{exp}", d) == exp
+        @test DiffFusion.deserialise("{ufo}", d) == "ufo"
+    end
+
 end

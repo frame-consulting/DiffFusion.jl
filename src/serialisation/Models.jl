@@ -52,6 +52,50 @@ end
 
 
 """
+    serialise(o::QuasiGaussianModel)
+
+Serialise QuasiGaussianModel.
+"""
+function serialise(o::QuasiGaussianModel)
+    g = o.gaussian_model
+    d = OrderedDict{String, Any}()
+    d["typename"]    = string(typeof(o))
+    d["constructor"] = "quasi_gaussian_model"
+    d["alias"]       = serialise(g.alias)
+    d["delta"]       = serialise(g.delta)
+    d["chi"]         = serialise(g.chi)
+    d["sigma_f"]     = serialise(g.sigma_T.sigma_f)
+    d["slope_d"]     = serialise(o.slope_d)
+    d["slope_u"]     = serialise(o.slope_u)
+    d["sigma_min"]   = serialise(o.sigma_min)
+    d["sigma_max"]   = serialise(o.sigma_max)
+    if isnothing(g.correlation_holder)
+        d["correlation_holder"]  = serialise(g.correlation_holder)
+    else
+        d["correlation_holder"]  = serialise_key(g.correlation_holder.alias)
+    end
+    if isnothing(g.quanto_model)
+        d["quanto_model"] = serialise(g.quanto_model)
+    else
+        d["quanto_model"] = serialise_key(g.quanto_model.alias)
+    end
+    d["scaling_type"] = serialise(g.scaling_type)
+    if isnothing(o.volatility_model)
+        d["volatility_model"] = serialise(o.volatility_model)
+    else
+        d["volatility_model"] = serialise_key(o.volatility_model.alias)
+    end
+    if isnothing(o.volatility_function)
+        d["volatility_function"] = serialise(o.volatility_function)
+    else
+        d["volatility_function"] = serialise(o.volatility_function)
+    end
+    #
+    return d
+end
+
+
+"""
     serialise(o::LognormalAssetModel)
 
 Serialise LognormalAssetModel.
