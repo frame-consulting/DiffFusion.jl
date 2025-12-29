@@ -13,7 +13,7 @@ Serialise ZeroCurve.
 """
 function serialise(o::ZeroCurve)
     d = OrderedDict{String, Any}()
-    d["typename"]    = string(typeof(o))
+    d["typename"]    = _type_name_long(o)
     d["constructor"] = "zero_curve"
     d["alias"]       = serialise(o.alias)
     d["times"]       = serialise(o.times)
@@ -49,7 +49,7 @@ Serialise CorrelationHolder.
 """
 function serialise(o::CorrelationHolder)
     d = OrderedDict{String, Any}()
-    d["typename"]     = string(typeof(o))
+    d["typename"]     = _type_name_long(o)
     d["constructor"]  = "correlation_holder"
     d["alias"]        = serialise(o.alias)
     d["correlations"] = serialise(o.correlations)

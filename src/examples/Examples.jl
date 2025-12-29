@@ -40,7 +40,7 @@ Return the first object of a given type from an example dictionary.
 """
 function get_object(example::OrderedDict{String,Any}, obj_type)
     for value in values(example)
-        if typeof(value) == obj_type
+        if isa(value, obj_type)
             return value
         end
     end

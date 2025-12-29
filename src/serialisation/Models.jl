@@ -28,7 +28,7 @@ Serialise GaussianHjmModel.
 """
 function serialise(o::GaussianHjmModel)
     d = OrderedDict{String, Any}()
-    d["typename"]    = string(typeof(o))
+    d["typename"]    = _type_name_long(o)
     d["constructor"] = "gaussian_hjm_model"
     d["alias"]       = serialise(o.alias)
     d["delta"]       = serialise(o.delta)
@@ -59,7 +59,7 @@ Serialise QuasiGaussianModel.
 function serialise(o::QuasiGaussianModel)
     g = o.gaussian_model
     d = OrderedDict{String, Any}()
-    d["typename"]    = string(typeof(o))
+    d["typename"]    = _type_name_long(o)
     d["constructor"] = "quasi_gaussian_model"
     d["alias"]       = serialise(g.alias)
     d["delta"]       = serialise(g.delta)
@@ -102,7 +102,7 @@ Serialise LognormalAssetModel.
 """
 function serialise(o::LognormalAssetModel)
     d = OrderedDict{String, Any}()
-    d["typename"]    = string(typeof(o))
+    d["typename"]    = _type_name_long(o)
     d["constructor"] = "lognormal_asset_model"
     d["alias"]       = serialise(o.alias)
     d["sigma_x"]     = serialise(o.sigma_x)
@@ -123,7 +123,7 @@ Serialise CevAssetModel.
 """
 function serialise(o::CevAssetModel)
     d = OrderedDict{String, Any}()
-    d["typename"]    = string(typeof(o))
+    d["typename"]    = _type_name_long(o)
     d["constructor"] = "cev_asset_model"
     d["alias"]       = serialise(o.alias)
     d["sigma_x"]     = serialise(o.sigma_x)
@@ -145,7 +145,7 @@ Serialise OrnsteinUhlenbeckModel.
 """
 function serialise(o::OrnsteinUhlenbeckModel)
     d = OrderedDict{String, Any}()
-    d["typename"]    = string(typeof(o))
+    d["typename"]    = _type_name_long(o)
     d["constructor"] = "ornstein_uhlenbeck_model"
     d["alias"]       = serialise(o.alias)
     d["chi"]         = serialise(o.chi)
@@ -161,7 +161,7 @@ Serialise SimpleModel.
 """
 function serialise(o::SimpleModel)
     d = OrderedDict{String, Any}()
-    d["typename"]    = string(typeof(o))
+    d["typename"]    = _type_name_long(o)
     d["constructor"] = "simple_model"
     d["alias"]       = serialise(o.alias)
     d["models"]      = serialise([ m for m in o.models ])
@@ -196,7 +196,7 @@ function serialise_as_list(o::SimpleModel)
     dict_list = [ serialise(obj_dict[key]) for key in keys(obj_dict) ]
     #
     d = OrderedDict{String, Any}()
-    d["typename"]    = string(typeof(o))
+    d["typename"]    = _type_name_long(o)
     d["constructor"] = "simple_model"
     d["alias"]       = serialise(o.alias)
     d["models"]      = [ serialise_key(m.alias) for m in o.models ]
