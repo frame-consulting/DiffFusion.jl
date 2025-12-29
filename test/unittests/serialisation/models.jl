@@ -640,7 +640,7 @@ using YAML
         #
         ref_alias_list = [ "One", "EUR-USD", "USD", "EUR", "SXE50", "Std" ]
         ref_type_list = [
-            DiffFusion.CorrelationHolder,
+            DiffFusion.CorrelationHolder{Float64},
             DiffFusion.LognormalAssetModel,
             DiffFusion.GaussianHjmModel,
             DiffFusion.GaussianHjmModel,

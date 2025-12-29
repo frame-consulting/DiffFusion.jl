@@ -9,10 +9,10 @@
 A vector-valued volatility term structure with piece-wise constant
 (backward-flat) interpolation and constant extrapolation.
 """
-struct BackwardFlatVolatility <: VolatilityTermstructure
+struct BackwardFlatVolatility{T<:ModelValue} <: VolatilityTermstructure
     alias::String
-    times::AbstractVector
-    values::AbstractMatrix
+    times::Vector{ModelTime}
+    values::Matrix{T}
 end
 
 """
@@ -41,7 +41,7 @@ function backward_flat_volatility(
         @assert(values[idx] >= 0.0)
     end
     #
-    return BackwardFlatVolatility(alias, times, values)
+    return BackwardFlatVolatility(alias, Vector(times), Matrix(values))
 end
 
 """

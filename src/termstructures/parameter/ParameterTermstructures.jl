@@ -9,19 +9,19 @@ abstract type PiecewiseFlatParameter <: ParameterTermstructure end
 
 
 """
-    struct BackwardFlatParameter <: PiecewiseFlatParameter
+    struct BackwardFlatParameter{T<:ModelValue} <: PiecewiseFlatParameter
         alias::String
-        times::AbstractVector
-        values::AbstractMatrix
+        times::Vector{ModelTime}
+        values::Matrix{T}
     end
 
 A generic vector-valued model parameter term structure with piece-wise constant
 backward-flat interpolation and constant extrapolation.
 """
-struct BackwardFlatParameter <: PiecewiseFlatParameter
+struct BackwardFlatParameter{T<:ModelValue} <: PiecewiseFlatParameter
     alias::String
-    times::AbstractVector
-    values::AbstractMatrix
+    times::Vector{ModelTime}
+    values::Matrix{T}
 end
 
 
@@ -46,7 +46,7 @@ function backward_flat_parameter(
         @assert(times[k]<times[k+1])
     end
     #
-    return BackwardFlatParameter(alias, times, values)
+    return BackwardFlatParameter(alias, Vector(times), Matrix(values))
 end
 
 """
@@ -68,19 +68,19 @@ end
 
 
 """
-    struct ForwardFlatParameter <: PiecewiseFlatParameter
+    struct ForwardFlatParameter{T<:ModelValue} <: PiecewiseFlatParameter
         alias::String
-        times::AbstractVector
-        values::AbstractMatrix
+        times::Vector{ModelTime}
+        values::Matrix{T}
     end
 
 A generic vector-valued model parameter term structure with piece-wise constant
 forward-flat interpolation and constant extrapolation.
 """
-struct ForwardFlatParameter <: PiecewiseFlatParameter
+struct ForwardFlatParameter{T<:ModelValue} <: PiecewiseFlatParameter
     alias::String
-    times::AbstractVector
-    values::AbstractMatrix
+    times::Vector{ModelTime}
+    values::Matrix{T}
 end
 
 """
@@ -104,7 +104,7 @@ function forward_flat_parameter(
         @assert(times[k]<times[k+1])
     end
     #
-    return ForwardFlatParameter(alias, times, values)
+    return ForwardFlatParameter(alias, Vector(times), Matrix(values))
 end
 
 """
