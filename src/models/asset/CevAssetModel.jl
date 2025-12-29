@@ -126,7 +126,7 @@ function asset_volatility(
     @assert isnothing(X) == !state_dependent_Sigma(m)
     @assert size(X.X)[2] == 1  # require a single state
     x_s = X(state_alias(m)[1])[1]  # this should be a scalar
-    sigma(u) = m.sigma_x(u, TermstructureScalar) * exp(m.skew_x(u, TermstructureScalar) * x_s)
+    sigma(u) = scalar_volatility(m.sigma_x, u) * exp(scalar_value(m.skew_x, u) * x_s)
     return sigma
 end
 
@@ -236,9 +236,9 @@ function simulation_parameters(
     s::ModelTime,
     t::ModelTime,
     )
-    f_sigma(u) = m.sigma_x(u, TermstructureScalar)^2
+    f_sigma(u) = scalar_volatility(m.sigma_x, u)^2
     sigma_av = sqrt(_scalar_integral(f_sigma, s, t, parameter_grid(m)) / (t -s))
-    f_skew(u) = m.skew_x(u, TermstructureScalar)
+    f_skew(u) = scalar_value(m.skew_x, u)
     skew_av = _scalar_integral(f_skew, s, t, parameter_grid(m))  / (t -s)
     return (
         sigma_av = sigma_av,
