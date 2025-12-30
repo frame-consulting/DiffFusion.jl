@@ -489,21 +489,21 @@ function state_dependent_Sigma(m::Model)
 end
 
 """
-    _func_Gamma(ch::CorrelationHolder, m::Model)
+    _func_Gamma(ch::CorrelationHolder, factor_alias::AbstractVector)
 
 Dispatch Γ calculation on CorrelationHolder.
 """
-function _func_Gamma(ch::CorrelationHolder, m::Model)
-    return ch(factor_alias(m))
+function _func_Gamma(ch::CorrelationHolder, factor_alias::AbstractVector)
+    return ch(factor_alias)
 end
 
 """
-    _func_Gamma(ch::Nothing, m::Model)
+    _func_Gamma(ch::Nothing, factor_alias::AbstractVector)
 
 Dispatch Γ calculation on Nothing.
 """
-function _func_Gamma(ch::Nothing, m::Model)
-    return Diagonal(ones(length(factor_alias(m))))
+function _func_Gamma(ch::Nothing, factor_alias::AbstractVector)
+    return Diagonal(ones(length(factor_alias)))
 end
 
 """
@@ -524,7 +524,8 @@ function covariance(
     t::ModelTime,
     X::Union{ModelState, Nothing} = nothing,
     )
-    Gamma = _func_Gamma(ch, m)
+    f_alias = factor_alias(m)
+    Gamma = _func_Gamma(ch, f_alias)
     d = length(state_alias_Sigma(m))
     sigma_T = Sigma_T(m,s,t,X)
     f(u) = vec(sigma_T(u) * Gamma * sigma_T(u)')
