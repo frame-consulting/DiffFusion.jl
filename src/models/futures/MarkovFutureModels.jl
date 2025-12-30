@@ -2,6 +2,8 @@
 """
     struct MarkovFutureModel <: SeparableHjmModel
         hjm_model::GaussianHjmModel
+        state_alias::Vector{String}
+        factor_alias::Vector{String}
     end
 
 A Markov model for Future prices with piece-wise constant benchmark
@@ -16,10 +18,10 @@ only by the drift Theta.
 Moreover, we do not require the integrated state variable and want to
 identify correlations with Future prices instead of forward rates.
 """
-struct MarkovFutureModel <: SeparableHjmModel
-    hjm_model::GaussianHjmModel
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
+struct MarkovFutureModel{ModelType<:GaussianHjmModel} <: SeparableHjmModel
+    hjm_model::ModelType
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
 end
 
 """
