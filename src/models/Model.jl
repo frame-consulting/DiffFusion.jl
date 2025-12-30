@@ -488,6 +488,24 @@ function state_dependent_Sigma(m::Model)
 end
 
 """
+    _func_Gamma(ch::CorrelationHolder, m::Model)
+
+Dispatch Γ calculation on CorrelationHolder.
+"""
+function _func_Gamma(ch::CorrelationHolder, m::Model)
+    return ch(factor_alias(m))
+end
+
+"""
+    _func_Gamma(ch::Nothing, m::Model)
+
+Dispatch Γ calculation on Nothing.
+"""
+function _func_Gamma(ch::Nothing, m::Model)
+    return Diagonal(ones(length(factor_alias(m))))
+end
+
+"""
     covariance(
         m::Model,
         ch::Union{CorrelationHolder, Nothing},
@@ -505,17 +523,33 @@ function covariance(
     t::ModelTime,
     X::Union{ModelState, Nothing} = nothing,
     )
-    if isnothing(ch)
-        Gamma = Diagonal(ones(length(factor_alias(m))))
-    else
-        Gamma = ch(factor_alias(m))
-    end
+    Gamma = _func_Gamma(ch, m)
     d = length(state_alias_Sigma(m))
     sigma_T = Sigma_T(m,s,t,X)
     f(u) = vec(sigma_T(u) * Gamma * sigma_T(u)')
     cov_vec = _vector_integral(f, s, t, parameter_grid(m))
     cov = reshape(cov_vec, (d, d))
     return cov
+end
+
+
+"""
+    _func_correlation_element(cov::AbstractMatrix, vol::AbstractVector, dt::ModelTime, vol_eps::ModelValue, i, j)
+
+Calculate correlation matrix element.
+
+We only calculate upper triangular element. Lower triangular elements are set to zero.
+"""
+function _func_correlation_element(cov::AbstractMatrix, vol::AbstractVector, dt::ModelTime, vol_eps::ModelValue, i, j)
+    if i > j
+        return zero(cov[i, j])  # only calculate upper triangular
+    elseif i == j
+        return one(cov[i, j])
+    elseif (vol[i]>vol_eps) && (vol[j]>vol_eps)
+        return cov[i, j] / vol[i] / vol[j] / dt
+    else
+        return zero(cov[i, j])
+    end
 end
 
 """
@@ -539,24 +573,14 @@ function volatility_and_correlation(
     vol_eps::ModelValue = 1.0e-8,  # avoid division by zero
     )
     d = length(state_alias_Sigma(m))
-    cov = covariance(m,ch,s,t,X)
-    vol = sqrt.([ cov[i,i] for i in 1:d ] * (1.0/(t-s) ))
-    #
-    corr_(i,j) = begin
-        if i<j
-            return corr_(j,i) # ensure symmetry
-        end
-        if i==j
-            return 1.0 + 0.0 * cov[i,j]  # ensure type-stability
-        end
-        # i > j
-        if (vol[i]>vol_eps) && (vol[j]>vol_eps)
-            return cov[i,j] / vol[i] / vol[j] / (t-s)
-        end
-        return 0.0 * cov[i,j]  # ensure type-stability
-    end
-    corr = [ corr_(i,j) for i in 1:d, j in 1:d ]
-    return (vol, corr)
+    cov = covariance(m, ch, s, t, X)
+    one_over_dt = 1.0 / (t - s)
+    vol = [ sqrt(cov[i,i] * one_over_dt) for i in 1:d ]
+    corr = [  # only upper triangular elements
+        _func_correlation_element(cov, vol, t-s, vol_eps, i, j)
+        for i in 1:d, j in 1:d
+    ]
+    return (vol, Symmetric(corr))
 end
 
 """
