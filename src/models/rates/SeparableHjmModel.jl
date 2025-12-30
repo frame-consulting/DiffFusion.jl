@@ -149,6 +149,18 @@ function benchmark_times_scaling_zero_rate(chi::AbstractVector, delta::AbstractV
     return inv(A_tau)
 end
 
+"""
+    benchmark_times_scaling_diagonal(chi::AbstractVector, delta::AbstractVector)
+
+Benchmark times volatility scaling matrix based on identity matrix.
+"""
+function benchmark_times_scaling_diagonal(chi::AbstractVector, delta::AbstractVector)
+    return [
+        (i==j) ? (one(chi[j] * delta[i])) : (zero(chi[j] * delta[i]))
+        for i in axes(delta, 1), j in axes(chi, 1)
+    ]
+end
+
 
 """
     benchmark_times_scaling(
@@ -170,7 +182,7 @@ function benchmark_times_scaling(
     elseif scaling_type == ZeroRateScaling
         return benchmark_times_scaling_zero_rate(chi, delta)
     elseif scaling_type == DiagonalScaling
-        return Matrix(I, length(delta), length(delta))
+        return benchmark_times_scaling_diagonal(chi, delta)
     else
         error("Unknown BenchmarkTimesScaling type " * string(scaling_type))
     end
