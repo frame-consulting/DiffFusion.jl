@@ -3,12 +3,12 @@
 An Ornstein-Uhlenbeck model with constant mean reversion
 and piece-wise flat volatility.
 """
-struct OrnsteinUhlenbeckModel <: ComponentModel
+struct OrnsteinUhlenbeckModel{T<:ModelValue} <: ComponentModel
     alias::String
-    chi::ParameterTermstructure
-    sigma_x::BackwardFlatVolatility
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
+    chi::BackwardFlatParameter{T}
+    sigma_x::BackwardFlatVolatility{T}
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
 end
 
 
