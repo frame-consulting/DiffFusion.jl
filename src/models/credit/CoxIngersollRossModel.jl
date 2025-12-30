@@ -3,11 +3,11 @@
 """
 A Cox-Ingersoll-Ross model with constant parameters.
 """
-struct CoxIngersollRossModel <: ComponentModel
+struct CoxIngersollRossModel{T<:ModelValue} <: ComponentModel
     alias::String
-    params::ParameterTermstructure  # (z0, chi, theta, sigma)
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
+    params::BackwardFlatParameter{T}  # (z0, chi, theta, sigma)
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
 end
 
 """
