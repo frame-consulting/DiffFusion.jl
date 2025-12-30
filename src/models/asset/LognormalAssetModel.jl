@@ -2,23 +2,23 @@
 """
     struct LognormalAssetModel <: AssetModel
         alias::String
-        sigma_x::BackwardFlatVolatility
-        state_alias::AbstractVector
-        factor_alias::AbstractVector
-        correlation_holder::CorrelationHolder
-        quanto_model::Union{AssetModel, Nothing}
+        sigma_x::BackwardFlatVolatility{ModelValue}
+        state_alias::Vector{String}
+        factor_alias::Vector{String}
+        correlation_holder::CorrelationHolder{ModelValue}
+        quanto_model::Union{AssetModel, Nothing}}
     end
 
 A `LognormalAssetModel` is a model for simulating a spot price in a
 generalised Black-Scholes framework.
 """
-struct LognormalAssetModel <: AssetModel
+struct LognormalAssetModel{T1<:ModelValue, T2<:ModelValue, T3<:Union{AssetModel, Nothing}} <: AssetModel
     alias::String
-    sigma_x::BackwardFlatVolatility
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
-    correlation_holder::CorrelationHolder
-    quanto_model::Union{AssetModel, Nothing}
+    sigma_x::BackwardFlatVolatility{T1}
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
+    correlation_holder::CorrelationHolder{T2}
+    quanto_model::T3
 end
 
 """

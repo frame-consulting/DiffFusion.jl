@@ -2,25 +2,25 @@
 """
     struct CevAssetModel <: AssetModel
         alias::String
-        sigma_x::BackwardFlatVolatility
-        skew_x::BackwardFlatParameter
-        state_alias::AbstractVector
-        factor_alias::AbstractVector
-        correlation_holder::CorrelationHolder
+        sigma_x::BackwardFlatVolatility{ModelValue}
+        skew_x::BackwardFlatParameter{ModelValue}
+        state_alias::Vector{String}
+        factor_alias::Vector{String}
+        correlation_holder::CorrelationHolder{ModelValue}
         quanto_model::Union{AssetModel, Nothing}
     end
 
 A `CevAssetModel` is a model for simulating an asset price in a
 Constant Elasticity of Variance model.
 """
-struct CevAssetModel <: AssetModel
+struct CevAssetModel{T1<:ModelValue, T2<:ModelValue, T3<:Union{AssetModel, Nothing}} <: AssetModel
     alias::String
-    sigma_x::BackwardFlatVolatility
-    skew_x::BackwardFlatParameter
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
-    correlation_holder::CorrelationHolder
-    quanto_model::Union{AssetModel, Nothing}
+    sigma_x::BackwardFlatVolatility{T1}
+    skew_x::BackwardFlatParameter{T1}
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
+    correlation_holder::CorrelationHolder{T2}
+    quanto_model::T3
 end
 
 

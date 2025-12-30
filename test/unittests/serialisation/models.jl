@@ -640,7 +640,7 @@ using YAML
         #
         ref_alias_list = [ "One", "EUR-USD", "USD", "EUR", "SXE50", "Std" ]
         ref_type_list = [
-            DiffFusion.CorrelationHolder{Float64},
+            DiffFusion.CorrelationHolder,
             DiffFusion.LognormalAssetModel,
             DiffFusion.GaussianHjmModel,
             DiffFusion.GaussianHjmModel,
@@ -648,13 +648,17 @@ using YAML
             DiffFusion.SimpleModel,
         ]
         @test [ k for k in keys(obj_dict) ] == ref_alias_list
-        @test [ typeof(v) for v in values(obj_dict) ] == ref_type_list
+        for (obj, obj_type) in zip(values(obj_dict), ref_type_list)
+            @test isa(obj, obj_type)
+        end
         # @test string(obj_dict["Std"]) == string(c) # CorrelationHolder types do not match.
         yaml_string = YAML.write(s)
         yaml_dict_list = YAML.load(yaml_string; dicttype=OrderedDict{String,Any})
         obj_dict = DiffFusion.deserialise_from_list(yaml_dict_list)
         @test [ k for k in keys(obj_dict) ] == ref_alias_list
-        @test [ typeof(v) for v in values(obj_dict) ] == ref_type_list
+        for (obj, obj_type) in zip(values(obj_dict), ref_type_list)
+            @test isa(obj, obj_type)
+        end
         @test yaml_dict_list == s
         # println(yaml_dict_list)
     end
