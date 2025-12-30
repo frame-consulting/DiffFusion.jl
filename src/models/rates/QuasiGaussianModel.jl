@@ -17,15 +17,20 @@ parameters and (optional) stochastic volatility model.
 
 QuasiGaussianModel model generalises GaussianHjmModel.
 """
-struct QuasiGaussianModel <: SeparableHjmModel
-    gaussian_model::GaussianHjmModel
-    slope_d::BackwardFlatParameter
-    slope_u::BackwardFlatParameter
-    sigma_min::ModelValue
-    sigma_max::ModelValue
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
-    volatility_model::Union{ComponentModel, Nothing}
+struct QuasiGaussianModel{
+        ModelType<:GaussianHjmModel,
+        SkewType<:ModelValue,
+        VolModelType<:Union{ComponentModel, Nothing},
+    } <: SeparableHjmModel
+    #
+    gaussian_model::ModelType
+    slope_d::BackwardFlatParameter{SkewType}
+    slope_u::BackwardFlatParameter{SkewType}
+    sigma_min::Float64
+    sigma_max::Float64
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
+    volatility_model::VolModelType
     volatility_function::Union{Function, Nothing}
 end
 
@@ -265,6 +270,47 @@ end
 # Volatility specification
 
 """
+    stochastic_volatility(
+        volatility_model::ComponentModel,
+        volatility_function::Function,
+        X::ModelState,
+        )
+
+Calculate stochastic volatility.
+"""
+function stochastic_volatility(
+    volatility_model::ComponentModel,
+    volatility_function::Function,
+    X::ModelState,
+    )
+    #
+    idx = X.idx[state_alias(volatility_model)[begin]]  # maybe better use a model function as indirection
+    nu = @view(X.X[idx:idx, :])
+    gamma = volatility_function.(nu)
+    return gamma
+end
+
+
+"""
+    stochastic_volatility(
+        volatility_model::Nothing,
+        volatility_function::Nothing,
+        X::ModelState,
+        )
+
+Dispatch stochastic volatility calculation model/function is nothing.
+"""
+function stochastic_volatility(
+    volatility_model::Nothing,
+    volatility_function::Nothing,
+    X::ModelState,
+    )
+    #
+    return 1.0
+end
+
+
+"""
     func_sigma_f(
         m::QuasiGaussianModel,
         s::ModelTime,
@@ -294,12 +340,7 @@ function func_sigma_f(
     X_d = max.(-1.0 .* X_, 0.0)
     X_u = max.(        X_, 0.0)
     #
-    gamma = 1.0
-    if !isnothing(m.volatility_model) && !isnothing(m.volatility_function)
-        idx = X.idx[state_alias(m.volatility_model)[begin]]  # maybe better use a model function as indirection
-        nu = @view(X.X[idx:idx, :])
-        gamma = m.volatility_function.(nu)
-    end
+    gamma = stochastic_volatility(m.volatility_model, m.volatility_function, X)
     #
     return min.(max.(gamma .* (sigma_0 .+ slope_d .* X_d .+ slope_u .* X_u), m.sigma_min), m.sigma_max)
 end
