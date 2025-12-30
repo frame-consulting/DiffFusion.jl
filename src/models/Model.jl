@@ -88,6 +88,7 @@ end
     struct ModelState
         X::AbstractMatrix
         idx::Dict{String,Int}
+        params::Union{NamedTuple, Nothing}
     end
 
 A ModelState is a matrix of state variables decorated by a dictionary of alias
@@ -105,15 +106,15 @@ matrix instead of (n,) vector to avoid size-dependent switches.
 `idx` is a dictionary with n entries. Keys represent state state alias entries and
 values represent the corresponding positions in `X`.
 
-`params` is a struct or dictionary that holds additional pre-calculated state-independent
+`params` is a tuple (or nothing) that holds additional pre-calculated state-independent
 data which is used in subsequent Theta and Sigma calculations. This aims at avoiding
 duplicate calculations for state-dependent Theta and Sigma calculations. The `params`
 is supposed to be calculated by method `simulation_parameters(...)`.
 """
-struct ModelState
-    X::AbstractMatrix
+struct ModelState{MatrixType<:AbstractMatrix, ParamType<:Union{NamedTuple, Nothing}}
+    X::MatrixType
     idx::Dict{String,Int}
-    params::Any
+    params::ParamType
 end
 
 const _model_state_extra_safety_check = false
