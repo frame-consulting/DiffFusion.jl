@@ -1,17 +1,17 @@
 
 """
     struct GaussianHjmModelVolatility
-        scaling_matrix::AbstractMatrix
-        sigma_f::BackwardFlatVolatility
-        DfT::AbstractMatrix
+        scaling_matrix::Matrix{ModelValue}
+        sigma_f::BackwardFlatVolatility{ModelValue}
+        DfT::Matrix{ModelValue}
     end
 
 A dedicated matrix-valued volatility term structure for Gaussian HJM Models.
 """
-struct GaussianHjmModelVolatility
-    scaling_matrix::AbstractMatrix
-    sigma_f::BackwardFlatVolatility
-    DfT::AbstractMatrix
+struct GaussianHjmModelVolatility{T1<:ModelValue, T2<:ModelValue, T3<:ModelValue}
+    scaling_matrix::Matrix{T1}
+    sigma_f::BackwardFlatVolatility{T2}
+    DfT::Matrix{T3}
 end
 
 function volatility(o::GaussianHjmModelVolatility, u::ModelTime)
@@ -35,8 +35,8 @@ end
         chi::ParameterTermstructure
         sigma_T::GaussianHjmModelVolatility
         y::AbstractArray
-        state_alias::AbstractVector
-        factor_alias::AbstractVector
+        state_alias::Vector{String}
+        factor_alias::Vector{String}
         correlation_holder::Union{CorrelationHolder, Nothing}
         quanto_model::Union{AssetModel, Nothing}
         scaling_type::BenchmarkTimesScaling
@@ -45,16 +45,26 @@ end
 A Gaussian HJM model with piece-wise constant benchmark rate volatility and
 constant mean reversion.
 """
-struct GaussianHjmModel <: SeparableHjmModel
+struct GaussianHjmModel{
+        T1<:ModelValue,
+        T2<:ModelValue,
+        T3<:ModelValue,
+        T4<:ModelValue,
+        T5<:ModelValue,
+        T6<:ModelValue,
+        T7<:Union{CorrelationHolder, Nothing},
+        T8<:Union{AssetModel, Nothing}
+    } <: SeparableHjmModel
+    #
     alias::String
-    delta::ParameterTermstructure
-    chi::ParameterTermstructure
-    sigma_T::GaussianHjmModelVolatility
-    y::AbstractArray
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
-    correlation_holder::Union{CorrelationHolder, Nothing}
-    quanto_model::Union{AssetModel, Nothing}
+    delta::BackwardFlatParameter{T1}
+    chi::BackwardFlatParameter{T2}
+    sigma_T::GaussianHjmModelVolatility{T3, T4, T5}
+    y::Array{T6, 3}
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
+    correlation_holder::T7  # Union{CorrelationHolder, Nothing}
+    quanto_model::T8  # Union{AssetModel, Nothing}
     scaling_type::BenchmarkTimesScaling
 end
 
@@ -99,11 +109,8 @@ function gaussian_hjm_model(
     )
     factor_alias = [ alias * "_f_" * string(k) for k in 1:length(delta()) ]
     # calculate consistent correlations
-    DfT = Diagonal(ones(length(delta())))
-    if !isnothing(correlation_holder)
-        Gamma = correlation_holder(factor_alias)
-        DfT = cholesky(Gamma).L
-    end
+    Gamma = _func_Gamma(correlation_holder, factor_alias)
+    DfT = Matrix(cholesky(Gamma).L)
     # prepare vol calculation
     scaling_matrix = benchmark_times_scaling(chi(), delta(), scaling_type)
     sigma_T = GaussianHjmModelVolatility(scaling_matrix, sigma_f, DfT)
