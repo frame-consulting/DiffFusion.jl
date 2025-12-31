@@ -57,7 +57,7 @@ function quanto_drift(
     t::ModelTime,
     X::Union{ModelState, Nothing} = nothing,
     )
-    alpha(u) = zeros(length(dom_factor_alias))
+    alpha = (u) -> zeros(length(dom_factor_alias))
     return alpha
 end
 
@@ -82,10 +82,10 @@ function quanto_drift(
     X::Union{ModelState, Nothing} = nothing,
     )
     ch = correlation_holder(quanto_model)
-    quanto_factor_alias = factor_alias(quanto_model)[1]  # This is an assumption
+    quanto_factor_alias = factor_alias(quanto_model)[begin]  # This is an assumption
     # ch() returns an (N,1) matrix, but we want to return an (N,) vector
     Gamma = vec(ch(dom_factor_alias, quanto_factor_alias))
-    vol = asset_volatility(quanto_model,s,t,X)
-    alpha(u) = Gamma * vol(u)
+    vol = asset_volatility(quanto_model, s, t, X)
+    alpha = (u) -> Gamma .* vol(u)
     return alpha
 end

@@ -294,11 +294,11 @@ function func_Theta_x(
     theta0 = H_hjm(chi,s,t) .* (y(s) * G_hjm(chi,s,t))
     # Beware how sigmaT is specified and whether it includes rates correlation!
     # Below formula does not work unless alpha(u) includes a [D^T]^-1 term.
-    f(u) = H_hjm(chi,u,t) .* (sigmaT(u) * (sigmaT(u)' * G_hjm(chi,u,t) - alpha(u)))
+    f = (u) -> H_hjm(chi,u,t) .* (sigmaT(u) * (sigmaT(u)' * G_hjm(chi,u,t) .- alpha(u)))
     # Be careful when integrating piece-wise constant vols!
     # Better split the integral if we encounter jumps in f.
     theta1 = _vector_integral(f, s, t, param_grid)
-    return theta0 + theta1
+    return theta0 .+ theta1
 end
 
 """
@@ -332,8 +332,8 @@ function func_Theta_x_integrate_y(
     param_grid::Union{AbstractVector, Nothing},
     )
     # make sure sigmaT(u) does not contain D^T to avoid correlation terms twice.
-    one = ones(length(chi))
-    f(u) = H_hjm(chi,u,t) .* (y(u)*one - sigmaT(u) * alpha(u))
+    one_ = ones(length(chi))
+    f = (u) -> H_hjm(chi,u,t) .* (y(u)*one_ .- sigmaT(u) * alpha(u))
     theta = _vector_integral(f, s, t, param_grid)
     return theta
 end
@@ -368,8 +368,8 @@ function func_Theta_s(
     param_grid::Union{AbstractVector, Nothing},
     )
     # make sure sigmaT(u) does not contain D^T to avoid correlation terms twice.
-    one = ones(length(chi))
-    f(u) = G_hjm(chi,u,t)' * (y(u)*one - sigmaT(u) * alpha(u))
+    one_ = ones(length(chi))
+    f = (u) -> G_hjm(chi,u,t)' * (y(u)*one_ .- sigmaT(u) * alpha(u))
     theta = _scalar_integral(f, s, t, param_grid)
     return theta
 end
@@ -451,7 +451,7 @@ function func_Sigma_T(
     s::ModelTime,
     t::ModelTime
     )
-    f(u) = vcat(
+    f = (u) -> vcat(
         H_hjm(chi,u,t) .* sigmaT(u),
         G_hjm(chi,u,t)' * sigmaT(u)
     )

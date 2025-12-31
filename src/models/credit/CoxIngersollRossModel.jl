@@ -282,7 +282,7 @@ function Sigma_T(
     z_s = cir_z0(m) * exp.(x_s)
     (a, b2) = cir_lognormal_approximation(m,z_s,X.params)
     Σ_x = sqrt.(b2 ./ (t-s))
-    f(u) = reshape(Σ_x, (1,1))
+    f = (u) -> reshape(Σ_x, (1,1))
     return f
 end
 

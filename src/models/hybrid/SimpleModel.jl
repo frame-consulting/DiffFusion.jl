@@ -123,7 +123,7 @@ function Sigma_T(
     Sigma_T_s = ( Sigma_T(cm,s,t,X) for cm in m.models )
     M = length(state_alias_Sigma(m))
     N = length(factor_alias_Sigma(m))
-    f(u) = begin
+    f = (u) -> begin
         I = Int[]
         J = Int[]
         V = zeros(0)

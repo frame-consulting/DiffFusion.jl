@@ -158,15 +158,16 @@ function Theta(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Theta(m)
-    y(t) = func_y(m.hjm_model, t)
+    y = (u) -> func_y(m.hjm_model, u)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb(u) = m.hjm_model.sigma_T.scaling_matrix .* reshape(m.hjm_model.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb = (u) -> m.hjm_model.sigma_T.scaling_matrix .* reshape(m.hjm_model.sigma_T.sigma_f(u), (1,:))
     alpha = quanto_drift(m.factor_alias, m.hjm_model.quanto_model, s, t, X)
     #
     chi = chi_hjm(m)
     one = ones(length(chi))
     #
-    f(u) = begin
+    f = (u) -> begin
+        # beware/avoid re-assignment
         σT = m.hjm_model.sigma_T(u)  # w/ correlation
         σT_hyb = sigma_T_hyb(u)      # w/o correlation
         α = alpha(u)                 # w/ correlation
@@ -219,7 +220,7 @@ function Sigma_T(
     @assert isnothing(X) == !state_dependent_Sigma(m)
     chi = chi_hjm(m)
     # make sure we do not apply correlations twice!
-    f(u) = H_hjm(chi,u,t) .* m.hjm_model.sigma_T.scaling_matrix .* reshape(m.hjm_model.sigma_T.sigma_f(u), (1,:))
+    f = (u) -> H_hjm(chi,u,t) .* m.hjm_model.sigma_T.scaling_matrix .* reshape(m.hjm_model.sigma_T.sigma_f(u), (1,:))
     return f
 end
 

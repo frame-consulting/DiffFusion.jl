@@ -116,7 +116,7 @@ function asset_volatility(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
-    sigma(u) = scalar_volatility(m.sigma_x, u)
+    sigma = (u) -> scalar_volatility(m.sigma_x, u)
     return sigma
 end
 
@@ -140,7 +140,7 @@ function Theta(
     @assert isnothing(X) == !state_dependent_Theta(m)
     # alpha is a vector-valued function
     alpha = quanto_drift(factor_alias(m), m.quanto_model, s, t, X)
-    f(u) = scalar_volatility(m.sigma_x, u) * (scalar_volatility(m.sigma_x, u) + 2*alpha(u)[begin])
+    f = (u) -> scalar_volatility(m.sigma_x, u) * (scalar_volatility(m.sigma_x, u) + 2*alpha(u)[begin])
     val = _scalar_integral(f, s, t, parameter_grid(m))
     return [ -0.5 * val ]
 end
@@ -188,7 +188,7 @@ function Sigma_T(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
-    f(u) = reshape(m.sigma_x(u), (1, 1))
+    f = (u) -> reshape(m.sigma_x(u), (1, 1))
     return f
 end
 

@@ -411,9 +411,9 @@ function Theta(
     y0 = auxiliary_variable(m, X)[:,:,1]
     chi = m.gaussian_model.chi()
     sigma_T = func_sigma_T(m, sigma_f)
-    y(u) = func_y(y0, chi, sigma_T, s, u)
+    y = (u) -> func_y(y0, chi, sigma_T, s, u)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb(u) = func_sigma_T_hyb(m, sigma_f)
+    sigma_T_hyb = (u) -> func_sigma_T_hyb(m, sigma_f)
     # take into account quanto adjustment
     qm = m.gaussian_model.quanto_model
     if !isnothing(qm) && state_dependent_Sigma(qm)
@@ -475,7 +475,7 @@ function Sigma_T(
     # note, we cannot sigma_T if sigma_f changes
     sigma_f = vec(func_sigma_f(m, s, t, X))
     # make sure we do not apply correlations twice!
-    sigma_T_hyb(u) = func_sigma_T_hyb(m, sigma_f)
+    sigma_T_hyb = (u) -> func_sigma_T_hyb(m, sigma_f)
     return func_Sigma_T(m.gaussian_model.chi(), sigma_T_hyb, s, t)
 end
 

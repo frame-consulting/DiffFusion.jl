@@ -126,7 +126,7 @@ function asset_volatility(
     @assert isnothing(X) == !state_dependent_Sigma(m)
     @assert size(X.X)[2] == 1  # require a single state
     x_s = X(state_alias(m)[1])[1]  # this should be a scalar
-    sigma(u) = scalar_volatility(m.sigma_x, u) * exp(scalar_value(m.skew_x, u) * x_s)
+    sigma = (u) -> scalar_volatility(m.sigma_x, u) * exp(scalar_value(m.skew_x, u) * x_s)
     return sigma
 end
 
@@ -204,7 +204,7 @@ function Sigma_T(
     @assert isnothing(X) == !state_dependent_Sigma(m)
     @assert size(X.X)[2] == 1  # require a single state
     sigma = asset_volatility(m, s, t, X)
-    f(u) = sigma(u) * ones(1,1)
+    f = (u) -> sigma(u) * ones(1,1)
     return f
 end
 

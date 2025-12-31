@@ -232,13 +232,13 @@ function Theta(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Theta(m)
-    y(t) = func_y(m, t)
+    y = (u) -> func_y(m, u)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb(u) = m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb = (u) -> m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
     alpha = quanto_drift(m.factor_alias, m.quanto_model, s, t, X)
     return vcat(
-        func_Theta_x_integrate_y(m.chi(),y,sigma_T_hyb,alpha,s,t,parameter_grid(m)),
-        func_Theta_s(m.chi(),y,sigma_T_hyb,alpha,s,t,parameter_grid(m)),
+        func_Theta_x_integrate_y(m.chi(), y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
+        func_Theta_s(m.chi(), y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
     )
 end
 
@@ -283,7 +283,7 @@ function Sigma_T(
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
     # make sure we do not apply correlations twice!
-    sigma_T_hyb(u) = m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb = (u) -> m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
     return func_Sigma_T(m.chi(),sigma_T_hyb,s,t)
 end
 

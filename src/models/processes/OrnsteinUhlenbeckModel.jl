@@ -151,7 +151,7 @@ function Sigma_T(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
-    f(u) = reshape(H_hjm(m.chi(), u, t) .* m.sigma_x(u), 1, 1)
+    f = (u) -> reshape(H_hjm(m.chi(), u, t) .* m.sigma_x(u), 1, 1)
     return f
 end
 
