@@ -17,10 +17,9 @@ end
 function volatility(o::GaussianHjmModelVolatility, u::ModelTime)
     # return o.scaling_matrix * (o.DfT .* o.sigma_f(u))  # beware DfT multiplication
     σ = o.sigma_f(u)
-    d = length(σ)
     return [
-        sum( o.scaling_matrix[i,k] * o.DfT[k,j] * σ[k] for k = 1:d )
-        for i = 1:d, j = 1:d
+        sum( o.scaling_matrix[i,k] * o.DfT[k,j] * σ[k] for k in axes(σ, 1) )
+        for i in axes(σ, 1), j in axes(σ, 1)
     ]
 end
 
@@ -199,17 +198,16 @@ state_dependent_Sigma(m::GaussianHjmModel) = false  # COV_EXCL_LINE
 Calculate variance/auxiliary state variable y(t).
 """
 function func_y(m::GaussianHjmModel, t::ModelTime)
-    d = length(m.delta())
     t_idx = time_idx(m.sigma_T.sigma_f, t)
     if t_idx == 1
-        t0 = 0.0
+        # t0 = 0.0
         # y0 = 0.0
         # use a short-cut
-        return _func_y(m.chi(), m.sigma_T((t0+t)/2), t0, t)
+        return _func_y(m.chi(), m.sigma_T(0.5*t), 0.0, t)
     end
     t0 = m.sigma_T.sigma_f.times[t_idx - 1]
-    y0 = @view(m.y[:,:,t_idx - 1])
-    return func_y(y0, m.chi(), m.sigma_T((t0+t)/2), t0, t)
+    y0 = m.y[:,:,t_idx - 1]
+    return func_y(y0, m.chi(), m.sigma_T(0.5*(t0+t)), t0, t)
 end
 
 

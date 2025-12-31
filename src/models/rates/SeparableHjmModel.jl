@@ -217,13 +217,12 @@ function func_y(
     #
     # better exploit symmetry and update in-place
     # this is unsafe, better use Taylor expansion
-    d = length(chi)
     δt = t - s
     return [
         y0[i,j] * exp(-(chi[i] + chi[j]) * δt) +
-        sum( sigmaT[i,k] * sigmaT[j,k] for k in 1:d ) *
+        sum( sigmaT[i,k] * sigmaT[j,k] for k in axes(chi, 1) ) *
         (1.0 - exp(-(chi[i] + chi[j]) * δt)) / (chi[i] + chi[j])
-        for i in 1:d, j in 1:d
+        for i in axes(chi, 1), j in axes(chi, 1)
     ]
 end
 
@@ -254,12 +253,11 @@ function _func_y(
     #
     # better exploit symmetry and update in-place
     # this is unsafe, better use Taylor expansion
-    d = length(chi)
     δt = t - s
     return [
-        sum( sigmaT[i,k] * sigmaT[j,k] for k in 1:d ) *
+        sum( sigmaT[i,k] * sigmaT[j,k] for k in axes(chi, 1) ) *
         (1.0 - exp(-(chi[i] + chi[j]) * δt)) / (chi[i] + chi[j])
-        for i in 1:d, j in 1:d
+        for i in axes(chi, 1), j in axes(chi, 1)
     ]
 end
 
