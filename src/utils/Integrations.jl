@@ -42,10 +42,16 @@ end
 
 Calculate the integral for a scalar function f in the range [s,t].
 """
-function _scalar_integral(f::Function, s::ModelTime, t::ModelTime, grid::Union{AbstractVector, Nothing} = nothing)
-    if isnothing(grid)
-        return quadgk(f, s, t)[1]
-    end
+function _scalar_integral(f::Function, s::ModelTime, t::ModelTime, grid::Nothing = nothing)
+    return quadgk(f, s, t, norm = _norm2)[1]
+end
+
+"""
+    _scalar_integral(f::Function, s::ModelTime, t::ModelTime, grid::AbstractVector)
+
+Calculate the integral for a scalar function f in the range [s,t] split using `grid`.
+"""
+function _scalar_integral(f::Function, s::ModelTime, t::ModelTime, grid::AbstractVector)
     grid = _intersect_interval(s, t, grid)
     return sum([
         quadgk(f, l, u, norm = _norm2)[1]
@@ -53,15 +59,23 @@ function _scalar_integral(f::Function, s::ModelTime, t::ModelTime, grid::Union{A
     ])
 end
 
+
 """
     _vector_integral(f::Function, s::ModelTime, t::ModelTime)
 
 Calculate the integral for a vector-valued function f in the range [s,t].
 """
-function _vector_integral(f::Function, s::ModelTime, t::ModelTime, grid::Union{AbstractVector, Nothing} = nothing)
-    if isnothing(grid)
-        return quadgk(f, s, t, norm = _norm2)[1]
-    end
+function _vector_integral(f::Function, s::ModelTime, t::ModelTime, grid::Nothing = nothing)
+    return quadgk(f, s, t, norm = _norm2)[1]
+end
+
+
+"""
+    _vector_integral(f::Function, s::ModelTime, t::ModelTime, grid::AbstractVector)
+
+Calculate the integral for a vector-valued function f in the range [s,t] split using `grid`..
+"""
+function _vector_integral(f::Function, s::ModelTime, t::ModelTime, grid::AbstractVector)
     grid = _intersect_interval(s, t, grid)
     return sum([
         quadgk(f, l, u, norm = _norm2)[1]
