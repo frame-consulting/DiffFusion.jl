@@ -267,7 +267,7 @@ end
         chi::AbstractVector,
         y::Function,       # (u) -> Matrix
         sigmaT::Function,  # (u) -> Matrix
-        alpha::Function,   # (u) -> Vector
+        alpha::QuantoDrift,   # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -284,7 +284,7 @@ function func_Theta_x(
     chi::AbstractVector,
     y::Function,       # (u) -> Matrix
     sigmaT::Function,  # (u) -> Matrix
-    alpha::Function,   # (u) -> Vector
+    alpha::QuantoDrift,   # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
@@ -304,7 +304,7 @@ end
         chi::AbstractVector,
         y::Function,       # (u) -> Matrix
         sigmaT::Function,  # (u) -> Matrix
-        alpha::Function,   # (u) -> Vector
+        alpha::QuantoDrift,   # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -324,7 +324,7 @@ function func_Theta_x_integrate_y(
     chi::AbstractVector,
     y::Function,       # (u) -> Matrix
     sigmaT::Function,  # (u) -> Matrix
-    alpha::Function,   # (u) -> Vector
+    alpha::QuantoDrift,   # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
@@ -343,7 +343,7 @@ end
         chi::AbstractVector,
         y::Function,       # (u) -> Matrix
         sigmaT::Function,  # (u) -> Matrix
-        alpha::Function,   # (u) -> Vector
+        alpha::QuantoDrift,   # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -360,7 +360,7 @@ function func_Theta_s(
     chi::AbstractVector,
     y::Function,       # (u) -> Matrix
     sigmaT::Function,  # (u) -> Matrix
-    alpha::Function,   # (u) -> Vector
+    alpha::QuantoDrift,   # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
@@ -377,7 +377,7 @@ end
         chi::AbstractVector,
         y::Function,       # (u) -> Matrix
         sigmaT::Function,  # (u) -> Matrix
-        alpha::Function,   # (u) -> Vector
+        alpha::QuantoDrift,   # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -394,7 +394,7 @@ function func_Theta(
     chi::AbstractVector,
     y::Function,       # (u) -> Matrix
     sigmaT::Function,  # (u) -> Matrix
-    alpha::Function,   # (u) -> Vector
+    alpha::QuantoDrift,   # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},

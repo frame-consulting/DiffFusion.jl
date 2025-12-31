@@ -100,6 +100,19 @@ Return whether Sigma requires a state vector input X.
 state_dependent_Sigma(m::LognormalAssetModel) = false  # COV_EXCL_LINE
 
 """
+An `AssetVolatility` for a `LognormalAssetModel`.
+"""
+struct LognormalAssetVolatility{T<:ModelTime} <: AssetVolatility
+    sigma_x::BackwardFlatVolatility{T}
+end
+
+"""
+Evaluate `LognormalAssetVolatility` at time `t`.
+"""
+(av::LognormalAssetVolatility)(t::ModelTime) = scalar_volatility(av.sigma_x, t)
+
+
+"""
     asset_volatility(
         m::LognormalAssetModel,
         s::ModelTime,
@@ -107,7 +120,7 @@ state_dependent_Sigma(m::LognormalAssetModel) = false  # COV_EXCL_LINE
         X::Union{ModelState, Nothing} = nothing,
         )
 
-Return a state-independent volatility function sigma(u) for the interval (s,t).
+Return an `LognormalAssetVolatility` functor for the interval (s,t).
 """
 function asset_volatility(
     m::LognormalAssetModel,
@@ -116,8 +129,7 @@ function asset_volatility(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
-    sigma = (u) -> scalar_volatility(m.sigma_x, u)
-    return sigma
+    return LognormalAssetVolatility(m.sigma_x)
 end
 
 

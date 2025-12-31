@@ -89,7 +89,10 @@ using LinearAlgebra
         HHfInv = DiffFusion.benchmark_times_scaling(chi,delta)
         sigmaT(u) = HHfInv * sigma_f  # This is a rates volatility without correlation!
         V = sigmaT(0.0) * transpose(sigmaT(0.0))
-        alpha(u) = -0.30 * ones(3) * 0.15  # -30% rates-FX correlation and 15% FX vol
+        #
+        struct SimpleQuantoDrift <: DiffFusion.QuantoDrift end
+        (qd::SimpleQuantoDrift)(t::DiffFusion.ModelTime) = -0.30 * ones(3) * 0.15  # -30% rates-FX correlation and 15% FX vol
+        alpha = SimpleQuantoDrift()
         #
         y0 = DiffFusion.func_y(zeros(3,3),chi,sigmaT(0.0),0.0, 1.0)  # at s=1.
         y(u) = DiffFusion.func_y(y0,chi,sigmaT(1.0),1.0, u)

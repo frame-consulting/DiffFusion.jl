@@ -106,6 +106,20 @@ Return whether Sigma requires a state vector input X.
 """
 state_dependent_Sigma(m::CevAssetModel) = true  # COV_EXCL_LINE
 
+"""
+An `AssetVolatility` for a `CevAssetModel`.
+"""
+struct CevAssetVolatility{T1<:ModelValue, T2<:ModelValue, T3<:ModelValue} <: AssetVolatility
+    sigma_x::BackwardFlatVolatility{T1}
+    skew_x::BackwardFlatParameter{T2}
+    x_s::T3
+end
+
+"""
+Evaluate `CevAssetVolatility` at time `t`.
+"""
+(av::CevAssetVolatility)(t::ModelTime) = scalar_volatility(av.sigma_x, t) * exp(scalar_value(av.skew_x, t) * av.x_s)
+
 
 """
     asset_volatility(
@@ -126,8 +140,7 @@ function asset_volatility(
     @assert isnothing(X) == !state_dependent_Sigma(m)
     @assert size(X.X)[2] == 1  # require a single state
     x_s = X(state_alias(m)[1])[1]  # this should be a scalar
-    sigma = (u) -> scalar_volatility(m.sigma_x, u) * exp(scalar_value(m.skew_x, u) * x_s)
-    return sigma
+    return CevAssetVolatility(m.sigma_x, m.skew_x, x_s)
 end
 
 # Model functions for CEV model duplicate code from LognormalModel.
