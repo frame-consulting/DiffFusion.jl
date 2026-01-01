@@ -261,13 +261,23 @@ function _func_y(
     ]
 end
 
+"""
+    abstract type HjmAuxilliaryVariable end
+
+A functor calculating the auxiliary variable y(t) in HJM model.
+"""
+abstract type HjmAuxiliaryVariable end
+
+(v::HjmAuxiliaryVariable)(t::ModelTime) = begin
+    error("Model needs to implement call operator.")
+end
 
 """
     func_Theta_x(
         chi::AbstractVector,
-        y::Function,       # (u) -> Matrix
-        sigmaT::Function,  # (u) -> Matrix
-        alpha::QuantoDrift,   # (u) -> Vector
+        y::HjmAuxiliaryVariable,  # (u) -> Matrix
+        sigmaT::Function,         # (u) -> Matrix
+        alpha::QuantoDrift,       # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -282,15 +292,16 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta_x(
     chi::AbstractVector,
-    y::Function,       # (u) -> Matrix
-    sigmaT::Function,  # (u) -> Matrix
-    alpha::QuantoDrift,   # (u) -> Vector
+    y::HjmAuxiliaryVariable,  # (u) -> Matrix
+    sigmaT::Function,         # (u) -> Matrix
+    alpha::QuantoDrift,       # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
     )
     theta0 = H_hjm(chi,s,t) .* (y(s) * G_hjm(chi,s,t))
     # Beware how sigmaT is specified and whether it includes rates correlation!
+    # Here, sigmaT should include [D^T] such that σ⊤⋅σ = [⋅] Γ [⋅].
     # Below formula does not work unless alpha(u) includes a [D^T]^-1 term.
     f = (u) -> H_hjm(chi,u,t) .* (sigmaT(u) * (sigmaT(u)' * G_hjm(chi,u,t) .- alpha(u)))
     # Be careful when integrating piece-wise constant vols!
@@ -302,9 +313,9 @@ end
 """
     func_Theta_x_integrate_y(
         chi::AbstractVector,
-        y::Function,       # (u) -> Matrix
-        sigmaT::Function,  # (u) -> Matrix
-        alpha::QuantoDrift,   # (u) -> Vector
+        y::HjmAuxiliaryVariable,  # (u) -> Matrix
+        sigmaT::Function,         # (u) -> Matrix
+        alpha::QuantoDrift,       # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -322,9 +333,9 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta_x_integrate_y(
     chi::AbstractVector,
-    y::Function,       # (u) -> Matrix
-    sigmaT::Function,  # (u) -> Matrix
-    alpha::QuantoDrift,   # (u) -> Vector
+    y::HjmAuxiliaryVariable,  # (u) -> Matrix
+    sigmaT::Function,         # (u) -> Matrix
+    alpha::QuantoDrift,       # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
@@ -341,9 +352,9 @@ end
 """
     func_Theta_s(
         chi::AbstractVector,
-        y::Function,       # (u) -> Matrix
-        sigmaT::Function,  # (u) -> Matrix
-        alpha::QuantoDrift,   # (u) -> Vector
+        y::HjmAuxiliaryVariable,  # (u) -> Matrix
+        sigmaT::Function,         # (u) -> Matrix
+        alpha::QuantoDrift,       # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -358,9 +369,9 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta_s(
     chi::AbstractVector,
-    y::Function,       # (u) -> Matrix
-    sigmaT::Function,  # (u) -> Matrix
-    alpha::QuantoDrift,   # (u) -> Vector
+    y::HjmAuxiliaryVariable,  # (u) -> Matrix
+    sigmaT::Function,         # (u) -> Matrix
+    alpha::QuantoDrift,       # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
@@ -375,9 +386,9 @@ end
 """
     func_Theta(
         chi::AbstractVector,
-        y::Function,       # (u) -> Matrix
-        sigmaT::Function,  # (u) -> Matrix
-        alpha::QuantoDrift,   # (u) -> Vector
+        y::HjmAuxiliaryVariable,  # (u) -> Matrix
+        sigmaT::Function,         # (u) -> Matrix
+        alpha::QuantoDrift,       # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -392,9 +403,9 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta(
     chi::AbstractVector,
-    y::Function,       # (u) -> Matrix
-    sigmaT::Function,  # (u) -> Matrix
-    alpha::QuantoDrift,   # (u) -> Vector
+    y::HjmAuxiliaryVariable,  # (u) -> Matrix
+    sigmaT::Function,         # (u) -> Matrix
+    alpha::QuantoDrift,       # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},

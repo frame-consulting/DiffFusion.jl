@@ -210,6 +210,18 @@ function func_y(m::GaussianHjmModel, t::ModelTime)
     return func_y(y0, m.chi(), m.sigma_T(0.5*(t0+t)), t0, t)
 end
 
+"""
+A `HjmAuxiliaryVariable` functor for `GaussianHjmModel`.
+"""
+struct GaussianHjmAuxiliaryVariable{T<:GaussianHjmModel} <: HjmAuxiliaryVariable
+    m::T
+end
+
+"""
+Evaluate `GaussianHjmAuxiliaryVariable` at time `t`.
+"""
+(v::GaussianHjmAuxiliaryVariable)(t::ModelTime) = func_y(v.m, t)
+
 
 """
     Theta(
@@ -230,7 +242,7 @@ function Theta(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Theta(m)
-    y = (u) -> func_y(m, u)
+    y = GaussianHjmAuxiliaryVariable(m)
     # make sure we do not apply correlations twice in quanto adjustment!
     sigma_T_hyb = (u) -> m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
     alpha = quanto_drift(m.factor_alias, m.quanto_model, s, t, X)

@@ -95,7 +95,10 @@ using LinearAlgebra
         alpha = SimpleQuantoDrift()
         #
         y0 = DiffFusion.func_y(zeros(3,3),chi,sigmaT(0.0),0.0, 1.0)  # at s=1.
-        y(u) = DiffFusion.func_y(y0,chi,sigmaT(1.0),1.0, u)
+        struct SimpleY <: DiffFusion.HjmAuxiliaryVariable end
+        (v::SimpleY)(t::DiffFusion.ModelTime) = DiffFusion.func_y(y0,chi,sigmaT(1.0),1.0, t)
+        y = SimpleY()
+        #
         s = 1.0
         t = 3.0
         #

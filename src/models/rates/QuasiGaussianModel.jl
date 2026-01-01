@@ -384,6 +384,27 @@ function func_sigma_T_hyb(
 end
 
 """
+A `HjmAuxiliaryVariable` functor for `QuasiGaussianModel`.
+"""
+struct QuasiGaussianAuxiliaryVariable{
+        T1<:ModelValue,
+        T2<:ModelValue,
+        T3<:ModelValue,
+    } <: HjmAuxiliaryVariable
+    #
+    y0::Matrix{T1}
+    chi::Vector{T2}
+    sigmaT::Matrix{T3}
+    t0::ModelTime
+end
+
+"""
+Evaluate `QuasiGaussianAuxiliaryVariable` at time `t`.
+"""
+(v::QuasiGaussianAuxiliaryVariable)(t::ModelTime) = func_y(v.y0, v.chi, v.sigmaT, v.t0, t)
+
+
+"""
     Theta(
         m::QuasiGaussianModel,
         s::ModelTime,
@@ -411,7 +432,7 @@ function Theta(
     y0 = auxiliary_variable(m, X)[:,:,1]
     chi = m.gaussian_model.chi()
     sigma_T = func_sigma_T(m, sigma_f)
-    y = (u) -> func_y(y0, chi, sigma_T, s, u)
+    y = QuasiGaussianAuxiliaryVariable(y0, chi, sigma_T, s)
     # make sure we do not apply correlations twice in quanto adjustment!
     sigma_T_hyb = (u) -> func_sigma_T_hyb(m, sigma_f)
     # take into account quanto adjustment
