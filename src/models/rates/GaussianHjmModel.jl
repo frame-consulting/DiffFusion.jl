@@ -224,6 +224,20 @@ Evaluate `GaussianHjmAuxiliaryVariable` at time `t`.
 
 
 """
+A `HjmHybridVolatility` for a `GaussianHjmModel`.
+"""
+struct GaussianHybridVolatility{T1<:ModelValue, T2<:ModelValue} <:HjmHybridVolatility
+    scaling_matrix::Matrix{T1}
+    sigma_f::BackwardFlatVolatility{T2}
+end
+
+"""
+Evaluate a `GaussianHybridVolatility` at time `t`.
+"""
+(v::GaussianHybridVolatility)(t::ModelTime) = v.scaling_matrix .* reshape(v.sigma_f(t), (1,:))
+
+
+"""
     Theta(
         m::GaussianHjmModel,
         s::ModelTime,
@@ -244,7 +258,7 @@ function Theta(
     @assert isnothing(X) == !state_dependent_Theta(m)
     y = GaussianHjmAuxiliaryVariable(m)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb = (u) -> m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb = GaussianHybridVolatility(m.sigma_T.scaling_matrix, m.sigma_T.sigma_f)
     alpha = quanto_drift(m.factor_alias, m.quanto_model, s, t, X)
     return vcat(
         func_Theta_x_integrate_y(m.chi(), y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
@@ -293,7 +307,7 @@ function Sigma_T(
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
     # make sure we do not apply correlations twice!
-    sigma_T_hyb = (u) -> m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb = GaussianHybridVolatility(m.sigma_T.scaling_matrix, m.sigma_T.sigma_f)
     return func_Sigma_T(m.chi(),sigma_T_hyb,s,t)
 end
 

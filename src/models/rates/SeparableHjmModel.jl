@@ -272,6 +272,19 @@ abstract type HjmAuxiliaryVariable end
     error("Model needs to implement call operator.")
 end
 
+
+"""
+A functor calculating the volatility σ⊤(t) = [H [H^f]^{-1}] ⋅ σ_f.
+
+Note that this quantity does *not* include the correlation term.
+"""
+abstract type HjmHybridVolatility end
+
+(v::HjmHybridVolatility)(t::ModelTime) = begin
+    error("Model needs to implement call operator.")
+end
+
+
 """
     func_Theta_x(
         chi::AbstractVector,
@@ -313,9 +326,9 @@ end
 """
     func_Theta_x_integrate_y(
         chi::AbstractVector,
-        y::HjmAuxiliaryVariable,  # (u) -> Matrix
-        sigmaT::Function,         # (u) -> Matrix
-        alpha::QuantoDrift,       # (u) -> Vector
+        y::HjmAuxiliaryVariable,      # (u) -> Matrix
+        sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+        alpha::QuantoDrift,           # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -333,9 +346,9 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta_x_integrate_y(
     chi::AbstractVector,
-    y::HjmAuxiliaryVariable,  # (u) -> Matrix
-    sigmaT::Function,         # (u) -> Matrix
-    alpha::QuantoDrift,       # (u) -> Vector
+    y::HjmAuxiliaryVariable,      # (u) -> Matrix
+    sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+    alpha::QuantoDrift,           # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
@@ -352,9 +365,9 @@ end
 """
     func_Theta_s(
         chi::AbstractVector,
-        y::HjmAuxiliaryVariable,  # (u) -> Matrix
-        sigmaT::Function,         # (u) -> Matrix
-        alpha::QuantoDrift,       # (u) -> Vector
+        y::HjmAuxiliaryVariable,      # (u) -> Matrix
+        sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+        alpha::QuantoDrift,           # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -369,9 +382,9 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta_s(
     chi::AbstractVector,
-    y::HjmAuxiliaryVariable,  # (u) -> Matrix
-    sigmaT::Function,         # (u) -> Matrix
-    alpha::QuantoDrift,       # (u) -> Vector
+    y::HjmAuxiliaryVariable,      # (u) -> Matrix
+    sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+    alpha::QuantoDrift,           # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
@@ -386,9 +399,9 @@ end
 """
     func_Theta(
         chi::AbstractVector,
-        y::HjmAuxiliaryVariable,  # (u) -> Matrix
-        sigmaT::Function,         # (u) -> Matrix
-        alpha::QuantoDrift,       # (u) -> Vector
+        y::HjmAuxiliaryVariable,      # (u) -> Matrix
+        sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+        alpha::QuantoDrift,           # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -403,15 +416,15 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta(
     chi::AbstractVector,
-    y::HjmAuxiliaryVariable,  # (u) -> Matrix
-    sigmaT::Function,         # (u) -> Matrix
-    alpha::QuantoDrift,       # (u) -> Vector
+    y::HjmAuxiliaryVariable,      # (u) -> Matrix
+    sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+    alpha::QuantoDrift,           # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
     )
     return vcat(
-        func_Theta_x(chi, y, sigmaT, alpha, s, t, param_grid),
+        func_Theta_x_integrate_y(chi, y, sigmaT, alpha, s, t, param_grid),
         func_Theta_s(chi, y, sigmaT, alpha, s, t, param_grid),
     )
 end
@@ -444,7 +457,7 @@ end
 """
     func_Sigma_T(
         chi::AbstractVector,
-        sigmaT::Function,
+        sigmaT::HjmHybridVolatility,
         s::ModelTime,
         t::ModelTime
         )
@@ -456,7 +469,7 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Sigma_T(
     chi::AbstractVector,
-    sigmaT::Function,
+    sigmaT::HjmHybridVolatility,
     s::ModelTime,
     t::ModelTime
     )

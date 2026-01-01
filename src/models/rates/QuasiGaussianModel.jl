@@ -405,6 +405,20 @@ Evaluate `QuasiGaussianAuxiliaryVariable` at time `t`.
 
 
 """
+A `HjmHybridVolatility` for a `QuasiGaussianModel`.
+"""
+struct QuasiGaussianHybridVolatility{T1<:QuasiGaussianModel, T2<:ModelValue} <: HjmHybridVolatility
+    m::T1
+    sigma_f::Vector{T2}
+end
+
+"""
+Evaluate `QuasiGaussianHybridVolatility` at time `t`.
+"""
+(v::QuasiGaussianHybridVolatility)(t::ModelTime) = func_sigma_T_hyb(v.m, v.sigma_f)
+
+
+"""
     Theta(
         m::QuasiGaussianModel,
         s::ModelTime,
@@ -434,7 +448,7 @@ function Theta(
     sigma_T = func_sigma_T(m, sigma_f)
     y = QuasiGaussianAuxiliaryVariable(y0, chi, sigma_T, s)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb = (u) -> func_sigma_T_hyb(m, sigma_f)
+    sigma_T_hyb = QuasiGaussianHybridVolatility(m, sigma_f)
     # take into account quanto adjustment
     qm = m.gaussian_model.quanto_model
     if !isnothing(qm) && state_dependent_Sigma(qm)
@@ -496,7 +510,7 @@ function Sigma_T(
     # note, we cannot sigma_T if sigma_f changes
     sigma_f = vec(func_sigma_f(m, s, t, X))
     # make sure we do not apply correlations twice!
-    sigma_T_hyb = (u) -> func_sigma_T_hyb(m, sigma_f)
+    sigma_T_hyb = QuasiGaussianHybridVolatility(m, sigma_f)
     return func_Sigma_T(m.gaussian_model.chi(), sigma_T_hyb, s, t)
 end
 
