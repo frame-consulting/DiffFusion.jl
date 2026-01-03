@@ -38,20 +38,20 @@ function _norm2(x)
 end
 
 """
-    _scalar_integral(f::Function, s::ModelTime, t::ModelTime)
+    _scalar_integral(f::Any, s::ModelTime, t::ModelTime)
 
 Calculate the integral for a scalar function f in the range [s,t].
 """
-function _scalar_integral(f::Function, s::ModelTime, t::ModelTime, grid::Nothing = nothing)
+function _scalar_integral(f::Any, s::ModelTime, t::ModelTime, grid::Nothing = nothing)
     return quadgk(f, s, t, norm = _norm2)[1]
 end
 
 """
-    _scalar_integral(f::Function, s::ModelTime, t::ModelTime, grid::AbstractVector)
+    _scalar_integral(f::Any, s::ModelTime, t::ModelTime, grid::AbstractVector)
 
 Calculate the integral for a scalar function f in the range [s,t] split using `grid`.
 """
-function _scalar_integral(f::Function, s::ModelTime, t::ModelTime, grid::AbstractVector)
+function _scalar_integral(f::Any, s::ModelTime, t::ModelTime, grid::AbstractVector)
     grid = _intersect_interval(s, t, grid)
     return sum([
         quadgk(f, l, u, norm = _norm2)[1]
@@ -61,21 +61,21 @@ end
 
 
 """
-    _vector_integral(f::Function, s::ModelTime, t::ModelTime)
+    _vector_integral(f::Any, s::ModelTime, t::ModelTime)
 
 Calculate the integral for a vector-valued function f in the range [s,t].
 """
-function _vector_integral(f::Function, s::ModelTime, t::ModelTime, grid::Nothing = nothing)
+function _vector_integral(f::Any, s::ModelTime, t::ModelTime, grid::Nothing = nothing)
     return quadgk(f, s, t, norm = _norm2)[1]
 end
 
 
 """
-    _vector_integral(f::Function, s::ModelTime, t::ModelTime, grid::AbstractVector)
+    _vector_integral(f::Any, s::ModelTime, t::ModelTime, grid::AbstractVector)
 
 Calculate the integral for a vector-valued function f in the range [s,t] split using `grid`..
 """
-function _vector_integral(f::Function, s::ModelTime, t::ModelTime, grid::AbstractVector)
+function _vector_integral(f::Any, s::ModelTime, t::ModelTime, grid::AbstractVector)
     grid = _intersect_interval(s, t, grid)
     return sum([
         quadgk(f, l, u, norm = _norm2)[1]
