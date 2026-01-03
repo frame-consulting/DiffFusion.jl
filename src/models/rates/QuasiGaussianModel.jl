@@ -456,8 +456,7 @@ function Theta(
         alpha = quanto_drift(m.gaussian_model.factor_alias, qm, s, t, nothing)
     end
     return vcat(
-        func_Theta_x_integrate_y(chi, y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
-        func_Theta_s(chi, y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
+        func_Theta(chi, y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
         vec(y(t)),
     )
 end

@@ -423,11 +423,41 @@ function func_Theta(
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
     )
-    return vcat(
-        func_Theta_x_integrate_y(chi, y, sigmaT, alpha, s, t, param_grid),
-        func_Theta_s(chi, y, sigmaT, alpha, s, t, param_grid),
-    )
+    f = HjmThetaIntegrand(t, chi, y, sigmaT, alpha)
+    theta = _vector_integral(f, s, t, param_grid)
+    return theta
 end
+
+"""
+A functor to model the integrand of (combined) HJM Θ term.
+"""
+struct HjmThetaIntegrand{
+        T1<:ModelValue,
+        T2<:HjmAuxiliaryVariable,
+        T3<:HjmHybridVolatility,
+        T4<:QuantoDrift
+    }
+    t::ModelTime
+    chi::Vector{T1}
+    y::T2
+    sigmaT::T3
+    alpha::T4
+end
+
+"""
+Evaluate `HjmThetaIntegrand`.
+
+f_x(u) = H_hjm(chi,u,t) .* (y(u)*one_ .- sigmaT(u) * alpha(u))
+f_s(u) = G_hjm(chi,u,t)' * (y(u)*one_ .- sigmaT(u) * alpha(u))
+"""
+(o::HjmThetaIntegrand)(u::ModelTime) = begin
+    # y(u)⋅1 - sigmaT(u) * alpha(u)
+    tmp = vec(sum(o.y(u), dims=2)) .- o.sigmaT(u) * o.alpha(u)
+    theta_x = H_hjm(o.chi, u, o.t) .* tmp
+    theta_s = dot(G_hjm(o.chi, u, o.t), tmp)
+    return vcat(theta_x, theta_s)
+end
+
 
 """
     func_H_T(chi::AbstractVector, s::ModelTime, t::ModelTime)

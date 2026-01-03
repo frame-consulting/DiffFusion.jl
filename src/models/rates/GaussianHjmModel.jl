@@ -260,10 +260,7 @@ function Theta(
     # make sure we do not apply correlations twice in quanto adjustment!
     sigma_T_hyb = GaussianHybridVolatility(m.sigma_T.scaling_matrix, m.sigma_T.sigma_f)
     alpha = quanto_drift(m.factor_alias, m.quanto_model, s, t, X)
-    return vcat(
-        func_Theta_x_integrate_y(m.chi(), y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
-        func_Theta_s(m.chi(), y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
-    )
+    return func_Theta(m.chi(), y, sigma_T_hyb, alpha, s, t, parameter_grid(m))
 end
 
 
