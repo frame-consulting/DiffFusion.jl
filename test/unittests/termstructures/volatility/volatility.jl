@@ -24,7 +24,7 @@ using Test
         @test DiffFusion.volatility(ts, 10.0) == [ 80., 50., 40., ] * 1e-4
         @test DiffFusion.volatility(ts, 12.0) == [ 80., 50., 40., ] * 1e-4
         #
-        @test_throws AssertionError DiffFusion.volatility(ts, 1.5, DiffFusion.TermstructureScalar)
+        @test_throws AssertionError DiffFusion.scalar_volatility(ts, 1.5)
         @test_throws AssertionError DiffFusion.backward_flat_volatility("USD", times[2:end], values)
         @test_throws AssertionError DiffFusion.backward_flat_volatility("USD", vcat([2.0], times[2:end]), values)
         #
@@ -38,10 +38,9 @@ using Test
         #
         @test DiffFusion.alias(ts) == "USD"
         @test DiffFusion.volatility(ts, 1.5) == [ 60. ] * 1e-4
-        @test DiffFusion.volatility(ts, 1.5, DiffFusion.TermstructureScalar) == 60. * 1e-4
+        @test DiffFusion.scalar_volatility(ts, 1.5) == 60. * 1e-4
         #
         @test ts(1.5) == [ 60. ] * 1e-4
-        @test ts(1.5, DiffFusion.TermstructureScalar) == 60. * 1e-4
     end
 
     @testset "Flat volatility" begin
@@ -51,10 +50,9 @@ using Test
         #
         @test DiffFusion.alias(ts) == "USD"
         @test DiffFusion.volatility(ts, 1.5) == [ 35. ] * 1e-4
-        @test DiffFusion.volatility(ts, 1.5, DiffFusion.TermstructureScalar) == 35. * 1e-4
+        @test DiffFusion.scalar_volatility(ts, 1.5) == 35. * 1e-4
         #
         @test ts(1.5) == [ 35. ] * 1e-4
-        @test ts(1.5, DiffFusion.TermstructureScalar) == 35. * 1e-4
         #
         @test string(DiffFusion.flat_volatility( 0.01 )) == string(DiffFusion.flat_volatility("", 0.01))
     end

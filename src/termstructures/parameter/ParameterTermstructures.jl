@@ -9,19 +9,19 @@ abstract type PiecewiseFlatParameter <: ParameterTermstructure end
 
 
 """
-    struct BackwardFlatParameter <: PiecewiseFlatParameter
+    struct BackwardFlatParameter{T<:ModelValue} <: PiecewiseFlatParameter
         alias::String
-        times::AbstractVector
-        values::AbstractMatrix
+        times::Vector{ModelTime}
+        values::Matrix{T}
     end
 
 A generic vector-valued model parameter term structure with piece-wise constant
 backward-flat interpolation and constant extrapolation.
 """
-struct BackwardFlatParameter <: PiecewiseFlatParameter
+struct BackwardFlatParameter{T<:ModelValue} <: PiecewiseFlatParameter
     alias::String
-    times::AbstractVector
-    values::AbstractMatrix
+    times::Vector{ModelTime}
+    values::Matrix{T}
 end
 
 
@@ -46,7 +46,7 @@ function backward_flat_parameter(
         @assert(times[k]<times[k+1])
     end
     #
-    return BackwardFlatParameter(alias, times, values)
+    return BackwardFlatParameter(alias, Vector(times), Matrix(values))
 end
 
 """
@@ -68,19 +68,19 @@ end
 
 
 """
-    struct ForwardFlatParameter <: PiecewiseFlatParameter
+    struct ForwardFlatParameter{T<:ModelValue} <: PiecewiseFlatParameter
         alias::String
-        times::AbstractVector
-        values::AbstractMatrix
+        times::Vector{ModelTime}
+        values::Matrix{T}
     end
 
 A generic vector-valued model parameter term structure with piece-wise constant
 forward-flat interpolation and constant extrapolation.
 """
-struct ForwardFlatParameter <: PiecewiseFlatParameter
+struct ForwardFlatParameter{T<:ModelValue} <: PiecewiseFlatParameter
     alias::String
-    times::AbstractVector
-    values::AbstractMatrix
+    times::Vector{ModelTime}
+    values::Matrix{T}
 end
 
 """
@@ -104,7 +104,7 @@ function forward_flat_parameter(
         @assert(times[k]<times[k+1])
     end
     #
-    return ForwardFlatParameter(alias, times, values)
+    return ForwardFlatParameter(alias, Vector(times), Matrix(values))
 end
 
 """
@@ -192,37 +192,34 @@ function time_idx(ts::ForwardFlatParameter, t)
 end
 
 """
-    value(ts::PiecewiseFlatParameter, result_size::TermstructureResultSize = TermstructureVector)
+    value(ts::PiecewiseFlatParameter)
 
 Return a value for constant/time-homogeneous parameters.
 """
-function value(ts::PiecewiseFlatParameter, result_size::TermstructureResultSize = TermstructureVector)
-    @assert ts.times == zeros((1))  # only available for trivial term structures
-    if result_size == TermstructureVector
-        return @view ts.values[:,1]  # flat extrapolation
-    end
-    if result_size == TermstructureScalar
-        @assert(size(ts.values)[1] == 1)  # only available for scalar parameters
-        return ts.values[1,1]
-    end
-    error("Unknown TermstructureResultSize")
+function value(ts::PiecewiseFlatParameter)
+    @assert length(ts.times) == 1 # only available for trivial term structures
+    return ts.values[:, begin]  # flat extrapolation
 end
 
-
 """
-    value(ts::PiecewiseFlatParameter, t::ModelTime, result_size::TermstructureResultSize = TermstructureVector)
+    value(ts::PiecewiseFlatParameter, t::ModelTime)
 
 Return a value for a given observation time t.
 """
-function value(ts::PiecewiseFlatParameter, t::ModelTime, result_size::TermstructureResultSize = TermstructureVector)
+function value(ts::PiecewiseFlatParameter, t::ModelTime)
     k = time_idx(ts, t)
     k = max(min(k, length(ts.times)), 1) # flat extrapolation
-    if result_size == TermstructureVector
-        return @view ts.values[:,k]
-    end
-    if result_size == TermstructureScalar
-        @assert(size(ts.values)[1] == 1)  # only available for scalar parameters
-        return ts.values[1,k]
-    end
-    error("Unknown TermstructureResultSize")
+    return ts.values[:, k]
+end
+
+"""
+    scalar_value(ts::PiecewiseFlatParameter, t::ModelTime)
+
+Return scalar parameter value if possible.
+"""
+function scalar_value(ts::PiecewiseFlatParameter, t::ModelTime)
+    @assert(size(ts.values)[1] == 1)  # only available for scalar vols
+    k = time_idx(ts, t)
+    k = max(min(k, length(ts.times)), 1) # flat extrapolation
+    return ts.values[begin, k]  # flat extrapolation
 end

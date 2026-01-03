@@ -126,7 +126,7 @@ function build_model(
     @assert(haskey(param_dict, alias))
     m_dict = param_dict[alias]
     @assert(haskey(m_dict, "type"))
-    if m_dict["type"] == GaussianHjmModel
+    if m_dict["type"] <: GaussianHjmModel
         if isnothing(m_dict["correlation_holder"])
             ch = nothing
         else
@@ -147,7 +147,7 @@ function build_model(
             m_dict["scaling_type"],
         )
     end
-    if m_dict["type"] == LognormalAssetModel
+    if m_dict["type"] <: LognormalAssetModel
         ch = param_dict[m_dict["correlation_holder"]]  # LognormalAssetModel requires correlation_holder
         if isnothing(m_dict["quanto_model"])
             quanto_model = nothing
@@ -161,7 +161,7 @@ function build_model(
             quanto_model,
         )
     end
-    if m_dict["type"] == CevAssetModel
+    if m_dict["type"] <: CevAssetModel
         ch = param_dict[m_dict["correlation_holder"]]  # CevAssetModel requires correlation_holder
         if isnothing(m_dict["quanto_model"])
             quanto_model = nothing
@@ -176,7 +176,7 @@ function build_model(
             quanto_model,
         )
     end
-    if m_dict["type"] == SimpleModel
+    if m_dict["type"] <: SimpleModel
         simple_model_dict = Dict{String, Any}()
         for a in m_dict["models"]
             # here the order of models is relevant
@@ -285,18 +285,18 @@ function model_volatility_values(
     m_dict = param_dict[alias]
     #
     @assert(haskey(m_dict, "type"))
-    if m_dict["type"] == GaussianHjmModel
+    if m_dict["type"] <: GaussianHjmModel
         return _get_labels_and_values(alias, "sigma_f", m_dict)
     end
-    if m_dict["type"] == LognormalAssetModel
+    if m_dict["type"] <: LognormalAssetModel
         return _get_labels_and_values(alias, "sigma_x", m_dict)
     end
-    if m_dict["type"] == CevAssetModel
+    if m_dict["type"] <: CevAssetModel
         (l1, v1) = _get_labels_and_values(alias, "sigma_x", m_dict)
         (l2, v2) = _get_labels_and_values(alias, "skew_x", m_dict)
         return (vcat(l1, l2), vcat(v1, v2))
     end
-    if m_dict["type"] == SimpleModel
+    if m_dict["type"] <: SimpleModel
         vol_labels_values = [
             model_volatility_values(a, param_dict)
             for a in m_dict["models"]

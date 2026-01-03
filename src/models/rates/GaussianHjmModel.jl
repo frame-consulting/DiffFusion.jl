@@ -1,26 +1,25 @@
 
 """
     struct GaussianHjmModelVolatility
-        scaling_matrix::AbstractMatrix
-        sigma_f::BackwardFlatVolatility
-        DfT::AbstractMatrix
+        scaling_matrix::Matrix{ModelValue}
+        sigma_f::BackwardFlatVolatility{ModelValue}
+        DfT::Matrix{ModelValue}
     end
 
 A dedicated matrix-valued volatility term structure for Gaussian HJM Models.
 """
-struct GaussianHjmModelVolatility
-    scaling_matrix::AbstractMatrix
-    sigma_f::BackwardFlatVolatility
-    DfT::AbstractMatrix
+struct GaussianHjmModelVolatility{T1<:ModelValue, T2<:ModelValue, T3<:ModelValue}
+    scaling_matrix::Matrix{T1}
+    sigma_f::BackwardFlatVolatility{T2}
+    DfT::Matrix{T3}
 end
 
 function volatility(o::GaussianHjmModelVolatility, u::ModelTime)
     # return o.scaling_matrix * (o.DfT .* o.sigma_f(u))  # beware DfT multiplication
     σ = o.sigma_f(u)
-    d = length(σ)
     return [
-        sum( o.scaling_matrix[i,k] * o.DfT[k,j] * σ[k] for k = 1:d )
-        for i = 1:d, j = 1:d
+        sum( o.scaling_matrix[i,k] * o.DfT[k,j] * σ[k] for k in axes(σ, 1) )
+        for i in axes(σ, 1), j in axes(σ, 1)
     ]
 end
 
@@ -35,8 +34,8 @@ end
         chi::ParameterTermstructure
         sigma_T::GaussianHjmModelVolatility
         y::AbstractArray
-        state_alias::AbstractVector
-        factor_alias::AbstractVector
+        state_alias::Vector{String}
+        factor_alias::Vector{String}
         correlation_holder::Union{CorrelationHolder, Nothing}
         quanto_model::Union{AssetModel, Nothing}
         scaling_type::BenchmarkTimesScaling
@@ -45,16 +44,26 @@ end
 A Gaussian HJM model with piece-wise constant benchmark rate volatility and
 constant mean reversion.
 """
-struct GaussianHjmModel <: SeparableHjmModel
+struct GaussianHjmModel{
+        T1<:ModelValue,
+        T2<:ModelValue,
+        T3<:ModelValue,
+        T4<:ModelValue,
+        T5<:ModelValue,
+        T6<:ModelValue,
+        T7<:Union{CorrelationHolder, Nothing},
+        T8<:Union{AssetModel, Nothing}
+    } <: SeparableHjmModel
+    #
     alias::String
-    delta::ParameterTermstructure
-    chi::ParameterTermstructure
-    sigma_T::GaussianHjmModelVolatility
-    y::AbstractArray
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
-    correlation_holder::Union{CorrelationHolder, Nothing}
-    quanto_model::Union{AssetModel, Nothing}
+    delta::BackwardFlatParameter{T1}
+    chi::BackwardFlatParameter{T2}
+    sigma_T::GaussianHjmModelVolatility{T3, T4, T5}
+    y::Array{T6, 3}
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
+    correlation_holder::T7  # Union{CorrelationHolder, Nothing}
+    quanto_model::T8  # Union{AssetModel, Nothing}
     scaling_type::BenchmarkTimesScaling
 end
 
@@ -99,11 +108,8 @@ function gaussian_hjm_model(
     )
     factor_alias = [ alias * "_f_" * string(k) for k in 1:length(delta()) ]
     # calculate consistent correlations
-    DfT = Diagonal(ones(length(delta())))
-    if !isnothing(correlation_holder)
-        Gamma = correlation_holder(factor_alias)
-        DfT = cholesky(Gamma).L
-    end
+    Gamma = _func_Gamma(correlation_holder, factor_alias)
+    DfT = Matrix(cholesky(Gamma).L)
     # prepare vol calculation
     scaling_matrix = benchmark_times_scaling(chi(), delta(), scaling_type)
     sigma_T = GaussianHjmModelVolatility(scaling_matrix, sigma_f, DfT)
@@ -192,18 +198,43 @@ state_dependent_Sigma(m::GaussianHjmModel) = false  # COV_EXCL_LINE
 Calculate variance/auxiliary state variable y(t).
 """
 function func_y(m::GaussianHjmModel, t::ModelTime)
-    d = length(m.delta())
     t_idx = time_idx(m.sigma_T.sigma_f, t)
     if t_idx == 1
-        t0 = 0.0
+        # t0 = 0.0
         # y0 = 0.0
         # use a short-cut
-        return _func_y(m.chi(), m.sigma_T((t0+t)/2), t0, t)
+        return _func_y(m.chi(), m.sigma_T(0.5*t), 0.0, t)
     end
     t0 = m.sigma_T.sigma_f.times[t_idx - 1]
-    y0 = @view(m.y[:,:,t_idx - 1])
-    return func_y(y0, m.chi(), m.sigma_T((t0+t)/2), t0, t)
+    y0 = m.y[:,:,t_idx - 1]
+    return func_y(y0, m.chi(), m.sigma_T(0.5*(t0+t)), t0, t)
 end
+
+"""
+A `HjmAuxiliaryVariable` functor for `GaussianHjmModel`.
+"""
+struct GaussianHjmAuxiliaryVariable{T<:GaussianHjmModel} <: HjmAuxiliaryVariable
+    m::T
+end
+
+"""
+Evaluate `GaussianHjmAuxiliaryVariable` at time `t`.
+"""
+(v::GaussianHjmAuxiliaryVariable)(t::ModelTime) = func_y(v.m, t)
+
+
+"""
+A `HjmHybridVolatility` for a `GaussianHjmModel`.
+"""
+struct GaussianHybridVolatility{T1<:ModelValue, T2<:ModelValue} <:HjmHybridVolatility
+    scaling_matrix::Matrix{T1}
+    sigma_f::BackwardFlatVolatility{T2}
+end
+
+"""
+Evaluate a `GaussianHybridVolatility` at time `t`.
+"""
+(v::GaussianHybridVolatility)(t::ModelTime) = v.scaling_matrix .* reshape(v.sigma_f(t), (1,:))
 
 
 """
@@ -225,14 +256,11 @@ function Theta(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Theta(m)
-    y(t) = func_y(m, t)
+    y = GaussianHjmAuxiliaryVariable(m)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb(u) = m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb = GaussianHybridVolatility(m.sigma_T.scaling_matrix, m.sigma_T.sigma_f)
     alpha = quanto_drift(m.factor_alias, m.quanto_model, s, t, X)
-    return vcat(
-        func_Theta_x_integrate_y(m.chi(),y,sigma_T_hyb,alpha,s,t,parameter_grid(m)),
-        func_Theta_s(m.chi(),y,sigma_T_hyb,alpha,s,t,parameter_grid(m)),
-    )
+    return func_Theta(m.chi(), y, sigma_T_hyb, alpha, s, t, parameter_grid(m))
 end
 
 
@@ -276,7 +304,7 @@ function Sigma_T(
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
     # make sure we do not apply correlations twice!
-    sigma_T_hyb(u) = m.sigma_T.scaling_matrix .* reshape(m.sigma_T.sigma_f(u), (1,:))
+    sigma_T_hyb = GaussianHybridVolatility(m.sigma_T.scaling_matrix, m.sigma_T.sigma_f)
     return func_Sigma_T(m.chi(),sigma_T_hyb,s,t)
 end
 

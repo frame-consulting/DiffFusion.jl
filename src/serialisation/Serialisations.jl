@@ -17,6 +17,41 @@ We utilise multiple dispatch to specify serialisation recursively.
 """
 
 """
+A regular expression to match the type name with type parameters.
+
+We match, e.g.,
+ - DiffFusion.ZeroCurve,
+ - DiffFusion.ZeroCurve{Float64},
+ - Array{Float64, 3}
+"""
+const _type_pattern = r"\A(DiffFusion\.|)([A-Za-z]+)(\{.+\})?\Z"
+
+
+"""
+    _type_name_long(o::Any)
+
+Return type name as string with "DiffFusion....".
+"""
+function _type_name_long(o::Any)
+    s = string(typeof(o))
+    m = match(_type_pattern, s)
+    @assert !isnothing(m) && length(m) == 3
+    return m[1] * m[2]
+end
+
+"""
+    _type_name_short(o::Any)
+
+Return type name as string without "DiffFusion....".
+"""
+function _type_name_short(o::Any)
+    s = string(typeof(o))
+    m = match(_type_pattern, s)
+    @assert !isnothing(m) && length(m) == 3
+    return m[2]
+end
+
+"""
     serialise_struct(o::Any)
 
 Create a dictionary from an arbitrary struct object
@@ -24,8 +59,8 @@ Create a dictionary from an arbitrary struct object
 function serialise_struct(o::Any)
     @assert isstructtype(typeof(o))
     d = OrderedDict{String, Any}()
-    d["typename"] = string(typeof(o))
-    d["constructor"] = split(string(typeof(o)), ".")[end]
+    d["typename"] = _type_name_long(o)
+    d["constructor"] = _type_name_short(o)
     for name in propertynames(o)
         d[string(name)] = serialise(getfield(o, name))
     end
@@ -175,7 +210,6 @@ function deserialise(o::AbstractDict, d::Union{AbstractDict, Nothing} = nothing)
     return Dict(((key, deserialise(o[key], d)) for key in keys(o)))
 end
 
-const _type_pattern = r"^[A-Za-z][A-Za-z0-9]*\.*[A-Za-z][A-Za-z0-9]*$"
 
 """
     deserialise_object(o::OrderedDict, d::Union{AbstractDict, Nothing} = nothing)

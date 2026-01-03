@@ -3,11 +3,11 @@
 """
 A Cox-Ingersoll-Ross model with constant parameters.
 """
-struct CoxIngersollRossModel <: ComponentModel
+struct CoxIngersollRossModel{T<:ModelValue} <: ComponentModel
     alias::String
-    params::ParameterTermstructure  # (z0, chi, theta, sigma)
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
+    params::BackwardFlatParameter{T}  # (z0, chi, theta, sigma)
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
 end
 
 """
@@ -282,7 +282,7 @@ function Sigma_T(
     z_s = cir_z0(m) * exp.(x_s)
     (a, b2) = cir_lognormal_approximation(m,z_s,X.params)
     Σ_x = sqrt.(b2 ./ (t-s))
-    f(u) = reshape(Σ_x, (1,1))
+    f = (u) -> reshape(Σ_x, (1,1))
     return f
 end
 

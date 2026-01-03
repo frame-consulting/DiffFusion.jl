@@ -3,12 +3,12 @@
 An Ornstein-Uhlenbeck model with constant mean reversion
 and piece-wise flat volatility.
 """
-struct OrnsteinUhlenbeckModel <: ComponentModel
+struct OrnsteinUhlenbeckModel{T<:ModelValue} <: ComponentModel
     alias::String
-    chi::ParameterTermstructure
-    sigma_x::BackwardFlatVolatility
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
+    chi::BackwardFlatParameter{T}
+    sigma_x::BackwardFlatVolatility{T}
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
 end
 
 
@@ -151,7 +151,7 @@ function Sigma_T(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
-    f(u) = reshape(H_hjm(m.chi(), u, t) .* m.sigma_x(u), 1, 1)
+    f = (u) -> reshape(H_hjm(m.chi(), u, t) .* m.sigma_x(u), 1, 1)
     return f
 end
 

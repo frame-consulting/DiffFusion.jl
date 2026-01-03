@@ -51,13 +51,9 @@ using Test
         struct NoParameterTermstructure <: DiffFusion.ParameterTermstructure end
         ts = NoParameterTermstructure()
         @test_throws ErrorException DiffFusion.value(ts)
-        @test_throws ErrorException DiffFusion.value(ts, DiffFusion.TermstructureScalar)  # as_scalar
         @test_throws ErrorException DiffFusion.value(ts, 1.0)
-        @test_throws ErrorException DiffFusion.value(ts, 1.0, DiffFusion.TermstructureScalar)  # as_scalar
         @test_throws ErrorException ts()
-        @test_throws ErrorException ts(DiffFusion.TermstructureScalar)
         @test_throws ErrorException ts(1.0)
-        @test_throws ErrorException ts(1.0, DiffFusion.TermstructureScalar)
     end
 
     @testset "Abstract YieldTermstructure" begin
@@ -71,10 +67,8 @@ using Test
         struct NoVolatilityTermstructure <: DiffFusion.VolatilityTermstructure end
         ts = NoVolatilityTermstructure()
         @test_throws ErrorException DiffFusion.volatility(ts, 1.0)
-        @test_throws ErrorException DiffFusion.volatility(ts, 1.0, DiffFusion.TermstructureScalar)  # as_scalar
         @test_throws ErrorException DiffFusion.volatility(ts, 1.0, 2.0)
         @test_throws ErrorException ts(1.0)
-        @test_throws ErrorException ts(1.0, DiffFusion.TermstructureScalar)
         @test_throws ErrorException ts(1.0, 2.0)
     end
 

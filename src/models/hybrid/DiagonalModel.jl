@@ -149,7 +149,7 @@ function Sigma_T(
     )
     M = length(state_alias_Sigma(m))
     N = length(factor_alias_Sigma(m))
-    f(u) = begin
+    f = (u) -> begin
         I = Int[]
         J = Int[]
         V = zeros(0)

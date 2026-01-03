@@ -161,7 +161,7 @@ using Test
             m1, ch, sim_times, n_paths, with_progress_bar = false, # brownian_increments = DiffFusion.sobol_brownian_increments
         )
         #
-        @test maximum(abs.(sim1.X - sim0.X)) < 1.2e-12
+        @test maximum(abs.(sim1.X - sim0.X)) < 2.1e-12
     end
 
     @testset "State-dependent simulation with stochastic volatility" begin

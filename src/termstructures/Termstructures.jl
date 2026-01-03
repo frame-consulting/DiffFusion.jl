@@ -15,23 +15,6 @@ function alias(ts::Termstructure)
     return ts.alias
 end
 
-"""
-    @enum(
-        TermstructureResultSize,
-        TermstructureVector,
-        TermstructureScalar
-    )
-
-Specify the dimensions/shape of the values modelled by a term structure.
-
-For some term structures (e.g. `ParameterTermstructure` and
-`VolatilityTermstructure`) the result may be either a vector or a scalar.
-"""
-@enum(
-    TermstructureResultSize,
-    TermstructureVector,
-    TermstructureScalar
-)
 
 """
     abstract type CorrelationTermstructure <: Termstructure end
@@ -176,20 +159,20 @@ parameter values for various incarnations of signatures.
 abstract type ParameterTermstructure <: Termstructure end
 
 """
-    value(ts::ParameterTermstructure, result_size::TermstructureResultSize = TermstructureVector)
+    value(ts::ParameterTermstructure)
 
 Return a value for constant/time-homogeneous parameters.
 """
-function value(ts::ParameterTermstructure, result_size::TermstructureResultSize = TermstructureVector)
+function value(ts::ParameterTermstructure)
     error("ParameterTermstructure needs to implement value method.")
 end
 
 """
-    value(ts::ParameterTermstructure, t::ModelTime, result_size::TermstructureResultSize = TermstructureVector)
+    value(ts::ParameterTermstructure, t::ModelTime)
 
 Return a value for a given observation time `t`.
 """
-function value(ts::ParameterTermstructure, t::ModelTime, result_size::TermstructureResultSize = TermstructureVector)
+function value(ts::ParameterTermstructure, t::ModelTime)
     error("ParameterTermstructure needs to implement value method.")
 end
 
@@ -265,11 +248,11 @@ volatility values for various incarnations of signatures.
 abstract type VolatilityTermstructure <: Termstructure end
 
 """
-    volatility(ts::VolatilityTermstructure, t::ModelTime, result_size::TermstructureResultSize = TermstructureVector)
+    volatility(ts::VolatilityTermstructure, t::ModelTime)
 
 Return a volatility for a given observation time `t`.
 """
-function volatility(ts::VolatilityTermstructure, t::ModelTime, result_size::TermstructureResultSize = TermstructureVector)
+function volatility(ts::VolatilityTermstructure, t::ModelTime)
     error("VolatilityTermstructure needs to implement volatility method.")
 end
 
