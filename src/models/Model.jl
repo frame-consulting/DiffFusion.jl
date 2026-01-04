@@ -509,6 +509,33 @@ end
 """
     covariance(
         m::Model,
+        Gamma::Matrix,
+        s::ModelTime,
+        t::ModelTime,
+        X::Union{ModelState, Nothing} = nothing,
+        )
+
+Calculate the covariance matrix over a time interval.
+"""
+function covariance(
+    m::Model,
+    Gamma::AbstractMatrix,
+    s::ModelTime,
+    t::ModelTime,
+    X::Union{ModelState, Nothing} = nothing,
+    )
+    d = length(factor_alias_Sigma(m))
+    @assert size(Gamma) == (d, d)
+    sigma_T = Sigma_T(m,s,t,X)
+    f(u) = sigma_T(u) * Gamma * sigma_T(u)'
+    cov = _vector_integral(f, s, t, parameter_grid(m))
+    return cov
+end
+
+
+"""
+    covariance(
+        m::Model,
         ch::Union{CorrelationHolder, Nothing},
         s::ModelTime,
         t::ModelTime,
@@ -526,12 +553,7 @@ function covariance(
     )
     f_alias = factor_alias(m)
     Gamma = _func_Gamma(ch, f_alias)
-    d = length(state_alias_Sigma(m))
-    sigma_T = Sigma_T(m,s,t,X)
-    f(u) = vec(sigma_T(u) * Gamma * sigma_T(u)')
-    cov_vec = _vector_integral(f, s, t, parameter_grid(m))
-    cov = reshape(cov_vec, (d, d))
-    return cov
+    return covariance(m, Gamma, s, t, X)
 end
 
 
