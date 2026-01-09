@@ -48,6 +48,14 @@ DiffFusion.volatility(
 ```
 
 ```@docs
+DiffFusion.scalar_volatility
+```
+
+```@docs
+DiffFusion.is_constant
+```
+
+```@docs
 DiffFusion.time_idx(ts::DiffFusion.BackwardFlatVolatility, t)
 ```
 

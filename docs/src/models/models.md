@@ -79,6 +79,10 @@ DiffFusion.state_alias_H
 ```
 
 ```@docs
+DiffFusion.state_alias_Sigma
+```
+
+```@docs
 DiffFusion.factor_alias_Sigma
 ```
 

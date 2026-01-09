@@ -6,6 +6,10 @@
 DiffFusion.AssetModel
 ```
 
+```@docs
+DiffFusion.AssetVolatility
+```
+
 ### Lognormal Model
 
 ```@docs
@@ -16,6 +20,22 @@ DiffFusion.LognormalAssetModel
 DiffFusion.lognormal_asset_model
 ```
 
+```@docs
+DiffFusion.LognormalAssetVolatility
+```
+
+```@docs
+DiffFusion.QuantoDrift
+```
+
+```@docs
+DiffFusion.ZeroQuantoDrift
+```
+
+```@docs
+DiffFusion.AssetModelQuantoDrift
+```
+
 ### CEV Model
 
 ```@docs
@@ -24,6 +44,10 @@ DiffFusion.CevAssetModel
 
 ```@docs
 DiffFusion.cev_asset_model
+```
+
+```@docs
+DiffFusion.CevAssetVolatility
 ```
 
 ## Model Functions for Payoff Evaluation
