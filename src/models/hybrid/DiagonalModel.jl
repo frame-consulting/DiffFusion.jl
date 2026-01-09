@@ -4,9 +4,9 @@
     struct DiagonalModel <: CompositeModel
         alias::String
         models::Tuple
-        state_alias::AbstractVector
-        factor_alias::AbstractVector
-        state_alias_Sigma::AbstractVector
+        state_alias::Vector{String}
+        factor_alias::Vector{String}
+        state_alias_Sigma::Vector{String}
         model_dict::Dict{String,Int}
     end
 
@@ -19,12 +19,12 @@ For state-independent models we avoid repeated Theta and Sigma calculation.
 
 The model is used as a hybrid model for simulation and payoff evaluation.
 """
-struct DiagonalModel <: CompositeModel
+struct DiagonalModel{ModelsType<:Tuple} <: CompositeModel
     alias::String
-    models::Tuple
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
-    state_alias_Sigma::AbstractVector
+    models::ModelsType
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
+    state_alias_Sigma::Vector{String}
     model_dict::Dict{String,Int}
 end
 
@@ -37,7 +37,7 @@ function diagonal_model(m_alias::String, models::AbstractVector)
     s_alias = vcat((state_alias(cm) for cm in models)...)
     f_alias = vcat((factor_alias(cm) for cm in models)...)
     s_alias_Sigma = vcat((state_alias_Sigma(cm) for cm in models)...)
-    model_dict = Dict()
+    model_dict = Dict{String,Int}()
     for (k,cm) in enumerate(models)
         model_dict[alias(cm)] = k
     end

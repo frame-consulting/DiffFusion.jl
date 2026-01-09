@@ -26,7 +26,7 @@ using Test
         #
         @test typeof(serialised_example) == Vector{OrderedDict{String, Any}}
         @test typeof(example) == OrderedDict{String, Any}
-        @test typeof(model) == DiffFusion.SimpleModel
+        @test isa(model, DiffFusion.SimpleModel)
         @test typeof(ch)  == DiffFusion.CorrelationHolder{Float64}
         @test typeof(sim)  == DiffFusion.Simulation
         @test sim  == example[alias(model) * "/simulation"]
@@ -113,7 +113,7 @@ using Test
         #
         @test typeof(serialised_example) == Vector{OrderedDict{String, Any}}
         @test typeof(example) == OrderedDict{String, Any}
-        @test typeof(model) == DiffFusion.SimpleModel
+        @test isa(model, DiffFusion.SimpleModel)
         @test typeof(ch)  == DiffFusion.CorrelationHolder{Float64}
         @test typeof(sim)  == DiffFusion.Simulation
         @test sim  == example[alias(model) * "/simulation"]
