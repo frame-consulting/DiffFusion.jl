@@ -11,7 +11,3 @@ DiffFusion.Termstructure
 ```@docs
 DiffFusion.alias(ts::DiffFusion.Termstructure)
 ```
-
-```@docs
-DiffFusion.TermstructureResultSize
-```

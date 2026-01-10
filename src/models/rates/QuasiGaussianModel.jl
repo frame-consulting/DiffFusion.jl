@@ -17,15 +17,20 @@ parameters and (optional) stochastic volatility model.
 
 QuasiGaussianModel model generalises GaussianHjmModel.
 """
-struct QuasiGaussianModel <: SeparableHjmModel
-    gaussian_model::GaussianHjmModel
-    slope_d::BackwardFlatParameter
-    slope_u::BackwardFlatParameter
-    sigma_min::ModelValue
-    sigma_max::ModelValue
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
-    volatility_model::Union{ComponentModel, Nothing}
+struct QuasiGaussianModel{
+        ModelType<:GaussianHjmModel,
+        SkewType<:ModelValue,
+        VolModelType<:Union{ComponentModel, Nothing},
+    } <: SeparableHjmModel
+    #
+    gaussian_model::ModelType
+    slope_d::BackwardFlatParameter{SkewType}
+    slope_u::BackwardFlatParameter{SkewType}
+    sigma_min::Float64
+    sigma_max::Float64
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
+    volatility_model::VolModelType
     volatility_function::Union{Function, Nothing}
 end
 
@@ -265,6 +270,47 @@ end
 # Volatility specification
 
 """
+    stochastic_volatility(
+        volatility_model::ComponentModel,
+        volatility_function::Function,
+        X::ModelState,
+        )
+
+Calculate stochastic volatility.
+"""
+function stochastic_volatility(
+    volatility_model::ComponentModel,
+    volatility_function::Function,
+    X::ModelState,
+    )
+    #
+    idx = X.idx[state_alias(volatility_model)[begin]]  # maybe better use a model function as indirection
+    nu = @view(X.X[idx:idx, :])
+    gamma = volatility_function.(nu)
+    return gamma
+end
+
+
+"""
+    stochastic_volatility(
+        volatility_model::Nothing,
+        volatility_function::Nothing,
+        X::ModelState,
+        )
+
+Dispatch stochastic volatility calculation model/function is nothing.
+"""
+function stochastic_volatility(
+    volatility_model::Nothing,
+    volatility_function::Nothing,
+    X::ModelState,
+    )
+    #
+    return 1.0
+end
+
+
+"""
     func_sigma_f(
         m::QuasiGaussianModel,
         s::ModelTime,
@@ -294,12 +340,7 @@ function func_sigma_f(
     X_d = max.(-1.0 .* X_, 0.0)
     X_u = max.(        X_, 0.0)
     #
-    gamma = 1.0
-    if !isnothing(m.volatility_model) && !isnothing(m.volatility_function)
-        idx = X.idx[state_alias(m.volatility_model)[begin]]  # maybe better use a model function as indirection
-        nu = @view(X.X[idx:idx, :])
-        gamma = m.volatility_function.(nu)
-    end
+    gamma = stochastic_volatility(m.volatility_model, m.volatility_function, X)
     #
     return min.(max.(gamma .* (sigma_0 .+ slope_d .* X_d .+ slope_u .* X_u), m.sigma_min), m.sigma_max)
 end
@@ -343,6 +384,40 @@ function func_sigma_T_hyb(
 end
 
 """
+A `HjmAuxiliaryVariable` functor for `QuasiGaussianModel`.
+"""
+struct QuasiGaussianAuxiliaryVariable{
+        T1<:ModelValue,
+        T2<:ModelValue,
+        T3<:ModelValue,
+    } <: HjmAuxiliaryVariable
+    #
+    y0::Matrix{T1}
+    chi::Vector{T2}
+    sigmaT::Matrix{T3}
+    t0::ModelTime
+end
+
+"""
+Evaluate `QuasiGaussianAuxiliaryVariable` at time `t`.
+"""
+(v::QuasiGaussianAuxiliaryVariable)(t::ModelTime) = func_y(v.y0, v.chi, v.sigmaT, v.t0, t)
+
+
+"""
+A `HjmHybridVolatility` for a `QuasiGaussianModel`.
+"""
+struct QuasiGaussianHybridVolatility{T<:ModelValue} <: HjmHybridVolatility
+    sigma_T_hyb::Matrix{T}
+end
+
+"""
+Evaluate `QuasiGaussianHybridVolatility` at time `t`.
+"""
+(v::QuasiGaussianHybridVolatility)(t::ModelTime) = v.sigma_T_hyb
+
+
+"""
     Theta(
         m::QuasiGaussianModel,
         s::ModelTime,
@@ -370,9 +445,9 @@ function Theta(
     y0 = auxiliary_variable(m, X)[:,:,1]
     chi = m.gaussian_model.chi()
     sigma_T = func_sigma_T(m, sigma_f)
-    y(u) = func_y(y0, chi, sigma_T, s, u)
+    y = QuasiGaussianAuxiliaryVariable(y0, chi, sigma_T, s)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb(u) = func_sigma_T_hyb(m, sigma_f)
+    sigma_T_hyb = QuasiGaussianHybridVolatility(func_sigma_T_hyb(m, sigma_f))
     # take into account quanto adjustment
     qm = m.gaussian_model.quanto_model
     if !isnothing(qm) && state_dependent_Sigma(qm)
@@ -381,8 +456,7 @@ function Theta(
         alpha = quanto_drift(m.gaussian_model.factor_alias, qm, s, t, nothing)
     end
     return vcat(
-        func_Theta_x_integrate_y(chi, y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
-        func_Theta_s(chi, y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
+        func_Theta(chi, y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
         vec(y(t)),
     )
 end
@@ -434,7 +508,7 @@ function Sigma_T(
     # note, we cannot sigma_T if sigma_f changes
     sigma_f = vec(func_sigma_f(m, s, t, X))
     # make sure we do not apply correlations twice!
-    sigma_T_hyb(u) = func_sigma_T_hyb(m, sigma_f)
+    sigma_T_hyb = QuasiGaussianHybridVolatility(func_sigma_T_hyb(m, sigma_f))
     return func_Sigma_T(m.gaussian_model.chi(), sigma_T_hyb, s, t)
 end
 

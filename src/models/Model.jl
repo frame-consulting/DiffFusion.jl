@@ -88,6 +88,7 @@ end
     struct ModelState
         X::AbstractMatrix
         idx::Dict{String,Int}
+        params::Union{NamedTuple, Nothing}
     end
 
 A ModelState is a matrix of state variables decorated by a dictionary of alias
@@ -105,15 +106,15 @@ matrix instead of (n,) vector to avoid size-dependent switches.
 `idx` is a dictionary with n entries. Keys represent state state alias entries and
 values represent the corresponding positions in `X`.
 
-`params` is a struct or dictionary that holds additional pre-calculated state-independent
+`params` is a tuple (or nothing) that holds additional pre-calculated state-independent
 data which is used in subsequent Theta and Sigma calculations. This aims at avoiding
 duplicate calculations for state-dependent Theta and Sigma calculations. The `params`
 is supposed to be calculated by method `simulation_parameters(...)`.
 """
-struct ModelState
-    X::AbstractMatrix
+struct ModelState{MatrixType<:AbstractMatrix, ParamType<:Union{NamedTuple, Nothing}}
+    X::MatrixType
     idx::Dict{String,Int}
-    params::Any
+    params::ParamType
 end
 
 const _model_state_extra_safety_check = false
@@ -488,6 +489,51 @@ function state_dependent_Sigma(m::Model)
 end
 
 """
+    _func_Gamma(ch::CorrelationHolder, factor_alias::AbstractVector)
+
+Dispatch Γ calculation on CorrelationHolder.
+"""
+function _func_Gamma(ch::CorrelationHolder, factor_alias::AbstractVector)
+    return ch(factor_alias)
+end
+
+"""
+    _func_Gamma(ch::Nothing, factor_alias::AbstractVector)
+
+Dispatch Γ calculation on Nothing.
+"""
+function _func_Gamma(ch::Nothing, factor_alias::AbstractVector)
+    return Diagonal(ones(length(factor_alias)))
+end
+
+"""
+    covariance(
+        m::Model,
+        Gamma::Matrix,
+        s::ModelTime,
+        t::ModelTime,
+        X::Union{ModelState, Nothing} = nothing,
+        )
+
+Calculate the covariance matrix over a time interval.
+"""
+function covariance(
+    m::Model,
+    Gamma::AbstractMatrix,
+    s::ModelTime,
+    t::ModelTime,
+    X::Union{ModelState, Nothing} = nothing,
+    )
+    d = length(factor_alias_Sigma(m))
+    @assert size(Gamma) == (d, d)
+    sigma_T = Sigma_T(m,s,t,X)
+    f(u) = sigma_T(u) * Gamma * sigma_T(u)'
+    cov = _vector_integral(f, s, t, parameter_grid(m))
+    return cov
+end
+
+
+"""
     covariance(
         m::Model,
         ch::Union{CorrelationHolder, Nothing},
@@ -505,17 +551,29 @@ function covariance(
     t::ModelTime,
     X::Union{ModelState, Nothing} = nothing,
     )
-    if isnothing(ch)
-        Gamma = Diagonal(ones(length(factor_alias(m))))
+    f_alias = factor_alias(m)
+    Gamma = _func_Gamma(ch, f_alias)
+    return covariance(m, Gamma, s, t, X)
+end
+
+
+"""
+    _func_correlation_element(cov::AbstractMatrix, vol::AbstractVector, dt::ModelTime, vol_eps::ModelValue, i, j)
+
+Calculate correlation matrix element.
+
+We only calculate upper triangular element. Lower triangular elements are set to zero.
+"""
+function _func_correlation_element(cov::AbstractMatrix, vol::AbstractVector, dt::ModelTime, vol_eps::ModelValue, i, j)
+    if i > j
+        return zero(cov[i, j])  # only calculate upper triangular
+    elseif i == j
+        return one(cov[i, j])
+    elseif (vol[i]>vol_eps) && (vol[j]>vol_eps)
+        return cov[i, j] / vol[i] / vol[j] / dt
     else
-        Gamma = ch(factor_alias(m))
+        return zero(cov[i, j])
     end
-    d = length(state_alias_Sigma(m))
-    sigma_T = Sigma_T(m,s,t,X)
-    f(u) = vec(sigma_T(u) * Gamma * sigma_T(u)')
-    cov_vec = _vector_integral(f, s, t, parameter_grid(m))
-    cov = reshape(cov_vec, (d, d))
-    return cov
 end
 
 """
@@ -539,24 +597,14 @@ function volatility_and_correlation(
     vol_eps::ModelValue = 1.0e-8,  # avoid division by zero
     )
     d = length(state_alias_Sigma(m))
-    cov = covariance(m,ch,s,t,X)
-    vol = sqrt.([ cov[i,i] for i in 1:d ] * (1.0/(t-s) ))
-    #
-    corr_(i,j) = begin
-        if i<j
-            return corr_(j,i) # ensure symmetry
-        end
-        if i==j
-            return 1.0 + 0.0 * cov[i,j]  # ensure type-stability
-        end
-        # i > j
-        if (vol[i]>vol_eps) && (vol[j]>vol_eps)
-            return cov[i,j] / vol[i] / vol[j] / (t-s)
-        end
-        return 0.0 * cov[i,j]  # ensure type-stability
-    end
-    corr = [ corr_(i,j) for i in 1:d, j in 1:d ]
-    return (vol, corr)
+    cov = covariance(m, ch, s, t, X)
+    one_over_dt = 1.0 / (t - s)
+    vol = [ sqrt(cov[i,i] * one_over_dt) for i in 1:d ]
+    corr = [  # only upper triangular elements
+        _func_correlation_element(cov, vol, t-s, vol_eps, i, j)
+        for i in 1:d, j in 1:d
+    ]
+    return (vol, Symmetric(corr))
 end
 
 """

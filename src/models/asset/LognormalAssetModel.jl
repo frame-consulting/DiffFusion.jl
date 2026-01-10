@@ -2,23 +2,23 @@
 """
     struct LognormalAssetModel <: AssetModel
         alias::String
-        sigma_x::BackwardFlatVolatility
-        state_alias::AbstractVector
-        factor_alias::AbstractVector
-        correlation_holder::CorrelationHolder
-        quanto_model::Union{AssetModel, Nothing}
+        sigma_x::BackwardFlatVolatility{ModelValue}
+        state_alias::Vector{String}
+        factor_alias::Vector{String}
+        correlation_holder::CorrelationHolder{ModelValue}
+        quanto_model::Union{AssetModel, Nothing}}
     end
 
 A `LognormalAssetModel` is a model for simulating a spot price in a
 generalised Black-Scholes framework.
 """
-struct LognormalAssetModel <: AssetModel
+struct LognormalAssetModel{T1<:ModelValue, T2<:ModelValue, T3<:Union{AssetModel, Nothing}} <: AssetModel
     alias::String
-    sigma_x::BackwardFlatVolatility
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
-    correlation_holder::CorrelationHolder
-    quanto_model::Union{AssetModel, Nothing}
+    sigma_x::BackwardFlatVolatility{T1}
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
+    correlation_holder::CorrelationHolder{T2}
+    quanto_model::T3
 end
 
 """
@@ -100,6 +100,19 @@ Return whether Sigma requires a state vector input X.
 state_dependent_Sigma(m::LognormalAssetModel) = false  # COV_EXCL_LINE
 
 """
+An `AssetVolatility` for a `LognormalAssetModel`.
+"""
+struct LognormalAssetVolatility{T<:ModelTime} <: AssetVolatility
+    sigma_x::BackwardFlatVolatility{T}
+end
+
+"""
+Evaluate `LognormalAssetVolatility` at time `t`.
+"""
+(av::LognormalAssetVolatility)(t::ModelTime) = scalar_volatility(av.sigma_x, t)
+
+
+"""
     asset_volatility(
         m::LognormalAssetModel,
         s::ModelTime,
@@ -107,7 +120,7 @@ state_dependent_Sigma(m::LognormalAssetModel) = false  # COV_EXCL_LINE
         X::Union{ModelState, Nothing} = nothing,
         )
 
-Return a state-independent volatility function sigma(u) for the interval (s,t).
+Return an `LognormalAssetVolatility` functor for the interval (s,t).
 """
 function asset_volatility(
     m::LognormalAssetModel,
@@ -116,8 +129,7 @@ function asset_volatility(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
-    sigma(u) = m.sigma_x(u, TermstructureScalar)
-    return sigma
+    return LognormalAssetVolatility(m.sigma_x)
 end
 
 
@@ -140,8 +152,7 @@ function Theta(
     @assert isnothing(X) == !state_dependent_Theta(m)
     # alpha is a vector-valued function
     alpha = quanto_drift(factor_alias(m), m.quanto_model, s, t, X)
-    # 'TermstructureScalar' yields scalar volatility
-    f(u) = m.sigma_x(u,TermstructureScalar)*(m.sigma_x(u,TermstructureScalar) + 2*alpha(u)[1])
+    f = (u) -> scalar_volatility(m.sigma_x, u) * (scalar_volatility(m.sigma_x, u) + 2*alpha(u)[begin])
     val = _scalar_integral(f, s, t, parameter_grid(m))
     return [ -0.5 * val ]
 end
@@ -189,7 +200,7 @@ function Sigma_T(
     X::Union{ModelState, Nothing} = nothing,
     )
     @assert isnothing(X) == !state_dependent_Sigma(m)
-    f(u) = m.sigma_x(u, TermstructureScalar) * ones(1,1)
+    f = (u) -> reshape(m.sigma_x(u), (1, 1))
     return f
 end
 

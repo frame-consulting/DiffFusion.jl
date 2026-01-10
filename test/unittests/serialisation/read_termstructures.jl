@@ -9,12 +9,17 @@ using Test
         #
         @test_throws AssertionError DiffFusion.read_parameters(file_name, ';')
         res = DiffFusion.read_parameters(file_name, ',')
-        @test isa(res, Vector{DiffFusion.ForwardFlatParameter})
+        @test isa(res, Vector)
+        for ts in res
+            @test isa(ts, DiffFusion.ForwardFlatParameter)
+        end
         @test size(res) == (9,)
         #
         res = DiffFusion.read_parameters(file_name, ',', DiffFusion.backward_flat_parameter)
-        @test !isa(res, Vector{DiffFusion.ForwardFlatParameter})
-        @test isa(res, Vector{DiffFusion.BackwardFlatParameter})
+        @test isa(res, Vector)
+        for ts in res
+            @test isa(ts, DiffFusion.BackwardFlatParameter)
+        end
         @test size(res) == (9,)
     end
 
@@ -23,7 +28,10 @@ using Test
         #
         @test_throws AssertionError DiffFusion.read_volatilities(file_name, ';')
         res = DiffFusion.read_volatilities(file_name, ',')
-        @test isa(res, Vector{DiffFusion.BackwardFlatVolatility})
+        @test isa(res, Vector)
+        for ts in res
+            @test isa(ts, DiffFusion.BackwardFlatVolatility)
+        end
         @test size(res) == (2,)
     end
 
@@ -50,7 +58,10 @@ using Test
         #
         @test_throws AssertionError DiffFusion.read_zero_curves(file_name, ';')
         res = DiffFusion.read_zero_curves(file_name, ',')
-        @test isa(res, Vector{DiffFusion.ZeroCurve})
+        @test isa(res, Vector)
+        for zc in res
+            @test isa(zc, DiffFusion.ZeroCurve)
+        end
         @test size(res) == (9,)
     end
 

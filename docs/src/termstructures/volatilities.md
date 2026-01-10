@@ -29,7 +29,6 @@ Call operator for `VolatilityTermstructure` is defined as
 DiffFusion.volatility(
     ts::DiffFusion.VolatilityTermstructure,
     t::ModelTime,
-    result_size::DiffFusion.TermstructureResultSize = DiffFusion.TermstructureVector,
     )
 ```
 
@@ -45,7 +44,6 @@ DiffFusion.volatility(
 DiffFusion.volatility(
     ts::DiffFusion.BackwardFlatVolatility,
     t::ModelTime,
-    result_size::DiffFusion.TermstructureResultSize = DiffFusion.TermstructureVector,
     )
 ```
 

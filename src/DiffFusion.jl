@@ -30,7 +30,7 @@ import Base.string
 """
 A type alias for variables representing time.
 """
-ModelTime = Number
+ModelTime = Float64
 
 """
 A type alias for variables representing modelled quantities.
