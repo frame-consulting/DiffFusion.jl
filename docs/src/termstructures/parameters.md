@@ -46,5 +46,9 @@ DiffFusion.value
 ```
 
 ```@docs
+DiffFusion.scalar_value
+```
+
+```@docs
 DiffFusion.time_idx(ts::DiffFusion.ForwardFlatParameter, t)
 ```

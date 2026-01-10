@@ -41,6 +41,7 @@ makedocs(
             "models/futures_models.md",
             "models/credit_models.md",
             "models/cross_asset_models.md",
+            "models/process_models.md",
             "models/models.md",
         ],
         #

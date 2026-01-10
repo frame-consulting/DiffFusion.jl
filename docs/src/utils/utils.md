@@ -8,6 +8,12 @@ In this section we document commonly used utility structures methods.
 DiffFusion.interpolation_methods
 ```
 
+## Alias Mapping
+
+```@docs
+DiffFusion.alias_mapping
+```
+
 ## Polynomial Regression Methods
 
 ```@docs
