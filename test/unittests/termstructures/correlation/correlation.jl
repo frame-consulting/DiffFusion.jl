@@ -30,6 +30,13 @@ using LinearAlgebra
         # correlation holder from dictionary
         ch2 = DiffFusion.correlation_holder("Std", ch.correlations)
         @test ch2 == ch
+        # correlation holder from Any dictionary
+        d = Dict()
+        for (key, value) in ch.correlations
+            d[key] = value
+        end
+        ch3 = DiffFusion.correlation_holder("Std", d)
+        @test string(ch3) == string(ch)
     end
 
     @testset "Additional correlation calls" begin

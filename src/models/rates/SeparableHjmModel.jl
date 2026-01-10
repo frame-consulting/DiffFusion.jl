@@ -149,6 +149,18 @@ function benchmark_times_scaling_zero_rate(chi::AbstractVector, delta::AbstractV
     return inv(A_tau)
 end
 
+"""
+    benchmark_times_scaling_diagonal(chi::AbstractVector, delta::AbstractVector)
+
+Benchmark times volatility scaling matrix based on identity matrix.
+"""
+function benchmark_times_scaling_diagonal(chi::AbstractVector, delta::AbstractVector)
+    return [
+        (i==j) ? (one(chi[j] * delta[i])) : (zero(chi[j] * delta[i]))
+        for i in axes(delta, 1), j in axes(chi, 1)
+    ]
+end
+
 
 """
     benchmark_times_scaling(
@@ -170,9 +182,9 @@ function benchmark_times_scaling(
     elseif scaling_type == ZeroRateScaling
         return benchmark_times_scaling_zero_rate(chi, delta)
     elseif scaling_type == DiagonalScaling
-        return Matrix(I, length(delta), length(delta))
+        return benchmark_times_scaling_diagonal(chi, delta)
     else
-        error("Unknown BenchmarkTimesScaling type " * string(scaling_type))
+        error("Unknown BenchmarkTimesScaling type " * string(scaling_type))  # COV_EXCL_LINE
     end
 end
 
@@ -205,13 +217,12 @@ function func_y(
     #
     # better exploit symmetry and update in-place
     # this is unsafe, better use Taylor expansion
-    d = length(chi)
     δt = t - s
     return [
         y0[i,j] * exp(-(chi[i] + chi[j]) * δt) +
-        sum( sigmaT[i,k] * sigmaT[j,k] for k in 1:d ) *
+        sum( sigmaT[i,k] * sigmaT[j,k] for k in axes(chi, 1) ) *
         (1.0 - exp(-(chi[i] + chi[j]) * δt)) / (chi[i] + chi[j])
-        for i in 1:d, j in 1:d
+        for i in axes(chi, 1), j in axes(chi, 1)
     ]
 end
 
@@ -242,22 +253,44 @@ function _func_y(
     #
     # better exploit symmetry and update in-place
     # this is unsafe, better use Taylor expansion
-    d = length(chi)
     δt = t - s
     return [
-        sum( sigmaT[i,k] * sigmaT[j,k] for k in 1:d ) *
+        sum( sigmaT[i,k] * sigmaT[j,k] for k in axes(chi, 1) ) *
         (1.0 - exp(-(chi[i] + chi[j]) * δt)) / (chi[i] + chi[j])
-        for i in 1:d, j in 1:d
+        for i in axes(chi, 1), j in axes(chi, 1)
     ]
+end
+
+"""
+    abstract type HjmAuxilliaryVariable end
+
+A functor calculating the auxiliary variable y(t) in HJM model.
+"""
+abstract type HjmAuxiliaryVariable end
+
+(v::HjmAuxiliaryVariable)(t::ModelTime) = begin
+    error("Model needs to implement call operator.")
+end
+
+
+"""
+A functor calculating the volatility σ⊤(t) = [H [H^f]^{-1}] ⋅ σ_f.
+
+Note that this quantity does *not* include the correlation term.
+"""
+abstract type HjmHybridVolatility end
+
+(v::HjmHybridVolatility)(t::ModelTime) = begin
+    error("Model needs to implement call operator.")
 end
 
 
 """
     func_Theta_x(
         chi::AbstractVector,
-        y::Function,       # (u) -> Matrix
-        sigmaT::Function,  # (u) -> Matrix
-        alpha::Function,   # (u) -> Vector
+        y::HjmAuxiliaryVariable,  # (u) -> Matrix
+        sigmaT::Function,         # (u) -> Matrix
+        alpha::QuantoDrift,       # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -272,29 +305,30 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta_x(
     chi::AbstractVector,
-    y::Function,       # (u) -> Matrix
-    sigmaT::Function,  # (u) -> Matrix
-    alpha::Function,   # (u) -> Vector
+    y::HjmAuxiliaryVariable,  # (u) -> Matrix
+    sigmaT::Function,         # (u) -> Matrix
+    alpha::QuantoDrift,       # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
     )
     theta0 = H_hjm(chi,s,t) .* (y(s) * G_hjm(chi,s,t))
     # Beware how sigmaT is specified and whether it includes rates correlation!
+    # Here, sigmaT should include [D^T] such that σ⊤⋅σ = [⋅] Γ [⋅].
     # Below formula does not work unless alpha(u) includes a [D^T]^-1 term.
-    f(u) = H_hjm(chi,u,t) .* (sigmaT(u) * (sigmaT(u)' * G_hjm(chi,u,t) - alpha(u)))
+    f = (u) -> H_hjm(chi,u,t) .* (sigmaT(u) * (sigmaT(u)' * G_hjm(chi,u,t) .- alpha(u)))
     # Be careful when integrating piece-wise constant vols!
     # Better split the integral if we encounter jumps in f.
     theta1 = _vector_integral(f, s, t, param_grid)
-    return theta0 + theta1
+    return theta0 .+ theta1
 end
 
 """
     func_Theta_x_integrate_y(
         chi::AbstractVector,
-        y::Function,       # (u) -> Matrix
-        sigmaT::Function,  # (u) -> Matrix
-        alpha::Function,   # (u) -> Vector
+        y::HjmAuxiliaryVariable,      # (u) -> Matrix
+        sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+        alpha::QuantoDrift,           # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -312,16 +346,16 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta_x_integrate_y(
     chi::AbstractVector,
-    y::Function,       # (u) -> Matrix
-    sigmaT::Function,  # (u) -> Matrix
-    alpha::Function,   # (u) -> Vector
+    y::HjmAuxiliaryVariable,      # (u) -> Matrix
+    sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+    alpha::QuantoDrift,           # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
     )
     # make sure sigmaT(u) does not contain D^T to avoid correlation terms twice.
-    one = ones(length(chi))
-    f(u) = H_hjm(chi,u,t) .* (y(u)*one - sigmaT(u) * alpha(u))
+    one_ = ones(length(chi))
+    f = (u) -> H_hjm(chi,u,t) .* (y(u)*one_ .- sigmaT(u) * alpha(u))
     theta = _vector_integral(f, s, t, param_grid)
     return theta
 end
@@ -331,9 +365,9 @@ end
 """
     func_Theta_s(
         chi::AbstractVector,
-        y::Function,       # (u) -> Matrix
-        sigmaT::Function,  # (u) -> Matrix
-        alpha::Function,   # (u) -> Vector
+        y::HjmAuxiliaryVariable,      # (u) -> Matrix
+        sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+        alpha::QuantoDrift,           # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -348,16 +382,16 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta_s(
     chi::AbstractVector,
-    y::Function,       # (u) -> Matrix
-    sigmaT::Function,  # (u) -> Matrix
-    alpha::Function,   # (u) -> Vector
+    y::HjmAuxiliaryVariable,      # (u) -> Matrix
+    sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+    alpha::QuantoDrift,           # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
     )
     # make sure sigmaT(u) does not contain D^T to avoid correlation terms twice.
-    one = ones(length(chi))
-    f(u) = G_hjm(chi,u,t)' * (y(u)*one - sigmaT(u) * alpha(u))
+    one_ = ones(length(chi))
+    f = (u) -> G_hjm(chi,u,t)' * (y(u)*one_ .- sigmaT(u) * alpha(u))
     theta = _scalar_integral(f, s, t, param_grid)
     return theta
 end
@@ -365,9 +399,9 @@ end
 """
     func_Theta(
         chi::AbstractVector,
-        y::Function,       # (u) -> Matrix
-        sigmaT::Function,  # (u) -> Matrix
-        alpha::Function,   # (u) -> Vector
+        y::HjmAuxiliaryVariable,      # (u) -> Matrix
+        sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+        alpha::QuantoDrift,           # (u) -> Vector
         s::ModelTime,
         t::ModelTime,
         param_grid::Union{AbstractVector, Nothing},
@@ -382,18 +416,48 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Theta(
     chi::AbstractVector,
-    y::Function,       # (u) -> Matrix
-    sigmaT::Function,  # (u) -> Matrix
-    alpha::Function,   # (u) -> Vector
+    y::HjmAuxiliaryVariable,      # (u) -> Matrix
+    sigmaT::HjmHybridVolatility,  # (u) -> Matrix
+    alpha::QuantoDrift,           # (u) -> Vector
     s::ModelTime,
     t::ModelTime,
     param_grid::Union{AbstractVector, Nothing},
     )
-    return vcat(
-        func_Theta_x(chi, y, sigmaT, alpha, s, t, param_grid),
-        func_Theta_s(chi, y, sigmaT, alpha, s, t, param_grid),
-    )
+    f = HjmThetaIntegrand(t, chi, y, sigmaT, alpha)
+    theta = _vector_integral(f, s, t, param_grid)
+    return theta
 end
+
+"""
+A functor to model the integrand of (combined) HJM Θ term.
+"""
+struct HjmThetaIntegrand{
+        T1<:ModelValue,
+        T2<:HjmAuxiliaryVariable,
+        T3<:HjmHybridVolatility,
+        T4<:QuantoDrift
+    }
+    t::ModelTime
+    chi::Vector{T1}
+    y::T2
+    sigmaT::T3
+    alpha::T4
+end
+
+"""
+Evaluate `HjmThetaIntegrand`.
+
+f_x(u) = H_hjm(chi,u,t) .* (y(u)*one_ .- sigmaT(u) * alpha(u))
+f_s(u) = G_hjm(chi,u,t)' * (y(u)*one_ .- sigmaT(u) * alpha(u))
+"""
+(o::HjmThetaIntegrand)(u::ModelTime) = begin
+    # y(u)⋅1 - sigmaT(u) * alpha(u)
+    tmp = vec(sum(o.y(u), dims=2)) .- o.sigmaT(u) * o.alpha(u)
+    theta_x = H_hjm(o.chi, u, o.t) .* tmp
+    theta_s = dot(G_hjm(o.chi, u, o.t), tmp)
+    return vcat(theta_x, theta_s)
+end
+
 
 """
     func_H_T(chi::AbstractVector, s::ModelTime, t::ModelTime)
@@ -423,7 +487,7 @@ end
 """
     func_Sigma_T(
         chi::AbstractVector,
-        sigmaT::Function,
+        sigmaT::HjmHybridVolatility,
         s::ModelTime,
         t::ModelTime
         )
@@ -435,11 +499,11 @@ In this function we assume for the interval ``(s,t)`` that
 """
 function func_Sigma_T(
     chi::AbstractVector,
-    sigmaT::Function,
+    sigmaT::HjmHybridVolatility,
     s::ModelTime,
     t::ModelTime
     )
-    f(u) = vcat(
+    f = (u) -> vcat(
         H_hjm(chi,u,t) .* sigmaT(u),
         G_hjm(chi,u,t)' * sigmaT(u)
     )

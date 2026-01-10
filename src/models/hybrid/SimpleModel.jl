@@ -3,8 +3,8 @@
     struct SimpleModel <: Model
         alias::String
         models::Tuple
-        state_alias::AbstractVector
-        factor_alias::AbstractVector
+        state_alias::Vector{String}
+        factor_alias::Vector{String}
         model_dict::Dict{String,Int}
     end
 
@@ -13,11 +13,11 @@ component models.
 
 It is supposed to be used with a `simple_simulation()` method.
 """
-struct SimpleModel <: CompositeModel
+struct SimpleModel{ModelsType<:Tuple} <: CompositeModel
     alias::String
-    models::Tuple
-    state_alias::AbstractVector
-    factor_alias::AbstractVector
+    models::ModelsType
+    state_alias::Vector{String}
+    factor_alias::Vector{String}
     model_dict::Dict{String,Int}
 end
 
@@ -30,7 +30,7 @@ Create a SimpleModel.
 function simple_model(m_alias::String, models::AbstractVector)
     s_alias = vcat((state_alias(cm) for cm in models)...)
     f_alias = vcat((factor_alias(cm) for cm in models)...)
-    model_dict = Dict()
+    model_dict = Dict{String,Int}()
     for (k,cm) in enumerate(models)
         model_dict[alias(cm)] = k
     end
@@ -123,7 +123,7 @@ function Sigma_T(
     Sigma_T_s = ( Sigma_T(cm,s,t,X) for cm in m.models )
     M = length(state_alias_Sigma(m))
     N = length(factor_alias_Sigma(m))
-    f(u) = begin
+    f = (u) -> begin
         I = Int[]
         J = Int[]
         V = zeros(0)

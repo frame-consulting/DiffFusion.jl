@@ -207,7 +207,7 @@ function asset(p::Path, t::ModelTime, key::String)
     entry = p.context.assets[context_key]
     #
     spot_alias = entry.asset_spot_alias
-    spot = p.ts_dict[spot_alias](t, TermstructureScalar)
+    spot = scalar_value(p.ts_dict[spot_alias], t)
     #
     ts_alias_1 = entry.foreign_termstructure_dict[ts_key_1]
     ts_alias_2 = entry.domestic_termstructure_dict[ts_key_2]
@@ -281,7 +281,7 @@ function forward_asset(p::Path, t::ModelTime, T::ModelTime, key::String)
     entry = p.context.assets[context_key]
     #
     spot_alias = entry.asset_spot_alias
-    spot = p.ts_dict[spot_alias](T, TermstructureScalar)  # capture any discrete jumps until T
+    spot = scalar_value(p.ts_dict[spot_alias], T)  # capture any discrete jumps until T
     #
     ts_alias_1 = entry.foreign_termstructure_dict[ts_key_1]
     ts_alias_2 = entry.domestic_termstructure_dict[ts_key_2]
@@ -352,7 +352,7 @@ end
 
 
 """
-    forward_asset_zero_bonds(p::Path, t::ModelTime, T::ModelTime, key::String)
+    forward_asset_and_zero_bonds(p::Path, t::ModelTime, T::ModelTime, key::String)
 
 Calculate asset (plus deterministic jumps) as well as domestic and foreign
 zero bond price associated with an `Asset` key.
@@ -369,7 +369,7 @@ function forward_asset_and_zero_bonds(p::Path, t::ModelTime, T::ModelTime, key::
     entry = p.context.assets[context_key]
     #
     spot_alias = entry.asset_spot_alias
-    spot = p.ts_dict[spot_alias](T, TermstructureScalar)  # capture any discrete jumps until T to be consistent with forward_asset
+    spot = scalar_value(p.ts_dict[spot_alias], T)  # capture any discrete jumps until T to be consistent with forward_asset
     #
     ts_alias_dom = entry.domestic_termstructure_dict[ts_key_dom]
     df_dom_t = discount(t, p.ts_dict, ts_alias_dom)
@@ -422,7 +422,7 @@ function fixing(p::Path, t::ModelTime, key::String)
     entry = p.context.fixings[context_key]
     #
     ts_alias = entry.termstructure_alias
-    fixing = p.ts_dict[ts_alias](t, TermstructureScalar)
+    fixing = scalar_value(p.ts_dict[ts_alias], t)
     return fixing .* ones(length(p))
 end
 
@@ -440,7 +440,7 @@ function forward_index(p::Path, t::ModelTime, T::ModelTime, key::String)
     entry = p.context.forward_indices[context_key]
     #
     forward_index_alias = entry.forward_index_alias
-    forward_index = p.ts_dict[forward_index_alias](T, TermstructureScalar)
+    forward_index = scalar_value(p.ts_dict[forward_index_alias], T)
     #
     if isnothing(entry.asset_model_alias) &&
         isnothing(entry.foreign_model_alias) &&
@@ -483,7 +483,7 @@ function future_index(p::Path, t::ModelTime, T::ModelTime, key::String)
     entry = p.context.future_indices[context_key]
     #
     future_index_alias = entry.future_index_alias
-    future_index = p.ts_dict[future_index_alias](T, TermstructureScalar)
+    future_index = scalar_value(p.ts_dict[future_index_alias], T)
     #
     if isnothing(entry.future_model_alias)
         # we can take a short-cut for fully deterministic models

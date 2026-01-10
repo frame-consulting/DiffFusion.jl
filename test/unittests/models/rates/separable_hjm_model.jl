@@ -21,6 +21,15 @@ using LinearAlgebra
         @test DiffFusion.benchmark_times(m) == [ 1., 2., 5. ]
     end
 
+    @testset "Functors." begin
+        struct NoHjmAuxiliaryVariable <: DiffFusion.HjmAuxiliaryVariable end
+        struct NoHjmHybridVolatility <: DiffFusion.HjmHybridVolatility end
+        noHjmAuxiliaryVariable = NoHjmAuxiliaryVariable()
+        noHjmHybridVolatility = NoHjmHybridVolatility()
+        @test_throws ErrorException noHjmAuxiliaryVariable(2.0)
+        @test_throws ErrorException noHjmHybridVolatility(2.0)
+    end
+
     @testset "Basic model function." begin
         @test DiffFusion.H_hjm(chi,1.0,3.0) == [ exp(-0.01*2), exp(-0.10*2), exp(-0.30*2) ]
         @test DiffFusion.G_hjm(chi,1.0,3.0) == [
@@ -89,10 +98,16 @@ using LinearAlgebra
         HHfInv = DiffFusion.benchmark_times_scaling(chi,delta)
         sigmaT(u) = HHfInv * sigma_f  # This is a rates volatility without correlation!
         V = sigmaT(0.0) * transpose(sigmaT(0.0))
-        alpha(u) = -0.30 * ones(3) * 0.15  # -30% rates-FX correlation and 15% FX vol
+        #
+        struct SimpleQuantoDrift <: DiffFusion.QuantoDrift end
+        (qd::SimpleQuantoDrift)(t::DiffFusion.ModelTime) = -0.30 * ones(3) * 0.15  # -30% rates-FX correlation and 15% FX vol
+        alpha = SimpleQuantoDrift()
         #
         y0 = DiffFusion.func_y(zeros(3,3),chi,sigmaT(0.0),0.0, 1.0)  # at s=1.
-        y(u) = DiffFusion.func_y(y0,chi,sigmaT(1.0),1.0, u)
+        struct SimpleY <: DiffFusion.HjmAuxiliaryVariable end
+        (v::SimpleY)(t::DiffFusion.ModelTime) = DiffFusion.func_y(y0,chi,sigmaT(1.0),1.0, t)
+        y = SimpleY()
+        #
         s = 1.0
         t = 3.0
         #
@@ -110,6 +125,10 @@ using LinearAlgebra
         @test isapprox(theta_x, theta0 + theta1_Simpson, atol=6.e-5)
         @test isapprox(theta_x, theta0 + theta1_Simpson, rtol=2.e-2)
         #
+        struct SimpleSigmaHyb <: DiffFusion.HjmHybridVolatility end
+        (v::SimpleSigmaHyb)(t::DiffFusion.ModelTime) = HHfInv * sigma_f  # This is a rates volatility without correlation!
+        sigmaT = SimpleSigmaHyb()
+        #
         theta_s = DiffFusion.func_Theta_s(chi,y,sigmaT,alpha,s,t,nothing)
         f_s(u) = DiffFusion.G_hjm(chi,u,t)' * reshape(sum(DiffFusion.func_y(y0,chi,sigmaT(u),s,u), dims=2), (3)) -
                  DiffFusion.G_hjm(chi,u,t)' * sigmaT(u) * alpha(u)
@@ -123,13 +142,13 @@ using LinearAlgebra
         @test isapprox(theta_s, theta_s_Simpson, atol=2.e-6)
         @test isapprox(theta_s, theta_s_Simpson, rtol=4.e-3)
         #
-        theta_X = DiffFusion.func_Theta(chi,y,sigmaT,alpha,s,t,nothing)
-        @test size(theta_X) == (4,)
-        @test theta_X[1:end-1] == theta_x
-        @test theta_X[end] == theta_s
-        #
         theta_x_integrate_y = DiffFusion.func_Theta_x_integrate_y(chi,y,sigmaT,alpha,s,t,nothing)
         @test isapprox(theta_x_integrate_y, theta_x)
+        #
+        theta_X = DiffFusion.func_Theta(chi,y,sigmaT,alpha,s,t,nothing)
+        @test size(theta_X) == (4,)
+        @test theta_X[1:end-1] == theta_x_integrate_y
+        @test theta_X[end] == theta_s
     end
 
     @testset "H calculation." begin
@@ -154,7 +173,9 @@ using LinearAlgebra
     @testset "Sigma_T calculation." begin
         sigma_f = Diagonal([ 50., 75., 100. ]) * 1e-4
         HHfInv = DiffFusion.benchmark_times_scaling(chi,delta)
-        sigmaT(u) = HHfInv * sigma_f
+        struct SimpleSigmaHybForSigma <: DiffFusion.HjmHybridVolatility end
+        (v::SimpleSigmaHybForSigma)(t::DiffFusion.ModelTime) = HHfInv * sigma_f
+        sigmaT = SimpleSigmaHybForSigma()
         s = 1.0
         t = 3.0
         SigmaT = DiffFusion.func_Sigma_T(chi,sigmaT,s,t)

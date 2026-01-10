@@ -14,9 +14,10 @@ function.
 Extract labels and values from FlatForward.
 """
 function _get_labels_and_values(ts::FlatForward)
+    type_name = _type_name_long(ts)
     param_labels = [
         alias(ts) * _split_alias_identifyer *
-        string(typeof(ts)) * _split_alias_identifyer *
+        type_name * _split_alias_identifyer *
         "rate"
     ]
     param_values = [ ts.rate ]
@@ -30,9 +31,10 @@ end
 Extract labels and values from ZeroCurve.
 """
 function _get_labels_and_values(ts::ZeroCurve)
+    type_name = _type_name_long(ts)
     param_labels = [
         alias(ts) * _split_alias_identifyer *
-        string(typeof(ts)) * _split_alias_identifyer *
+        type_name * _split_alias_identifyer *
         (@sprintf("%.2f", t))
         for t in ts.times
     ]
@@ -46,9 +48,10 @@ end
 Extract labels and values from LinearZeroCurve.
 """
 function _get_labels_and_values(ts::LinearZeroCurve)
+    type_name = _type_name_long(ts)
     param_labels = [
         alias(ts) * _split_alias_identifyer *
-        string(typeof(ts)) * _split_alias_identifyer *
+        type_name * _split_alias_identifyer *
         (@sprintf("%.2f", t))
         for t in ts.times
     ]
@@ -62,10 +65,11 @@ end
 Extract labels and values from PiecewiseFlatParameter.
 """
 function _get_labels_and_values(ts::PiecewiseFlatParameter)
-    @assert(size(ts.values)[1] == 1)  # we need to deal with multi-factor parameters separately 
+    @assert(size(ts.values)[1] == 1)  # we need to deal with multi-factor parameters separately
+    type_name = _type_name_long(ts)
     param_labels = [
         alias(ts) * _split_alias_identifyer *
-        string(typeof(ts)) * _split_alias_identifyer *
+        type_name * _split_alias_identifyer *
         (@sprintf("%.2f", t))
         for t in ts.times
     ]
@@ -106,7 +110,7 @@ function termstructure_dictionary!(
         @assert ts_alias in keys(ts_dict)
         @assert length(keys(ts_dict_)) == 1
         ts_type_string = first(keys(ts_dict_))
-        @assert string(typeof(ts_dict[ts_alias])) == ts_type_string
+        @assert _type_name_long(ts_dict[ts_alias]) == ts_type_string
         #
         values = ts_dict_[ts_type_string]
         if isa(ts_dict[ts_alias], FlatForward)
