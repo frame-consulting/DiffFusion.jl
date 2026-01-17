@@ -34,7 +34,7 @@ at zero for `ForwardDiff.Dual`s.
 See also [here](https://github.com/JuliaDiff/ForwardDiff.jl/issues/785).
 """
 function _norm2(x)
-    return sqrt(sum(x.^2))
+    return sqrt(sum(x.^2)) / length(x)
 end
 
 """
