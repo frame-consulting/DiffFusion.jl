@@ -228,6 +228,39 @@ end
 
 
 """
+    func_y(
+        y0::AbstractArray{T,3},
+        chi::AbstractVector,
+        sigmaT::AbstractArray{T,3},
+        s::ModelTime,
+        t::ModelTime,
+        )
+
+Calculate variance/auxiliary state variable ``y(t)`` given ``y(s)=y_0``.
+
+Assume `y0` and `sigmaT` are (d,d,p) arrays.
+
+In this function we assume that sigma is constant over the time interval ``(s,t)``.
+"""
+function func_y(
+    y0::AbstractArray{T,3},
+    chi::AbstractVector,
+    sigmaT::AbstractArray{T,3},
+    s::ModelTime,
+    t::ModelTime,
+    ) where T <: ModelValue
+    # see func_y above
+    δt = t - s
+    return [
+        y0[i,j,l] * exp(-(chi[i] + chi[j]) * δt) +
+        sum( sigmaT[i,k,l] * sigmaT[j,k,l] for k in axes(chi, 1) ) *
+        (1.0 - exp(-(chi[i] + chi[j]) * δt)) / (chi[i] + chi[j])
+        for i in axes(chi, 1), j in axes(chi, 1), l in axes(y0, 3)
+    ]
+end
+
+
+"""
     _func_y(
         chi::AbstractVector,
         sigmaT::AbstractMatrix,

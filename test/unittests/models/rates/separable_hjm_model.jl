@@ -90,6 +90,15 @@ using LinearAlgebra
             end
         end
         @test isapprox(y1, y1_ref, atol=1.5e-16, rtol=0.0)
+        #
+        # multiple paths simultaneously
+        y0_p = cat(y0, 2.0*y0, 3.0*y0, 4.0*y0; dims=3)
+        sigmaT_p = cat(sigmaT, 2.0*sigmaT, 3.0*sigmaT, 4.0*sigmaT; dims=3)
+        y1_p = DiffFusion.func_y(y0_p, chi, sigmaT_p, s, t)
+        for k in 1:4
+            y1_k = DiffFusion.func_y(y0_p[:,:,k], chi, sigmaT_p[:,:,k], s, t)
+            @test isapprox(y1_p[:,:,k], y1_k, atol=1.0e-16, rtol=0.0)
+        end
     end
 
     @testset "Theta calculation." begin
