@@ -264,7 +264,7 @@ function auxiliary_variable(
     d = length(state_alias(m.gaussian_model)) - 1  # exclude s-variable
     idx += (d + 1)  # skip x and s variable
     y_vec = @view(X.X[idx:idx+(d*d-1),:])
-    reshape(y_vec, (d, d, :))
+    reshape(y_vec, (d, d, :))  # as (d, d, p) array
 end
 
 # Volatility specification
@@ -287,7 +287,7 @@ function stochastic_volatility(
     idx = X.idx[state_alias(volatility_model)[begin]]  # maybe better use a model function as indirection
     nu = @view(X.X[idx:idx, :])
     gamma = volatility_function.(nu)
-    return gamma
+    return gamma  # as (1, p) matrix
 end
 
 
@@ -341,46 +341,47 @@ function func_sigma_f(
     X_u = max.(        X_, 0.0)
     #
     gamma = stochastic_volatility(m.volatility_model, m.volatility_function, X)
-    #
+    # as (d, p) matrix
     return min.(max.(gamma .* (sigma_0 .+ slope_d .* X_d .+ slope_u .* X_u), m.sigma_min), m.sigma_max)
 end
 
 """
     func_sigma_T(
         m::QuasiGaussianModel,
-        sigma_f::AbstractVector,
+        sigma_f::AbstractMatrix,
         )
 
-Calculate the state variable volatility function.
+Calculate the state variable volatility function as (d, d, p) array.
 """
 function func_sigma_T(
     m::QuasiGaussianModel,
-    sigma_f::AbstractVector,
+    sigma_f::AbstractMatrix,
     )
     #
     v = m.gaussian_model.sigma_T
-    d = length(sigma_f)
+    (d, p) = size(sigma_f)
     return [
-        sum( v.scaling_matrix[i,k] * v.DfT[k,j] * sigma_f[k] for k = 1:d )
-        for i = 1:d, j = 1:d
-    ]
+        sum( v.scaling_matrix[i,k] * v.DfT[k,j] * sigma_f[k, l] for k = 1:d )
+        for i = 1:d, j = 1:d, l = 1:p
+    ]  # as (d, d, p) array
 end
 
 """
     func_sigma_T_hyb(
         m::QuasiGaussianModel,
-        sigma_f::AbstractVector,
+        sigma_f::AbstractMatrix,
         )
 
 Calculate the state variable volatility function for the hybrid model interface.
 """
 function func_sigma_T_hyb(
     m::QuasiGaussianModel,
-    sigma_f::AbstractVector,
+    sigma_f::AbstractMatrix,
     )
     #
-    v = m.gaussian_model.sigma_T
-    return v.scaling_matrix .* reshape(sigma_f, (1,:))
+    A = m.gaussian_model.sigma_T.scaling_matrix
+    return reshape(A, (size(A)...,1)) .* reshape(sigma_f, (1,size(sigma_f)...))
+    # as (d, d, p) array
 end
 
 """
@@ -440,14 +441,15 @@ function Theta(
     @assert size(X.X)[2] == 1  # require a single state
     @assert s ≤ t
     # note, we cannot calculate y(u) if sigma_f changes
-    sigma_f = vec(func_sigma_f(m, s, t, X))
+    sigma_f = func_sigma_f(m, s, t, X)
     #
-    y0 = auxiliary_variable(m, X)[:,:,1]
+    y0 = auxiliary_variable(m, X)[:, :, begin]  # need a Matrix
     chi = m.gaussian_model.chi()
-    sigma_T = func_sigma_T(m, sigma_f)
+    sigma_T = func_sigma_T(m, sigma_f)[:,:, begin]  # we need a Matrix here
     y = QuasiGaussianAuxiliaryVariable(y0, chi, sigma_T, s)
     # make sure we do not apply correlations twice in quanto adjustment!
-    sigma_T_hyb = QuasiGaussianHybridVolatility(func_sigma_T_hyb(m, sigma_f))
+    sigma_T_hyb = func_sigma_T_hyb(m, sigma_f)[:, :, begin]
+    sigma_T_hyb_vol = QuasiGaussianHybridVolatility(sigma_T_hyb)
     # take into account quanto adjustment
     qm = m.gaussian_model.quanto_model
     if !isnothing(qm) && state_dependent_Sigma(qm)
@@ -456,7 +458,7 @@ function Theta(
         alpha = quanto_drift(m.gaussian_model.factor_alias, qm, s, t, nothing)
     end
     return vcat(
-        func_Theta(chi, y, sigma_T_hyb, alpha, s, t, parameter_grid(m)),
+        func_Theta(chi, y, sigma_T_hyb_vol, alpha, s, t, parameter_grid(m)),
         vec(y(t)),
     )
 end
@@ -506,10 +508,11 @@ function Sigma_T(
     @assert size(X.X)[2] == 1  # require a single state
     @assert s ≤ t
     # note, we cannot sigma_T if sigma_f changes
-    sigma_f = vec(func_sigma_f(m, s, t, X))
+    sigma_f = func_sigma_f(m, s, t, X)
     # make sure we do not apply correlations twice!
-    sigma_T_hyb = QuasiGaussianHybridVolatility(func_sigma_T_hyb(m, sigma_f))
-    return func_Sigma_T(m.gaussian_model.chi(), sigma_T_hyb, s, t)
+    sigma_T_hyb = func_sigma_T_hyb(m, sigma_f)[:, :, begin]  # we need a Matrix here
+    sigma_T_hyb_vol = QuasiGaussianHybridVolatility(sigma_T_hyb)
+    return func_Sigma_T(m.gaussian_model.chi(), sigma_T_hyb_vol, s, t)
 end
 
 
