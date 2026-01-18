@@ -256,6 +256,55 @@ using Test
     end
 
 
+    @testset "Theta calculation vectorised" begin
+        gaussian_model = DiffFusion.gaussian_hjm_model(
+            "Std", delta, chi, sigma_f, ch, quanto_model,
+        )
+        #
+        m = DiffFusion.quasi_gaussian_model(
+            gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
+            nothing, nothing,
+        )
+        #
+        for s in 0.0:5.0
+            y0 = DiffFusion.func_y(gaussian_model, s)
+            X0 = vcat(
+                [ 0.01, 0.01, 0.01, 1.0],  # x, s
+                vec(y0),
+                [ 0.0 ],  # ν
+            )
+            idx_dict = DiffFusion.alias_dictionary(
+                vcat(DiffFusion.state_alias(m), DiffFusion.state_alias(volatility_model))
+            )
+            SX1 = DiffFusion.model_state(
+                reshape(X0, (:,1)),
+                idx_dict
+            )
+            SX3 = DiffFusion.model_state(
+                hcat(X0, X0, X0),
+                idx_dict
+            )
+            #
+            Θ1 = DiffFusion.Theta(m, s, s, SX1)
+            Θ3 = DiffFusion.Theta_vectorized(m, s, s, SX3)
+            #
+            @test isapprox(Θ1[1:4], zeros(4), atol=1.0e-16)
+            @test isapprox(Θ1[5:13], vec(y0), atol=1.0e-16)
+            #
+            for k in 1:3
+                @test isapprox(Θ3[:,k], Θ1, atol=1.0e-16)
+            end
+            #
+            t = s + 1.0
+            Θ1 = DiffFusion.Theta(m, s, t, SX1)
+            Θ3 = DiffFusion.Theta_vectorized(m, s, t, SX3)
+            for k in 1:3
+                @test isapprox(Θ3[:,k], Θ1, atol=1.0e-16)
+            end
+        end
+    end
+
+
     @testset "H calculation" begin
         gaussian_model = DiffFusion.gaussian_hjm_model(
             "Std", delta, chi, sigma_f, ch, quanto_model,
@@ -312,6 +361,109 @@ using Test
             end
         end
     end
+
+
+    @testset "Sigma calculation vectorised" begin
+        gaussian_model = DiffFusion.gaussian_hjm_model(
+            "Std", delta, chi, sigma_f, ch, quanto_model,
+        )
+        #
+        m = DiffFusion.quasi_gaussian_model(
+            gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
+            nothing, nothing,
+        )
+        #
+        intervalls = [
+            (0.0, 0.5),
+            (0.5, 1.0),
+            (1.0, 2.0),
+            (2.0, 3.0),
+            (3.0, 4.0),
+            (4.0, 5.0),
+            (5.0, 12.0),
+        ]
+        ϵ = sqrt(eps())
+        for (s, t) in intervalls
+            y0 = DiffFusion.func_y(gaussian_model, s)
+            X0 = vcat(
+                [ 0.01, 0.01, 0.01, 1.0],  # x, s
+                vec(y0),
+                [ 0.0 ],  # ν
+            )
+            idx_dict = DiffFusion.alias_dictionary(
+                vcat(DiffFusion.state_alias(m), DiffFusion.state_alias(volatility_model))
+            )
+            SX1 = DiffFusion.model_state(
+                reshape(X0, (:,1)),
+                idx_dict
+            )
+            SX3 = DiffFusion.model_state(
+                hcat(X0, X0, X0),
+                idx_dict
+            )
+            #
+            sigma1 = DiffFusion.Sigma_T(m, s, t, SX1)
+            sigma3 = DiffFusion.Sigma_T_vectorized(m, s, t, SX3)
+            for u in [ s + ϵ, 0.5*(s+t), t]
+                s_1 = sigma1(u)
+                s_3 = sigma3(u)
+                for k in 1:3
+                    @test isapprox(s_3[:,:,k], s_1, atol=1.0e-16)
+                end
+            end
+        end
+    end
+
+
+    @testset "Covariance calculation vectorised" begin
+        gaussian_model = DiffFusion.gaussian_hjm_model(
+            "Std", delta, chi, sigma_f, ch, quanto_model,
+        )
+        #
+        m = DiffFusion.quasi_gaussian_model(
+            gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
+            nothing, nothing,
+        )
+        #
+        intervalls = [
+            (0.0, 0.5),
+            (0.5, 1.0),
+            (1.0, 2.0),
+            (2.0, 3.0),
+            (3.0, 4.0),
+            (4.0, 5.0),
+            (5.0, 12.0),
+        ]
+        #
+        f_alias = DiffFusion.factor_alias(m)
+        Gamma = ch(f_alias)
+        for (s, t) in intervalls
+            y0 = DiffFusion.func_y(gaussian_model, s)
+            X0 = vcat(
+                [ 0.01, 0.01, 0.01, 1.0],  # x, s
+                vec(y0),
+                [ 0.0 ],  # ν
+            )
+            idx_dict = DiffFusion.alias_dictionary(
+                vcat(DiffFusion.state_alias(m), DiffFusion.state_alias(volatility_model))
+            )
+            SX1 = DiffFusion.model_state(
+                reshape(X0, (:,1)),
+                idx_dict
+            )
+            SX3 = DiffFusion.model_state(
+                hcat(X0, X0, X0),
+                idx_dict
+            )
+            #
+            cov_1 = DiffFusion.covariance(m, Gamma, s, t, SX1)
+            cov_3 = DiffFusion.covariance_vectorized(m, Gamma, s, t, SX3)
+            for k in 1:3
+                @test isapprox(cov_3[:,:,k], cov_1, atol=1.0e-16)
+            end
+        end
+    end
+
 
     @testset "Access model state variables" begin
         m1 = DiffFusion.gaussian_hjm_model(
