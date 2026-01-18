@@ -3,7 +3,7 @@ using Printf
 using SparseArrays
 using Test
 
-@testset "Gaussian HJM model methods." begin
+@testset "quasi-Gaussian HJM model methods." begin
 
     delta = DiffFusion.flat_parameter("Std", [ 1., 7., 15. ])
     chi = DiffFusion.flat_parameter("Std", [ 0.01, 0.10, 0.30 ])
