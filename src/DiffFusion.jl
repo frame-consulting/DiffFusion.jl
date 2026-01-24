@@ -68,6 +68,7 @@ include("models/inflation/ConvexityAdjustment.jl")
 
 include("simulations/RandomNumbers.jl")
 include("simulations/Simulation.jl")
+include("simulations/QuasiGaussianSimulation.jl")
 
 include("paths/AbstractPath.jl")
 include("paths/Context.jl")
