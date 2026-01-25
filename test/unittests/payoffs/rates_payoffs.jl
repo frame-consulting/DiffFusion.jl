@@ -8,6 +8,7 @@ using Test
     DiffFusion.numeraire(p::ConstantPath, t::DiffFusion.ModelTime, curve_key::String) = t * ones(5)
     DiffFusion.bank_account(p::ConstantPath, t::DiffFusion.ModelTime, key::String) = t * ones(5)
     DiffFusion.zero_bond(p::ConstantPath, t::DiffFusion.ModelTime, T::DiffFusion.ModelTime, key::String) = 1.0 * ones(5)
+    DiffFusion.zero_bonds(p::ConstantPath, t::DiffFusion.ModelTime, T::AbstractVector, key::String) = 1.0 * ones(5, length(T))
     DiffFusion.compounding_factor(p::ConstantPath, t::DiffFusion.ModelTime, T1::DiffFusion.ModelTime, T2::DiffFusion.ModelTime, key::String) = 1.0 * ones(5)
     DiffFusion.length(p::ConstantPath) = 5
 
@@ -49,6 +50,17 @@ using Test
         R = DiffFusion.CompoundedRate(0.5, 0.0, 1.0, "SOFR", fixed_compounding)
         @test string(R) == "R(SOFR, 0.50; 0.00, 1.00; (1.0000 + 0.0100 * Idx(SOFR, -0.01)))"
         @test DiffFusion.obs_times(R) == Set((-0.01, 0.0, 0.5))
+    end
+
+    @testset "Annuity payoff" begin
+        path = ConstantPath()
+        #
+        A = DiffFusion.Annuity(2.0, [3.0, 4.0, 5.0, 6.0, 7.0], [1.0, 1.0, 1.0, 1.0], "SOFR")
+        @test DiffFusion.obs_time(A) == 2.0
+        @test DiffFusion.obs_times(A) == Set([2.0])
+        @test DiffFusion.at(A, path) == 4.0 * ones(5)
+        @test DiffFusion.annuity_and_leg_at(A, path) == (4.0 * ones(5), zeros(5))
+        @test string(A) == "Annuity(2.00, [3.00,...,7.00], SOFR)"
     end
 
 end

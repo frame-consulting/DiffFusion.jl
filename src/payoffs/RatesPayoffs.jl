@@ -212,3 +212,71 @@ function obs_times(p::CompoundedRate)
         return union(Set((p.start_time, obs_time(p))), fix_times)
     end
 end
+
+
+
+"""
+    struct Annuity <: Leaf
+        obs_time::ModelTime
+        fixed_times::AbstractVector  # (n+1,) vector, see Swaption payoff
+        fixed_weights::AbstractVector  # (n,) vector
+        disc_key::String
+    end
+
+A leg of cash flows with values/weights and pay times.
+
+We use the convention of `Swaption` payoffs that we have n+1 `fixed_times`
+and n `fixed_weights`.
+
+Time `fixed_times[1]` is supposed to be the leg start time.
+
+Cash flow weights correspond to `fixed_times[2:end]`.
+
+We assume `obs_time` less or equal `fixed_times[1]`.
+"""
+struct Annuity <: Leaf
+    obs_time::ModelTime
+    fixed_times::AbstractVector  # (n+1,) vector, see Swaption payoff
+    fixed_weights::AbstractVector  # (n,) vector
+    disc_key::String
+end
+
+
+"""
+    at(p::Annuity, path::AbstractPath)
+
+Derive annuity at a given path.
+"""
+function at(p::Annuity, path::AbstractPath)
+    zb_fixed = zero_bonds(path, p.obs_time, p.fixed_times[begin+1:end], p.disc_key)  # (p, n) matrix
+    return zb_fixed * p.fixed_weights
+end
+
+
+"""
+    annuity_and_leg_at(p::Annuity, path::AbstractPath)
+
+Derive annuity and simple float leg value at a given path.
+"""
+function annuity_and_leg_at(p::Annuity, path::AbstractPath)
+    zbs = zero_bonds(path, p.obs_time, p.fixed_times, p.disc_key)  # (p, n+1) matrix
+    zb_fixed = @view zbs[:, begin+1:end]
+    annuity = zb_fixed * p.fixed_weights
+    simple_float_leg = @view(zbs[:,begin]) - @view(zbs[:,end])
+    return (annuity, simple_float_leg)
+end
+
+
+"""
+    string(p::Annuity)
+
+Formatted (and shortened) output for Annuity payoff.
+"""
+string(p::Annuity) = begin
+    @sprintf("Annuity(%.2f, [%.2f,...,%.2f], %s)",
+        p.obs_time,
+        p.fixed_times[begin],
+        p.fixed_times[end],
+        p.disc_key,
+    )
+end
