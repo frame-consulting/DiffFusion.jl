@@ -115,6 +115,8 @@ include("analytics/Collateral.jl")
 include("analytics/Valuations.jl")
 include("analytics/Covariances.jl")
 
+include("calibration/ImpliedSwaptionVolatilities.jl")
+
 include("serialisation/Serialisations.jl")
 include("serialisation/Array.jl")
 include("serialisation/Termstructures.jl")
