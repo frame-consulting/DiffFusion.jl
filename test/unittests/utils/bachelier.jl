@@ -107,4 +107,45 @@ using Test
         @test isapprox(σ_4, 0.0050 * ones(5), atol=2.0e-10)
     end
 
+    @testset "Jaeckel approximation for Bachelier implied volatility" begin
+        F_ = [ 0.50, 0.75, 1.00, 1.50, 2.00 ] * 1.0e-2
+        K = 1.0 * 1.0e-2
+        T = 5.0
+        C_ = [
+            0.0023990535,
+            0.0033213557,
+            0.0044603103,
+            0.0073990535,
+            0.0111343686,
+        ]
+        P_ = [
+            0.0073990535,
+            0.0058213557,
+            0.0044603103,
+            0.0023990535,
+            0.0011343686,
+        ]
+        σ_1 = [ DiffFusion.bachelier_implied_volatility_jaeckel(C, K, F, T, +1) for (C,F) in zip(C_,F_) ]
+        σ_2 = [ DiffFusion.bachelier_implied_volatility_jaeckel(P, K, F, T, -1) for (P,F) in zip(P_,F_) ]
+        @test isapprox(σ_1, 0.0050 * ones(5), atol=2.0e-10)
+        @test isapprox(σ_2, 0.0050 * ones(5), atol=2.0e-10)
+
+        # boundary case intrinsic value
+        C_0 = max.(F_ .- K, 0.0)
+        P_0 = max.(K .- F_, 0.0)
+        σ_1 = [ DiffFusion.bachelier_implied_volatility_jaeckel(C, K, F, T, +1) for (C,F) in zip(C_0,F_) ]
+        σ_2 = [ DiffFusion.bachelier_implied_volatility_jaeckel(P, K, F, T, -1) for (P,F) in zip(P_0,F_) ]
+        @test σ_1 == zeros(5)
+        @test σ_2 == zeros(5)
+
+        # boundary case small time value
+        C_0 = max.(F_ .- K, 0.0) .+ 1.0e-3 * abs.(F_ .- K)
+        P_0 = max.(K .- F_, 0.0) .+ 1.0e-3 * abs.(F_ .- K)
+
+        σ_1 = [ DiffFusion.bachelier_implied_volatility_jaeckel(C, K, F, T, +1) for (C,F) in zip(C_0,F_) ]
+        σ_2 = [ DiffFusion.bachelier_implied_volatility_jaeckel(P, K, F, T, -1) for (P,F) in zip(P_0,F_) ]
+
+        @test isapprox(σ_1, σ_1, atol = 1.0e-16)
+    end
+
 end
