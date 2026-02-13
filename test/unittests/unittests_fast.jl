@@ -6,6 +6,7 @@ using Test
 @testset verbose=true "unittests_fast.jl" begin
 
     include("analytics/analytics.jl")
+    include("calibration/calibration.jl")
     include("examples/examples.jl")
     include("models/models.jl")
     include("paths/paths.jl")
