@@ -256,7 +256,7 @@ using Test
             m0, ch, sim_times, n_paths, with_progress_bar = false, # brownian_increments = DiffFusion.sobol_brownian_increments
         )
         @test isapprox(sim0.X, sim1.X, atol=5.0e-11)
-        println(maximum(abs.(sim0.X - sim1.X)))
+        # println(maximum(abs.(sim0.X - sim1.X)))
     end
 
 
