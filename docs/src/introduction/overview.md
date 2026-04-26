@@ -93,7 +93,7 @@ The DiffFusion.jl framework can be incorporated as package in Julia application 
 The DiffFusion.jl framework can also run fully independent, e.g. in a Docker container. A corresponding server application is implemented in the [DiffFusionServer.jl](https://github.com/frame-consulting/DiffFusionServer.jl) project.
 
 
-## [Related Literature and References] (@id label_literature_and_references)
+## [Related Literature and References](@id label_literature_and_references)
 
 - [L. Andersen, V. Piterbarg. Interest Rate Modeling. 2010.](http://andersen-piterbarg-book.com/)
 - [R. Jarrow, Y. Yildirim. Pricing Treasury Inflation Protected Securities and Related Derivatives Using an Hjm Model. 2003.](https://ssrn.com/abstract=585828)
