@@ -78,3 +78,11 @@ DiffFusion.Swaption(
     disc_key::String,
     )
 ```
+
+```@docs
+DiffFusion.Annuity
+```
+
+```@docs
+DiffFusion.annuity_and_leg_at
+```

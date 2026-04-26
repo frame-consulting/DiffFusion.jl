@@ -23,3 +23,13 @@ DiffFusion.simple_simulation
 ```@docs
 DiffFusion.diagonal_simulation
 ```
+
+## Quasi-Gaussian Simulation Functions
+
+```@docs
+DiffFusion.quasi_gaussian_simulation_step!
+```
+
+```@docs
+DiffFusion.quasi_gaussian_simulation
+```

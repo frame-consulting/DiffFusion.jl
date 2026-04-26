@@ -240,3 +240,30 @@ DiffFusion.gaussian_hjm_model(
     volatility_regularisation::ModelValue = 0.0,
     )
 ```
+
+
+## Quasi-Gaussian Model Functions
+
+```@docs
+DiffFusion.QuasiGaussianThetaIntegrand
+```
+
+```@docs
+DiffFusion.Theta_vectorized
+```
+
+```@docs
+DiffFusion.QuasiGaussianModelSigma
+```
+
+```@docs
+DiffFusion.Sigma_T_vectorized
+```
+
+```@docs
+DiffFusion.SigmaTGammaSigma
+```
+
+```@docs
+DiffFusion.covariance_vectorized
+```

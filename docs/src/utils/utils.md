@@ -159,6 +159,10 @@ DiffFusion.bachelier_implied_stdev
 DiffFusion.bachelier_implied_volatility
 ```
 
+```@docs
+DiffFusion.bachelier_implied_volatility_jaeckel
+```
+
 ## Barrier Pricing Formulas
 
 ```@docs

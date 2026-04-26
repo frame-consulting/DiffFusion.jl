@@ -15,3 +15,9 @@ DiffFusion.reference_rate_covariance
 ```@docs
 DiffFusion.reference_rate_volatility_and_correlation
 ```
+
+## Simulation-based Implied Swaption Volatilities
+
+```@docs
+DiffFusion.implied_swaption_volatilities
+```
