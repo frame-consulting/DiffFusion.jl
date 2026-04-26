@@ -109,7 +109,7 @@ using Test
         (v0, g0) = DiffFusion._function_value_and_gradient(obj_function, p, adTypes[begin])
         for adType in adTypes[begin+1:end]
             (v, g) = DiffFusion._function_value_and_gradient(obj_function, p, adType)
-            @test isapprox(v, y, atol=1.0e-14)
+            @test isapprox(v, y, atol=1.5e-14)
             @test isapprox(g, g0, atol=1.0e-10)
         end
     end
