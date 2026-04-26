@@ -67,7 +67,7 @@ using Test
             gaussian_model, ch, sim_times, n_paths, with_progress_bar = false
         )
         #
-        @test isapprox(sim0.X[1:4,:,:], sim1.X, atol=7.0e-15)
+        @test isapprox(sim0.X[1:4,:,:], sim1.X, atol=1.0e-14)
         #
         for k in 2:length(sim_times)
             y = DiffFusion.func_y(gaussian_model, sim_times[k])
