@@ -46,7 +46,9 @@ function backward_flat_parameter(
         @assert(times[k]<times[k+1])
     end
     #
-    return BackwardFlatParameter(alias, Vector(times), Matrix(values))
+    times_ = [ ModelTime(t) for t in times ]
+    #
+    return BackwardFlatParameter(alias, times_, Matrix(values))
 end
 
 """
@@ -104,7 +106,9 @@ function forward_flat_parameter(
         @assert(times[k]<times[k+1])
     end
     #
-    return ForwardFlatParameter(alias, Vector(times), Matrix(values))
+    times_ = [ ModelTime(t) for t in times ]
+    #
+    return ForwardFlatParameter(alias, times_, Matrix(values))
 end
 
 """

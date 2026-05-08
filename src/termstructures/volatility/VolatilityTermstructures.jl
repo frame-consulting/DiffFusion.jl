@@ -41,7 +41,9 @@ function backward_flat_volatility(
         @assert(values[idx] >= 0.0)
     end
     #
-    return BackwardFlatVolatility(alias, Vector(times), Matrix(values))
+    times_ = [ ModelTime(t) for t in times ]
+    #
+    return BackwardFlatVolatility(alias, times_, Matrix(values))
 end
 
 """

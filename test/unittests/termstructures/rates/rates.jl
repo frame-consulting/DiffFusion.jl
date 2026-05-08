@@ -94,4 +94,19 @@ using Interpolations
         @test max(abs.(Δf)...) < 4.0e-3
     end
 
+    @testset "Integer as input type" begin
+        # times like [0.0, 1.0] are converted to [0, 1] by JSON3.jl
+        # this used to cause errors with DiffFusionServer
+        times  = [1, 3, 6, 10]
+        values = [1.0, 1.0, 2.0,  3.0] .* 1e-2
+        #
+        ts = DiffFusion.zero_curve("EUR", times, values)
+        @test ts.times == [1.0, 3.0, 6.0, 10.0]
+        @test ts.values == values
+        #
+        ts = DiffFusion.linear_zero_curve("EUR", times, values)
+        @test ts.times == [1.0, 3.0, 6.0, 10.0]
+        @test ts.values == values
+    end
+
 end

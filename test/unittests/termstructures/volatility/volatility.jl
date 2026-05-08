@@ -78,4 +78,17 @@ using Test
         @test DiffFusion.is_constant(ts, 0.5, 7.5) == false
     end
 
+    @testset "Integer as input type" begin
+        # times like [0.0, 1.0] are converted to [0, 1] by JSON3.jl
+        # this used to cause errors with DiffFusionServer
+        times =  [  1,  2,  5, 10 ]
+        values = [ 50  60  70  80 ;
+                   50  50  50  50 ;
+                   30  20  20  40 ]
+        #
+        ts = DiffFusion.backward_flat_volatility("USD", times, values)
+        @test ts.times == [ 1.0, 2.0, 5.0, 10.0 ]
+        @test ts.values == values
+    end
+
 end

@@ -74,7 +74,8 @@ function zero_curve(
     values::AbstractVector,
     interp_method = (x,y) -> linear_interpolation(x, y, extrapolation_bc = Line()),
     )
-    return ZeroCurve(alias, times, values, interp_method(times, values))
+    times_ = [ ModelTime(t) for t in times ]
+    return ZeroCurve(alias, times_, values, interp_method(times, values))
 end
 
 """
@@ -175,7 +176,8 @@ function linear_zero_curve(
     times::AbstractVector,
     values::AbstractVector,
     )
-    return LinearZeroCurve(alias, times, values)
+    times_ = [ ModelTime(t) for t in times ]
+    return LinearZeroCurve(alias, times_, values)
 end
 
 
