@@ -61,6 +61,7 @@ function market_values_for_csa(
     fx_rates::Union{ScenarioCube, Nothing} = nothing
     )
     # collateral calculation is based on un-discouted (!) market values.
+    obs_times = [ ModelTime(t) for t in obs_times ]  # interpolate_scenarios(.) requires ModelTime
     @assert isnothing(portfolio.discount_curve_key)
     if !isnothing(fx_rates)
         isnothing(fx_rates.discount_curve_key)

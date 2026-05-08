@@ -52,6 +52,7 @@ function scenarios(
     with_progress_bar::Bool = true,
     )
     #
+    times = [ ModelTime(t) for t in times ]  # require ModelTime in numeraire(.) and discounted_cashflows(.)
     leg_aliases = [ alias(l) for l in legs ]
     numeraire_context_key = path.context.numeraire.context_key
     X = zeros(length(path),length(times),length(legs))

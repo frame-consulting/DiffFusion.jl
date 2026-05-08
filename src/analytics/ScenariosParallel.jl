@@ -28,6 +28,7 @@ function scenarios_multi_threaded(
     path::DiffFusion.Path,
     discount_curve_key::Union{String,Nothing},
     )
+    times = [ ModelTime(t) for t in times ]  # require ModelTime in numeraire(.) and discounted_cashflows(.)
     leg_aliases = [ DiffFusion.alias(l) for l in legs ]
     numeraire_context_key = path.context.numeraire.context_key
     #
@@ -102,6 +103,7 @@ function scenarios_distributed(
     path::DiffFusion.Path,
     discount_curve_key::Union{String,Nothing},
     )
+    times = [ ModelTime(t) for t in times ]  # require ModelTime in numeraire(.) and discounted_cashflows(.)
     leg_aliases = [ DiffFusion.alias(l) for l in legs ]
     numeraire_context_key = path.context.numeraire.context_key
     #
@@ -194,6 +196,7 @@ function scenarios_parallel(
     path::DiffFusion.Path,
     discount_curve_key::Union{String,Nothing},
     )
+    times = [ ModelTime(t) for t in times ]  # require ModelTime in numeraire(.) and discounted_cashflows(.)
     leg_aliases = [ DiffFusion.alias(l) for l in legs ]
     numeraire_context_key = path.context.numeraire.context_key
     #

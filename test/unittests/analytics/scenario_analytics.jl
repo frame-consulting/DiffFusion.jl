@@ -245,4 +245,24 @@ using Test
         @test maximum(abs.(cva_agg.X - cva.X)) < 1.0e-14
     end
 
+    @testset "Integer input to scenario times" begin
+        ts = [
+            DiffFusion.flat_forward("USD", 0.03),
+            DiffFusion.flat_forward("EUR", 0.02),
+            DiffFusion.flat_forward("SXE50", 0.01),
+            DiffFusion.flat_parameter("EUR-USD", 1.25),
+            DiffFusion.flat_parameter("SXE50-EUR", 3750.00),
+            DiffFusion.flat_forward("ZERO", 0.00),
+            DiffFusion.flat_parameter("USD-SOFR-Fixings", 0.0123),
+        ]
+        times = [ 0, 1, 2, 5, 10 ]
+        n_paths = 2^3
+        sim = DiffFusion.simple_simulation(m, ch, times, n_paths, with_progress_bar = false)
+        path_ = DiffFusion.path(sim, ts, context, DiffFusion.LinearPathInterpolation)
+        #
+        obs_times = [ 0, 1, 2, 5, 10 ]
+        scens = DiffFusion.scenarios([leg1, leg2], obs_times, path_, "USD", with_progress_bar = false)
+        #
+        @test size(scens.X) == (8, 5, 2)
+    end
 end
