@@ -8,6 +8,7 @@ using Test
     include("barriers.jl")
     include("black.jl")
     include("brownian_bridge.jl")
+    include("later.jl")
     include("polynomialregression.jl")
     include("piecewiseregression.jl")
 

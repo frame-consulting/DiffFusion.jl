@@ -105,6 +105,7 @@ include("utils/BrownianBridge.jl")
 include("utils/Gradients.jl")
 include("utils/Integrations.jl")
 include("utils/InterpolationMethods.jl")
+include("utils/Later.jl")
 include("utils/PolynomialRegression.jl")
 include("utils/PiecewiseRegression.jl")
 
