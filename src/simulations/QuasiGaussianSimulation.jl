@@ -80,6 +80,7 @@ function quasi_gaussian_simulation(
     store_brownian_increments::Bool = false,
     )
     #
+    times = [ ModelTime(t) for t in times]  # we require ModelTime in Theta_vectorized(...)
     dZ = brownian_increments(
         length(state_alias_Sigma(model)),
         n_paths,

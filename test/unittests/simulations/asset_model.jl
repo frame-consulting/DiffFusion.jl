@@ -56,4 +56,12 @@ using Test
         sim = DiffFusion.simple_simulation(asset_model, ch, times, n_paths, with_progress_bar = true)
         @test size(sim.X) == (1,1024,11)
     end
+
+    @testset "Simple simulation with integer times" begin
+        # test issue related to #127
+        times = [ 0, 2, 5, 10 ]
+        n_paths = 2^10
+        sim = DiffFusion.simple_simulation(asset_model, ch, times, n_paths)
+        @test size(sim.X) == (1, 1024, 4)
+    end
 end

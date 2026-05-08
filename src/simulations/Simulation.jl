@@ -49,6 +49,7 @@ function simple_simulation(
     store_brownian_increments::Bool = false,
     )
     @assert state_alias(model) == state_alias_Sigma(model)  # deal with general case later...
+    times = [ ModelTime(t) for t in times]  # we require ModelTime in Theta(...)
     dZ = brownian_increments(
         length(state_alias_Sigma(model)),
         n_paths,
@@ -99,6 +100,7 @@ function diagonal_simulation(
     store_brownian_increments::Bool = false,
     )
     @assert state_alias(model) == state_alias_Sigma(model)  # deal with general case later...
+    times = [ ModelTime(t) for t in times]  # we require ModelTime in Theta(...)
     dZ = brownian_increments(
         length(state_alias_Sigma(model)),
         n_paths,
@@ -166,6 +168,7 @@ function state_dependent_simulation(
     store_brownian_increments::Bool = false,
     )
     #
+    times = [ ModelTime(t) for t in times]  # we require ModelTime in Theta(...)
     dZ = brownian_increments(
         length(state_alias_Sigma(model)),
         n_paths,

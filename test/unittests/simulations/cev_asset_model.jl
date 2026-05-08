@@ -69,4 +69,18 @@ using Test
         # display(vol)
     end
 
+    @testset "Diagonal simulation with integer times" begin
+        # test issue related to #127
+        skew_x = DiffFusion.backward_flat_parameter(
+            "EUR-USD",
+            [ 1., 2., 5., 10. ],
+            [ -0.25 -0.25 -0.25 -0.25; ],
+        )
+        model = DiffFusion.cev_asset_model("EUR-USD", sigma_fx, skew_x, ch, nothing)
+        times = [ 0, 1, 2, 5, 10 ]
+        n_paths = 2^10
+        sim = DiffFusion.diagonal_simulation(model, ch, times, n_paths, with_progress_bar = false)
+        @test size(sim.X) == (1, 1024, 5)
+    end
+
 end

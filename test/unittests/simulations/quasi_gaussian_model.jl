@@ -259,5 +259,30 @@ using Test
         # println(maximum(abs.(sim0.X - sim1.X)))
     end
 
+    @testset "Simulations with integer input" begin
+        # test issue related to #127
+        @info "Run simulations with integer input test..."
+
+        slope_d = DiffFusion.backward_flat_parameter("Std", times, slope_d_vals)
+        slope_u = DiffFusion.backward_flat_parameter("Std", times, slope_u_vals)
+        volatility_model = nothing
+        volatility_function = nothing
+        #
+        m0 = DiffFusion.quasi_gaussian_model(
+            gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
+            volatility_model, volatility_function,
+        )
+        #
+        sim_times = [ 0, 1, 2, 3 ]
+        n_paths = 2^10
+        #
+        @time sim0 = DiffFusion.state_dependent_simulation(
+            m0, ch, sim_times, n_paths, with_progress_bar = false, # brownian_increments = DiffFusion.sobol_brownian_increments
+        )
+        @time sim1 = DiffFusion.quasi_gaussian_simulation(
+            m0, ch, sim_times, n_paths, with_progress_bar = false, # brownian_increments = DiffFusion.sobol_brownian_increments
+        )
+        @test isapprox(sim0.X, sim1.X, atol=1.0e-10)
+    end
 
 end
