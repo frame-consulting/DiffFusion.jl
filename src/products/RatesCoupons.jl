@@ -108,7 +108,8 @@ function coupon_rate(cf::SimpleRateCoupon)
         @assert !isnothing(cf.fixing_key)
         L = Fixing(cf.fixing_time, cf.fixing_key)
     else
-        L = LiborRate(cf.fixing_time, cf.start_time, cf.end_time, cf.curve_key)
+        # assume index and coupon day counter coincide
+        L = LiborRate(cf.fixing_time, cf.start_time, cf.end_time, cf.year_fraction, cf.curve_key)
     end
     if !isnothing(cf.spread_rate)
         L = L + cf.spread_rate
@@ -127,7 +128,8 @@ function forward_rate(cf::SimpleRateCoupon, obs_time::ModelTime)
         return coupon_rate(cf)
     end
     # calculate forward rate
-    L = LiborRate(obs_time, cf.start_time, cf.end_time, cf.curve_key)
+    # assume index and coupon day counter coincide
+    L = LiborRate(obs_time, cf.start_time, cf.end_time, cf.year_fraction, cf.curve_key)
     if !isnothing(cf.spread_rate)
         L = L + cf.spread_rate
     end
