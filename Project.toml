@@ -1,6 +1,6 @@
 name = "DiffFusion"
 uuid = "be7e520c-a8fa-4f26-8f65-6d6d1049182e"
-version = "0.8.1"
+version = "0.8.2"
 authors = ["Sebastian Schlenkrich <sebastian.schlenkrich@frame-consult.de> and contributors"]
 
 [deps]
