@@ -160,44 +160,44 @@ Create an alias dictionary
 alias_dictionary(alias_list) = Dict([(e,k) for (k,e) in enumerate(alias_list)])
 
 """
-    log_asset(m::Model, alias::String, t::ModelTime, X::ModelState)
+    log_asset(m::Model, model_alias::String, t::ModelTime, X::ModelState)
 
 Retrieve the normalised state variable from an asset model.
 
 Returns a vector of size (p,) for X with size (n,p).
 """
-function log_asset(m::Model, alias::String, t::ModelTime, X::ModelState)
+function log_asset(m::Model, model_alias::String, t::ModelTime, X::ModelState)
     error("Model needs to implement log_asset method.")
 end
 
 """
-    log_bank_account(m::Model, alias::String, t::ModelTime, X::ModelState)
+    log_bank_account(m::Model, model_alias::String, t::ModelTime, X::ModelState)
 
 Retrieve the integral over sum of state variables s(t) from interest rate model.
 
 Returns a vector of size (p,) for X with size (n,p).
 """
-function log_bank_account(m::Model, alias::String, t::ModelTime, X::ModelState)
+function log_bank_account(m::Model, model_alias::String, t::ModelTime, X::ModelState)
     error("Model needs to implement log_bank_account method.")
 end
 
 """
-    log_zero_bond(m::Model, alias::String, t::ModelTime, T::ModelTime, X::ModelState)
+    log_zero_bond(m::Model, model_alias::String, t::ModelTime, T::ModelTime, X::ModelState)
 
 Calculate the zero bond term [G(t,T)' x(t) + 0.5 G(t,T)' y(t) G(t,T)]' from rates model.
 
 Returns a vector of size (p,) for X with size (n,p).
 """
-function log_zero_bond(m::Model, alias::String, t::ModelTime, T::ModelTime, X::ModelState)
+function log_zero_bond(m::Model, model_alias::String, t::ModelTime, T::ModelTime, X::ModelState)
     error("Model needs to implement log_compounding_factor method.")
 end
 
 """
-    log_zero_bonds(m::Model, alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+    log_zero_bonds(m::Model, model_alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
 
 Calculate the zero bond terms [G(t,T)' x(t) + 0.5 G(t,T)' y(t) G(t,T)]' from rates model.
 """
-function log_zero_bonds(m::Model, alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
+function log_zero_bonds(m::Model, model_alias::String, t::ModelTime, T::AbstractVector, X::ModelState)
     error("Model needs to implement log_zero_bonds method.")
 end
 
@@ -260,18 +260,34 @@ function log_asset_convexity_adjustment(
 end
 
 """
-    log_future(m::Model, alias::String, t::ModelTime, T::ModelTime, X::ModelState)
+    log_future(m::Model, model_alias::String, t::ModelTime, T::ModelTime, X::ModelState)
 
 Calculate the Future price term h(t,T)'[x(t) + 0.5y(t)(1 - h(t,T))].
 """
-function log_future(m::Model, alias::String, t::ModelTime, T::ModelTime, X::ModelState)
+function log_future(m::Model, model_alias::String, t::ModelTime, T::ModelTime, X::ModelState)
     error("Model needs to implement log_future method.")
+end
+
+
+"""
+    process_value(m::Model, model_alias::String, t::ModelTime, idx::Int, X::ModelState)
+
+Calculate the value of a stochastic process at a given time and index.
+
+We allow for multi-dimensional processes. The index `idx` is used to select the
+appropriate component of the process. Scalar processes are represented by a single
+component with `idx=1`.
+"""
+function process_value(m::Model, model_alias::String, t::ModelTime, idx::Int, X::ModelState)
+    @assert alias(m) == model_alias
+    @assert 0 < idx && idx ≤ length(state_alias(m))
+    return X(state_alias(m)[idx])
 end
 
 """
     swap_rate_variance(
         m::Model,
-        alias::String,
+        model_alias::String,
         yts::YieldTermstructure,
         t::ModelTime,
         T::ModelTime,
@@ -285,7 +301,7 @@ swap rate approximation.
 """
 function swap_rate_variance(
     m::Model,
-    alias::String,
+    model_alias::String,
     yts::YieldTermstructure,
     t::ModelTime,
     T::ModelTime,
@@ -299,7 +315,7 @@ end
 """
     forward_rate_variance(
         m::Model,
-        alias::String,
+        model_alias::String,
         t::ModelTime,
         T::ModelTime,
         T0::ModelTime,
@@ -311,7 +327,7 @@ or backward-looking forward rate.
 """
 function forward_rate_variance(
     m::Model,
-    alias::String,
+    model_alias::String,
     t::ModelTime,
     T::ModelTime,
     T0::ModelTime,

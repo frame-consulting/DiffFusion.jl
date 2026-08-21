@@ -145,6 +145,11 @@ using Test
         #
         @test DiffFusion.log_asset_convexity_adjustment(m, "USD", "EUR", "EUR-USD", 5.0, 10.0, 15.0, 20.0) == DiffFusion.log_asset_convexity_adjustment(hjm_model_dom, hjm_model_for, asset_model, 5.0, 10.0, 15.0, 20.0)
         #
+        @test DiffFusion.process_value(m, "Std", 1.0, 1, SX) == SX("USD_x_1")
+        @test DiffFusion.process_value(m, "Std", 1.0, 9, SX) == SX("NIK_x_1")
+        # process_value(.) is not delegated to component models
+        @test_throws AssertionError DiffFusion.process_value(m, "USD", 1.0, 1, SX)
+        #
         @test_throws KeyError DiffFusion.log_asset(m, "WrongAlias", 1.0, SX)
         @test_throws KeyError DiffFusion.log_bank_account(m, "WrongAlias", 1.0, SX)
         @test_throws KeyError DiffFusion.log_zero_bond(m, "WrongAlias", 4.0, 8.0, SX)
