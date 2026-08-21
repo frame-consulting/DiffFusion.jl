@@ -5,6 +5,7 @@ using Test
 
     "A trivial path for testing."
     struct ConstantPath <: DiffFusion.AbstractPath end
+    DiffFusion.process_value(p::ConstantPath, t::DiffFusion.ModelTime, idx::Int, key::String) = t * ones(5)
     DiffFusion.numeraire(p::ConstantPath, t::DiffFusion.ModelTime, curve_key::String) = t * ones(5)
     DiffFusion.bank_account(p::ConstantPath, t::DiffFusion.ModelTime, key::String) = 3.0 * ones(5)
     DiffFusion.zero_bond(p::ConstantPath, t::DiffFusion.ModelTime, T::DiffFusion.ModelTime, key::String) = 4.0 * ones(5)
@@ -32,6 +33,13 @@ using Test
 
     @testset "Leaf payoffs" begin
         path = ConstantPath()
+        #
+        p = DiffFusion.ProcessValue(1.0, "Std")
+        @test DiffFusion.obs_time(p) == 1.0
+        @test DiffFusion.obs_times(p) == Set(1.0)
+        @test DiffFusion.at(p, path) == 1.0 * ones(5)
+        @test p(path) == 1.0 * ones(5)
+        @test string(p) == "X(Std, 1.00, 1)"
         #
         p = DiffFusion.Numeraire(1.0, "Std")
         @test DiffFusion.obs_time(p) == 1.0
