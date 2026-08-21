@@ -58,6 +58,8 @@ using Test
         @test_throws ErrorException DiffFusion.forward_rate_variance(m, "alias", 1.0, 2.0, 3.0, 4.0)
         @test_throws ErrorException DiffFusion.asset_variance(m, "ast", "dom", "for", 1.0, 2.0, SX)
         #
+        @test_throws ErrorException DiffFusion.process_value(m, "alias", 1.0, 1, SX)  # due to missing alias/state_alias methods
+        #
         ch = DiffFusion.correlation_holder("Std")
         @test_throws ErrorException DiffFusion.simulation_parameters(m, ch, 1.0, 2.0)
         @test_throws ErrorException DiffFusion.diagonal_volatility(m, 1.0, 2.0, SX)

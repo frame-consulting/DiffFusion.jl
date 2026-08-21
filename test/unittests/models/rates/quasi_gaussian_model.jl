@@ -492,6 +492,10 @@ using Test
         @test DiffFusion.log_zero_bond(m2, "Std", s, t, SX2) == DiffFusion.log_zero_bond(m1, "Std", s, t, SX1)
         @test DiffFusion.log_zero_bonds(m2, "Std", s, T, SX2) == DiffFusion.log_zero_bonds(m1, "Std", s, T, SX1)
         @test DiffFusion.log_compounding_factor(m2, "Std", s, t1, t2, SX2) == DiffFusion.log_compounding_factor(m1, "Std", s, t1, t2, SX1)
-
+        #
+        @test DiffFusion.process_value(m2, "Std", s, 1, SX2) == SX2("Std_x_1")
+        @test DiffFusion.process_value(m2, "Std", s, 4, SX2) == SX2("Std_s")
+        @test DiffFusion.process_value(m2, "Std", s, 5, SX2) == SX2("Std_y_1_1")
+        @test DiffFusion.process_value(m2, "Std", s, 13, SX2) == SX2("Std_y_3_3")
     end
 end

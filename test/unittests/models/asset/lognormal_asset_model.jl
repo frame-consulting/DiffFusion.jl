@@ -81,6 +81,7 @@ using Test
         X = [ 1., 2, 3 ] * [ 1., 2., 3. ]'
         SX = DiffFusion.model_state(X, dict)
         @test DiffFusion.log_asset(m, DiffFusion.alias(m), 1.0, SX) == [ 2., 4., 6. ]
+        @test DiffFusion.process_value(m, DiffFusion.alias(m), 1.0, 1, SX) == [ 2., 4., 6. ]
         #
         dict = DiffFusion.alias_dictionary([ "GBP_x_1", "EUR-USD_s", "EUR_GBP_x" ])
         X = [ 1., 2, 3 ] * [ 1., 2., 3. ]'

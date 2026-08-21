@@ -280,6 +280,10 @@ using LinearAlgebra
         @test isapprox(dfT[:,3], DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 8.0, SX), rtol=1.0e-14)
         @test isapprox(dfT[:,4], DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 4.0, 10.0, SX), rtol=1.0e-14)
         #
+        @test DiffFusion.process_value(m, DiffFusion.alias(m), 1.0, 1, SX) == SX("Theta_3F_x_1")
+        @test DiffFusion.process_value(m, DiffFusion.alias(m), 1.0, 4, SX) == SX("Theta_3F_s")
+        @test_throws AssertionError DiffFusion.process_value(m, DiffFusion.alias(m), 1.0, 5, SX)
+        #
         X = [ 0., 0., 1., 2., 3., 4., 0. ] * [ 1., 2., 3.]'
         s_alias = [ "1", "2", "Theta_3F_x_1", "Theta_3F_x_2", "Theta_3F_x_3", "Theta_3F_s", "7" ]
         dict = DiffFusion.alias_dictionary(s_alias)

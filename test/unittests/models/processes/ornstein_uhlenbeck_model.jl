@@ -45,6 +45,7 @@ using Test
         X = [ 1. ] * [ 1., 2., 3. ]'
         SX = DiffFusion.model_state(X, dict)
         @test SX("OU_x") == reshape(X, 3)
+        @test DiffFusion.process_value(m, DiffFusion.alias(m), 1.0, 1, SX) == SX("OU_x")
         @test_throws ErrorException DiffFusion.log_asset(m, DiffFusion.alias(m), 1.0, SX)
         @test_throws ErrorException DiffFusion.log_bank_account(m, DiffFusion.alias(m), 1.0, SX)
         @test_throws ErrorException DiffFusion.log_zero_bond(m, DiffFusion.alias(m), 1.0, 2.0, SX)
