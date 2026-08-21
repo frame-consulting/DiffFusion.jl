@@ -496,6 +496,33 @@ function future_index(p::Path, t::ModelTime, T::ModelTime, key::String)
     return future_index .* exp.(y)
 end
 
+"""
+    process_value(p::Path, t::ModelTime, idx::Int, key::String)
+
+Simulated process value for a given process key and index.
+"""
+function process_value(p::Path, t::ModelTime, idx::Int, key::String)
+    (context_key, ts_key_1, ts_key_2, op) = context_keys(key)
+    # term structure keys are not supported for process value
+    @assert ts_key_1 == _empty_context_key
+    @assert ts_key_2 == _empty_context_key
+    @assert op == _empty_context_key
+    #
+    entry = p.context.processes[context_key]
+    #
+    V = value(p.ts_dict[entry.process_parameter_alias], t)
+    @assert 0 < idx && idx ≤ length(V)
+    v = V[idx]
+    if isnothing(entry.process_model_alias)
+        return v .* ones(length(p))  # deterministic model
+    end
+    #
+    X = state_variable(p.sim, t, p.interpolation)
+    SX = model_state(X, p.state_alias_dict)
+    x = process_value(p.sim.model, entry.process_model_alias, t, idx, SX)
+    return v .+ x
+end
+
 
 """
     swap_rate_variance(

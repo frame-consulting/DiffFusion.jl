@@ -42,6 +42,30 @@ function parameter_grid(m::CompositeModel)
     return parameter_grid(m.models)
 end
 
+
+
+"""
+    process_value(m::CompositeModel, model_alias::String, t::ModelTime, idx::Int, X::ModelState)
+
+Calculate the value of a stochastic process at a given time and index.
+
+If the `model_alias` does not match the alias of the composite model, we delegate to the
+component models.
+
+We allow for multi-dimensional processes. The index `idx` is used to select the
+appropriate component of the process. Scalar processes are represented by a single
+component with `idx=1`.
+"""
+function process_value(m::CompositeModel, model_alias::String, t::ModelTime, idx::Int, X::ModelState)
+    if alias(m) == model_alias
+        @assert 0 < idx && idx ≤ length(state_alias(m))
+        return X(state_alias(m)[idx])
+    end
+    # delegate to the component model
+    return process_value(m.models[m.model_dict[model_alias]], model_alias, t, idx, X)
+end
+
+
 """
     log_asset(m::CompositeModel, alias::String, t::ModelTime, X::ModelState)
 
