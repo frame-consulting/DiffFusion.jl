@@ -22,6 +22,22 @@ function length(p::AbstractPath)
     error("AbstractPath needs to implement length method.")
 end
 
+
+"""
+    process_value(p::AbstractPath, t::ModelTime, idx::Int, key::String)
+
+Return the value of a process at a given time. We allow for multi-dimensional
+processes. The `idx` argument specifies which component of the process.
+
+Note that simulated process is modulated by a parameter term structure.
+The `idx` argument must we within the range of the process dimension and
+parameter term structure dimension.
+"""
+function process_value(p::AbstractPath, t::ModelTime, idx::Int, key::String)
+    error("AbstractPath needs to implement process_value method.")
+end
+
+
 """
     numeraire(p::AbstractPath, t::ModelTime, curve_key::String)
 

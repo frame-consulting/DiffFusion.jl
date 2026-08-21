@@ -17,6 +17,7 @@ using Test
         @test_throws ErrorException DiffFusion.forward_index(NoPath(), 5.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.future_index(NoPath(), 5.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.fixing(NoPath(), 5.0, "Std")
+        @test_throws ErrorException DiffFusion.process_value(NoPath(), 5.0, 1, "Std")
         @test_throws ErrorException DiffFusion.length(NoPath())
         # not yet implemented...
         @test_throws ErrorException DiffFusion.asset_convexity_adjustment(NoPath(), 5.0, 6.0, 7.0, 8.0, "Std")
@@ -92,7 +93,9 @@ end
         Dict{String, DiffFusion.FutureIndexEntry}([
             ("NIK", DiffFusion.FutureIndexEntry("NIK", "NIK", "NIK-FUT")),
         ]),
-        Dict{String, DiffFusion.ProcessEntry}(),
+        Dict{String, DiffFusion.ProcessEntry}([
+            ("EUR-USD", DiffFusion.ProcessEntry("EUR-USD", "EUR-USD", "EUR-USD")),
+        ]),
         Dict{String, DiffFusion.FixingEntry}([
             ("SOFR", DiffFusion.FixingEntry("SOFR", "USD-SOFR-Fixings")),
         ]),
@@ -243,6 +246,9 @@ end
     @testset "Stochastic model functions." begin
         p = DiffFusion.path(sim, ts, context)
         t = 2.0
+        #
+        @test DiffFusion.process_value(p, t, 1, "EUR-USD")  == (1.25 + 1.0) * ones(5)
+        #
         @test isapprox(DiffFusion.numeraire(p, t, "USD"), exp(1.0 + 0.03*t) * ones(5), atol=1.0e-15)
         @test isapprox(DiffFusion.numeraire(p, t, "USD:OIS"), exp(1.0 + 0.03*t) * ones(5), atol=1.0e-15)
         @test isapprox(DiffFusion.numeraire(p, t, "USD:OIS-OIS"), exp(1.0) * ones(5), atol=1.0e-15)
@@ -381,7 +387,7 @@ end
                 ("NIK", DiffFusion.FutureIndexEntry("NIK", nothing, "NIK-FUT")),
             ]),
             Dict{String, DiffFusion.ProcessEntry}([
-                ("Std", DiffFusion.ProcessEntry("Std", nothing, "NIK-FUT")),
+                ("EUR-USD", DiffFusion.ProcessEntry("EUR-USD", nothing, "EUR-USD")),
             ]),
             Dict{String, DiffFusion.FixingEntry}([
                 ("SOFR", DiffFusion.FixingEntry("SOFR", "USD-SOFR-Fixings")),
@@ -391,6 +397,9 @@ end
         p = DiffFusion.path(det_sim, ts, det_context)
         t = 2.0
         T = 5.0
+        #
+        @test DiffFusion.process_value(p, t, 1, "EUR-USD") == 1.25 * ones(1)
+        #
         @test isapprox(DiffFusion.numeraire(p, t, "USD"), exp(0.03*t) * ones(1), atol=1.0e-15)
         #
         @test isapprox(DiffFusion.bank_account(p, t, "USD"), exp(0.03*t) * ones(1), atol=1.0e-15)
