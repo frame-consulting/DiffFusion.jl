@@ -23,6 +23,7 @@ using DifferentiationInterface
         ]),
         Dict{String, DiffFusion.ForwardIndexEntry}(),
         Dict{String, DiffFusion.FutureIndexEntry}(),
+        Dict{String, DiffFusion.ProcessEntry}(),
         Dict{String, DiffFusion.FixingEntry}(),
     )
     

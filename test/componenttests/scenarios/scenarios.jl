@@ -237,6 +237,7 @@ using YAML
         ]),
         Dict{String, DiffFusion.ForwardIndexEntry}(),
         Dict{String, DiffFusion.FutureIndexEntry}(),
+        Dict{String, DiffFusion.ProcessEntry}(),
         Dict{String, DiffFusion.FixingEntry}([
             ("USD:SOFR", DiffFusion.FixingEntry("USD:SOFR", "pa/USD:SOFR")),
             ("USD:LIB3M", DiffFusion.FixingEntry("USD:LIB3M", "pa/USD:LIB3M")),

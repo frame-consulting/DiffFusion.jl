@@ -93,6 +93,22 @@ using Test
             "ts/NIK",
         ))
         #
+        @test string(DiffFusion.process_entry("Std")) == string(DiffFusion.ProcessEntry(
+            "Std",
+            nothing,
+            "Std",
+        ))
+        @test string(DiffFusion.process_entry("Std", "md/Std")) == string(DiffFusion.ProcessEntry(
+            "Std",
+            "md/Std",
+            "Std",
+        ))
+        @test string(DiffFusion.process_entry("Std", "md/Std", "ts/Std")) == string(DiffFusion.ProcessEntry(
+            "Std",
+            "md/Std",
+            "ts/Std",
+        ))
+        #
         @test string(DiffFusion.fixing_entry("SOFR")) == string(DiffFusion.FixingEntry(
             "SOFR",
             "SOFR",
@@ -121,6 +137,7 @@ using Test
             ]),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.ProcessEntry}(),
             Dict{String, DiffFusion.FixingEntry}(),
         )
         @test DiffFusion.alias(c) == DiffFusion.alias(c_ref)
@@ -165,6 +182,7 @@ using Test
             ]),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.ProcessEntry}(),
             Dict{String, DiffFusion.FixingEntry}([
                 ("USD-SOFR", DiffFusion.FixingEntry("USD-SOFR", "USD-SOFR-Fixings")),
                 ("USD-LIBOR3M", DiffFusion.FixingEntry("USD-LIBOR3M", "USD-Libor3m-Fixings")),
@@ -203,6 +221,7 @@ using Test
             ]),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.ProcessEntry}(),
             Dict{String, DiffFusion.FixingEntry}(),
         )
         @test string(c) == string(c_ref)
@@ -217,6 +236,7 @@ using Test
             Dict{String, DiffFusion.AssetEntry}(),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.ProcessEntry}(),
             Dict{String, DiffFusion.FixingEntry}(),
         )
         @test string(ctx) == string(ctx_ref)
@@ -228,6 +248,7 @@ using Test
             [ DiffFusion.asset_entry("EUR-USD"), ],
             [ DiffFusion.forward_index_entry("EUR-USD"), ],
             [ DiffFusion.future_index_entry("NIK"), ],
+            [ DiffFusion.process_entry("Std"), ],
             [ DiffFusion.fixing_entry("SOFR"), ],
         )
         ctx_ref = DiffFusion.Context(
@@ -245,6 +266,9 @@ using Test
             ),
             Dict{String, DiffFusion.FutureIndexEntry}(
                 "NIK" => DiffFusion.future_index_entry("NIK"),
+            ),
+            Dict{String, DiffFusion.ProcessEntry}(
+                "Std" => DiffFusion.process_entry("Std"),
             ),
             Dict{String, DiffFusion.FixingEntry}(
                 "SOFR" => DiffFusion.fixing_entry("SOFR"),

@@ -92,6 +92,7 @@ end
         Dict{String, DiffFusion.FutureIndexEntry}([
             ("NIK", DiffFusion.FutureIndexEntry("NIK", "NIK", "NIK-FUT")),
         ]),
+        Dict{String, DiffFusion.ProcessEntry}(),
         Dict{String, DiffFusion.FixingEntry}([
             ("SOFR", DiffFusion.FixingEntry("SOFR", "USD-SOFR-Fixings")),
         ]),
@@ -128,6 +129,7 @@ end
             ]),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.ProcessEntry}(),
             Dict{String, DiffFusion.FixingEntry}(),
         )
         @test_throws AssertionError DiffFusion.path(sim, ts, wrong_cxt)
@@ -145,6 +147,7 @@ end
             ]),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.ProcessEntry}(),
             Dict{String, DiffFusion.FixingEntry}(),
         )
         @test_throws AssertionError DiffFusion.path(sim, ts, wrong_cxt)
@@ -162,6 +165,7 @@ end
             ]),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.ProcessEntry}(),
             Dict{String, DiffFusion.FixingEntry}(),
         )
         @test_throws AssertionError DiffFusion.path(sim, ts, wrong_cxt)
@@ -179,6 +183,7 @@ end
             ]),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.ProcessEntry}(),
             Dict{String, DiffFusion.FixingEntry}([
                 ("USD-SOFR", DiffFusion.FixingEntry("USD-SOFR", "USD-SOFR-Fixings")),
             ]),
@@ -375,6 +380,9 @@ end
             Dict{String, DiffFusion.FutureIndexEntry}([
                 ("NIK", DiffFusion.FutureIndexEntry("NIK", nothing, "NIK-FUT")),
             ]),
+            Dict{String, DiffFusion.ProcessEntry}([
+                ("Std", DiffFusion.ProcessEntry("Std", nothing, "NIK-FUT")),
+            ]),
             Dict{String, DiffFusion.FixingEntry}([
                 ("SOFR", DiffFusion.FixingEntry("SOFR", "USD-SOFR-Fixings")),
             ]),
@@ -450,6 +458,7 @@ end
             ]),
             Dict{String, DiffFusion.ForwardIndexEntry}(),
             Dict{String, DiffFusion.FutureIndexEntry}(),
+            Dict{String, DiffFusion.ProcessEntry}(),
             Dict{String, DiffFusion.FixingEntry}(),
         )
         p = DiffFusion.path(sim, ts, context)

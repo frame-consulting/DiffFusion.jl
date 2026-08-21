@@ -69,6 +69,7 @@
         <empty_key> : "yc/GBP:XCCY"
   forward_indices: {}
   future_indices: {}
+  processes: {}
   fixings:
     EUR:ESTR:
       typename: "DiffFusion.FixingEntry"

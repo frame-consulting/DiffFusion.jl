@@ -81,6 +81,7 @@ context = DiffFusion.Context("Std",
     ]),
     Dict{String, DiffFusion.ForwardIndexEntry}(),
     Dict{String, DiffFusion.FutureIndexEntry}(),
+    Dict{String, DiffFusion.ProcessEntry}(),
     Dict{String, DiffFusion.FixingEntry}([
         ("USD:OIS", DiffFusion.FixingEntry("USD:OIS", "pa/USD:OIS")),
         ("EUR:OIS", DiffFusion.FixingEntry("EUR:OIS", "pa/EUR:OIS")),

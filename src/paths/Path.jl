@@ -84,6 +84,10 @@ function _check_path_setup(
         @assert entry.future_index_alias in keys(ts_dict)
         @assert isa(ts_dict[entry.future_index_alias], ParameterTermstructure)
     end
+    for entry in values(cxt.processes)
+        @assert entry.process_parameter_alias in keys(ts_dict)
+        @assert isa(ts_dict[entry.process_parameter_alias], ParameterTermstructure)
+    end
     for entry in values(cxt.fixings)
         @assert entry.termstructure_alias in keys(ts_dict)
         @assert isa(ts_dict[entry.termstructure_alias], ParameterTermstructure)

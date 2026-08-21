@@ -169,6 +169,29 @@ end
 
 
 """
+    struct ProcessEntry <: ContextEntry
+        context_key::String
+        process_model_alias::Union{String, Nothing}
+        process_parameter_alias::String
+    end
+
+A `ProcessEntry` represents a link to a general stochastic process (model).
+
+This entry is used to calculate future simulated values of the process.
+
+An empty `process_model_alias` (`nothing`) represents a deterministic process.
+
+`process_parameter_alias` represents the link to the parameter term structure
+representing the deterministic offset of the process.
+"""
+struct ProcessEntry <: ContextEntry
+    context_key::String
+    process_model_alias::Union{String, Nothing}
+    process_parameter_alias::String
+end
+
+
+"""
     struct FixingEntry <: ContextEntry
         context_key::String
         termstructure_alias::String
@@ -191,6 +214,7 @@ end
         assets::Dict{String, AssetEntry}
         forward_indices::Dict{String, ForwardIndexEntry}
         future_indices::Dict{String, FutureIndexEntry}
+        processes::Dict{String, ProcessEntry}
         fixings::Dict{String, FixingEntry}
     end
 
@@ -222,6 +246,7 @@ struct Context
     assets::Dict{String, AssetEntry}
     forward_indices::Dict{String, ForwardIndexEntry}
     future_indices::Dict{String, FutureIndexEntry}
+    processes::Dict{String, ProcessEntry}
     fixings::Dict{String, FixingEntry}
 end
 
@@ -470,6 +495,28 @@ end
 
 
 """
+    process_entry(
+        context_key::String,
+        process_alias::Union{String, Nothing} = nothing,
+        process_parameter_alias::Union{String, Nothing} = nothing
+        )
+
+Simplify `ProcessEntry` setup.
+"""
+function process_entry(
+    context_key::String,
+    process_alias::Union{String, Nothing} = nothing,
+    process_parameter_alias::Union{String, Nothing} = nothing
+    )
+    if isnothing(process_parameter_alias)
+        process_parameter_alias = context_key
+    end
+    return ProcessEntry(context_key, process_alias, process_parameter_alias)
+end
+
+
+
+"""
     fixing_entry(
         context_key::String,
         termstructure_alias::Union{String, Nothing} = nothing,
@@ -497,6 +544,7 @@ end
         asset_entries::Union{AbstractVector, Nothing} = nothing,
         forward_index_entries::Union{AbstractVector, Nothing} = nothing,
         future_index_entries::Union{AbstractVector, Nothing} = nothing,
+        process_entries::Union{AbstractVector, Nothing} = nothing,
         fixing_entries::Union{AbstractVector, Nothing} = nothing,
         )
 
@@ -509,6 +557,7 @@ function context(
     asset_entries::Union{AbstractVector, Nothing} = nothing,
     forward_index_entries::Union{AbstractVector, Nothing} = nothing,
     future_index_entries::Union{AbstractVector, Nothing} = nothing,
+    process_entries::Union{AbstractVector, Nothing} = nothing,
     fixing_entries::Union{AbstractVector, Nothing} = nothing,
     )
     #
@@ -532,6 +581,11 @@ function context(
     else
         future_indices = Dict{String, FutureIndexEntry}(((e.context_key, e) for e in future_index_entries))
     end
+    if isnothing(process_entries)
+        processes = Dict{String, ProcessEntry}()
+    else
+        processes = Dict{String, ProcessEntry}(((e.context_key, e) for e in process_entries))
+    end
     if isnothing(fixing_entries)
         fixings = Dict{String, FixingEntry}()
     else
@@ -544,6 +598,7 @@ function context(
         assets,
         forward_indices,
         future_indices,
+        processes,
         fixings,
         )
 end
@@ -573,6 +628,7 @@ function simple_context(alias::String, alias_list::AbstractVector)
     ]
     forward_indices = ForwardIndexEntry[]
     future_indices = FutureIndexEntry[]
+    processes = ProcessEntry[]
     fixings = FixingEntry[]
     return Context(alias,
         numeraire,
@@ -580,6 +636,7 @@ function simple_context(alias::String, alias_list::AbstractVector)
         Dict{String, AssetEntry}([(e.context_key, e) for e in assets]),
         Dict{String, ForwardIndexEntry}([(e.context_key, e) for e in forward_indices]),
         Dict{String, FutureIndexEntry}([(e.context_key, e) for e in future_indices]),
+        Dict{String, ProcessEntry}([(e.context_key, e) for e in processes]),
         Dict{String, FixingEntry}([(e.context_key, e) for e in fixings]),
     )
 end
@@ -607,12 +664,14 @@ function deterministic_model_context(alias::String, alias_list::AbstractVector)
     forward_indices = ForwardIndexEntry[]
     future_indices = FutureIndexEntry[]
     fixings = FixingEntry[]
+    processes = ProcessEntry[]
     return Context(alias,
         numeraire,
         Dict{String, RatesEntry}([(e.context_key, e) for e in rates]),
         Dict{String, AssetEntry}([(e.context_key, e) for e in assets]),
         Dict{String, ForwardIndexEntry}([(e.context_key, e) for e in forward_indices]),
         Dict{String, FutureIndexEntry}([(e.context_key, e) for e in future_indices]),
+        Dict{String, ProcessEntry}([(e.context_key, e) for e in processes]),
         Dict{String, FixingEntry}([(e.context_key, e) for e in fixings]),
     )
 end

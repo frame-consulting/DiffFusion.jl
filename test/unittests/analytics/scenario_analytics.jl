@@ -49,6 +49,7 @@ using Test
         ]),
         Dict{String, DiffFusion.ForwardIndexEntry}(),
         Dict{String, DiffFusion.FutureIndexEntry}(),
+        Dict{String, DiffFusion.ProcessEntry}(),
         Dict{String, DiffFusion.FixingEntry}([
             ("SOFR", DiffFusion.FixingEntry("SOFR", "USD-SOFR-Fixings")),
         ]),

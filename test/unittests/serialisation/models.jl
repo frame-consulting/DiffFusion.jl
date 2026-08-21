@@ -741,6 +741,7 @@ using YAML
                 ),
             "forward_indices" => OrderedDict{String, Any}(),
             "future_indices" => OrderedDict{String, Any}(),
+            "processes" => OrderedDict{String, Any}(),
             "fixings" => OrderedDict{String, Any}(),
         )
         o = DiffFusion.deserialise(d)
