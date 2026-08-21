@@ -30,6 +30,10 @@ future_index_entry("NIK")
 future_index_entry("NIK", "md/NIK")
 future_index_entry("NIK", "md/NIK", "ts/NIK")
 
+process_entry("Std")
+process_entry("Std", "md/Std")
+process_entry("Std", "ts/Std")
+
 fixing_entry("SOFR")
 fixing_entry("SOFR", "ts/SOFR")
 
@@ -40,6 +44,7 @@ context(
     [ asset_entry("EUR-USD"), ],
     [ forward_index_entry("EUR-USD"), ],
     [ future_index_entry("NIK"), ],
+    [ process_entry("Std"), ],
     [ fixing_entry("SOFR"), ],
 )
 
@@ -56,6 +61,7 @@ ctx = Context("Std",
     ]),
     Dict{String, ForwardIndexEntry}(),
     Dict{String, FutureIndexEntry}(),
+    Dict{String, ProcessEntry}(),
     Dict{String, FixingEntry}(),
 )
 

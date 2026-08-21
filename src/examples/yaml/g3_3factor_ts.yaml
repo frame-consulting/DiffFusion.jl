@@ -79,6 +79,7 @@
       context_key: "NIK"
       future_model_alias: "md/NIK-FUT"
       future_index_alias: "pa/NIK-FUT"
+  processes: {}
   fixings:
     USD:SOFR:
       typename: "DiffFusion.FixingEntry"
