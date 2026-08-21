@@ -1,5 +1,50 @@
 
 """
+    struct ProcessValue <: Leaf
+        obs_time::ModelTime
+        idx::Int
+        key::String
+    end
+
+The value of a process *X(t)* at observation time *t*.
+
+We allow for multi-dimensional processes.
+The `idx` element specifies the component of process *X*.
+"""
+struct ProcessValue <: Leaf
+    obs_time::ModelTime
+    idx::Int
+    key::String
+end
+
+
+"""
+    ProcessValue(obs_time::ModelTime, key::String)
+
+Derive the value of a scalar process *X(t)* at observation
+time *t*.
+"""
+function ProcessValue(obs_time::ModelTime, key::String)
+    return ProcessValue(obs_time, 1, key)
+end
+
+"""
+    at(p::ProcessValue, path::AbstractPath)
+
+Derive the process value at a given path.
+"""
+at(p::ProcessValue, path::AbstractPath) = process_value(path, p.obs_time, p.idx, p.key)
+
+
+"""
+    string(p::ProcessValue)
+
+Formatted (and shortened) output for ProcessValue payoff.
+"""
+string(p::ProcessValue) = @sprintf("X(%s, %.2f, %d)", p.key, p.obs_time, p.idx)
+
+
+"""
     struct Numeraire <: Leaf
         obs_time::ModelTime
         curve_key::String
