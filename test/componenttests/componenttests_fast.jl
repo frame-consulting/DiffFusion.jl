@@ -9,6 +9,7 @@ using Test
 
     include("scenarios/asset_options.jl")
     include("scenarios/bermudan_swaption.jl")
+    include("scenarios/process_value.jl")
     include("scenarios/rates_option.jl")
     include("scenarios/scenarios.jl")
     include("scenarios/swaptions_expected_exposure.jl")
