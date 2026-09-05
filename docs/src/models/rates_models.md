@@ -27,7 +27,7 @@ DiffFusion.QuasiGaussianModel
 ```
 
 ```@docs
-DiffFusion.quasi_gaussian_model
+DiffFusion.quasi_gaussian_multi_factor_model
 ```
 
 ## Model Functions for Simulation

@@ -52,15 +52,15 @@ end
 
 
 """
-    serialise(o::QuasiGaussianModel)
+    serialise(o::QuasiGaussianMultiFactorModel)
 
-Serialise QuasiGaussianModel.
+Serialise QuasiGaussianMultiFactorModel.
 """
-function serialise(o::QuasiGaussianModel)
+function serialise(o::QuasiGaussianMultiFactorModel)
     g = o.gaussian_model
     d = OrderedDict{String, Any}()
     d["typename"]    = _type_name_long(o)
-    d["constructor"] = "quasi_gaussian_model"
+    d["constructor"] = "quasi_gaussian_multi_factor_model"
     d["alias"]       = serialise(g.alias)
     d["delta"]       = serialise(g.delta)
     d["chi"]         = serialise(g.chi)

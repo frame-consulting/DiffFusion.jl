@@ -54,12 +54,12 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m1 = DiffFusion.quasi_gaussian_model(
+        m1 = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             volatility_model, volatility_function,
         )
         #
-        m2 = DiffFusion.quasi_gaussian_model(
+        m2 = DiffFusion.quasi_gaussian_multi_factor_model(
             "Std", delta, chi, sigma_f,
             slope_d, slope_u, sigma_min, sigma_max,
             ch, quanto_model, DiffFusion.ForwardRateScaling,
@@ -68,12 +68,12 @@ using Test
         #
         @test string(m1) == string(m2)
         #
-        m1 = DiffFusion.quasi_gaussian_model(
+        m1 = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             nothing, nothing,
         )
         #
-        m2 = DiffFusion.quasi_gaussian_model(
+        m2 = DiffFusion.quasi_gaussian_multi_factor_model(
             "Std", delta, chi, sigma_f,
             slope_d, slope_u, sigma_min, sigma_max,
             ch, quanto_model, DiffFusion.ForwardRateScaling,
@@ -96,28 +96,28 @@ using Test
         slope_24 = DiffFusion.backward_flat_parameter("", times, rand(2,4))
         slope_35 = DiffFusion.backward_flat_parameter("", vcat(times, 15.0), rand(3,5))
         @test_throws AssertionError DiffFusion.gaussian_hjm_model(
-            "Std", DiffFusion.quasi_gaussian_model(gaussian_model, slope_24, slope_u, sigma_min, sigma_max, nothing, nothing)
+            "Std", DiffFusion.quasi_gaussian_multi_factor_model(gaussian_model, slope_24, slope_u, sigma_min, sigma_max, nothing, nothing)
         )
         @test_throws AssertionError DiffFusion.gaussian_hjm_model(
-            "Std", DiffFusion.quasi_gaussian_model(gaussian_model, slope_35, slope_u, sigma_min, sigma_max, nothing, nothing)
+            "Std", DiffFusion.quasi_gaussian_multi_factor_model(gaussian_model, slope_35, slope_u, sigma_min, sigma_max, nothing, nothing)
         )
         @test_throws AssertionError DiffFusion.gaussian_hjm_model(
-            "Std", DiffFusion.quasi_gaussian_model(gaussian_model, slope_d, slope_24, sigma_min, sigma_max, nothing, nothing)
+            "Std", DiffFusion.quasi_gaussian_multi_factor_model(gaussian_model, slope_d, slope_24, sigma_min, sigma_max, nothing, nothing)
         )
         @test_throws AssertionError DiffFusion.gaussian_hjm_model(
-            "Std", DiffFusion.quasi_gaussian_model(gaussian_model, slope_d, slope_35, sigma_min, sigma_max, nothing, nothing)
+            "Std", DiffFusion.quasi_gaussian_multi_factor_model(gaussian_model, slope_d, slope_35, sigma_min, sigma_max, nothing, nothing)
         )
         @test_throws AssertionError DiffFusion.gaussian_hjm_model(
-            "Std", DiffFusion.quasi_gaussian_model(gaussian_model, slope_d, slope_u, 0.0, sigma_max, nothing, nothing)
+            "Std", DiffFusion.quasi_gaussian_multi_factor_model(gaussian_model, slope_d, slope_u, 0.0, sigma_max, nothing, nothing)
         )
         @test_throws AssertionError DiffFusion.gaussian_hjm_model(
-            "Std", DiffFusion.quasi_gaussian_model(gaussian_model, slope_d, slope_u, sigma_max, sigma_min, nothing, nothing)
+            "Std", DiffFusion.quasi_gaussian_multi_factor_model(gaussian_model, slope_d, slope_u, sigma_max, sigma_min, nothing, nothing)
         )
         @test_throws AssertionError DiffFusion.gaussian_hjm_model(
-            "Std", DiffFusion.quasi_gaussian_model(gaussian_model, slope_d, slope_u, sigma_min, sigma_max, volatility_model, nothing)
+            "Std", DiffFusion.quasi_gaussian_multi_factor_model(gaussian_model, slope_d, slope_u, sigma_min, sigma_max, volatility_model, nothing)
         )
         @test_throws AssertionError DiffFusion.gaussian_hjm_model(
-            "Std", DiffFusion.quasi_gaussian_model(gaussian_model, slope_d, slope_u, sigma_min, sigma_max, nothing, volatility_function)
+            "Std", DiffFusion.quasi_gaussian_multi_factor_model(gaussian_model, slope_d, slope_u, sigma_min, sigma_max, nothing, volatility_function)
         )
         #
         @test DiffFusion.parameter_grid(m1)        == times
@@ -138,7 +138,7 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m = DiffFusion.quasi_gaussian_model(
+        m = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             volatility_model, volatility_function,
         )
@@ -163,7 +163,7 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m = DiffFusion.quasi_gaussian_model(
+        m = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             volatility_model, volatility_function,
         )
@@ -193,7 +193,7 @@ using Test
         #
         # local vol model
         #
-        m = DiffFusion.quasi_gaussian_model(
+        m = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             nothing, nothing,
         )
@@ -222,7 +222,7 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m = DiffFusion.quasi_gaussian_model(
+        m = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             nothing, nothing,
         )
@@ -261,7 +261,7 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m = DiffFusion.quasi_gaussian_model(
+        m = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             nothing, nothing,
         )
@@ -310,7 +310,7 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m = DiffFusion.quasi_gaussian_model(
+        m = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             nothing, nothing,
         )
@@ -331,7 +331,7 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m = DiffFusion.quasi_gaussian_model(
+        m = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             nothing, nothing,
         )
@@ -368,7 +368,7 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m = DiffFusion.quasi_gaussian_model(
+        m = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             nothing, nothing,
         )
@@ -420,7 +420,7 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m = DiffFusion.quasi_gaussian_model(
+        m = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             nothing, nothing,
         )
@@ -470,7 +470,7 @@ using Test
             "Std", delta, chi, sigma_f, ch, quanto_model,
         )
         #
-        m2 = DiffFusion.quasi_gaussian_model(
+        m2 = DiffFusion.quasi_gaussian_multi_factor_model(
             m1, slope_d, slope_u, sigma_min, sigma_max,
             nothing, nothing,
         )
