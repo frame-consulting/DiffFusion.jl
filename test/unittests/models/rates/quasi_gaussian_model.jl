@@ -5,6 +5,16 @@ using Test
 
 @testset "quasi-Gaussian HJM model methods." begin
 
+    @testset "Test abstract model interface." begin
+        struct NoQuasiGaussianModel <: DiffFusion.QuasiGaussianModel end
+        no_model = NoQuasiGaussianModel()
+        SX = DiffFusion.ModelState(zeros(0,0), Dict{String,Int}(), nothing)
+        @test_throws ErrorException DiffFusion.func_sigma_f(no_model, 0.0, 1.0, SX)
+    end
+
+    # We test the (abstract) QuasiGaussianModel interface via the
+    # concrete QuasiGaussianMultiFactorModel instance.
+
     delta = DiffFusion.flat_parameter("Std", [ 1., 7., 15. ])
     chi = DiffFusion.flat_parameter("Std", [ 0.01, 0.10, 0.30 ])
     times =  [ 1., 2., 5., 10. ]

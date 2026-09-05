@@ -5,6 +5,8 @@ using Test
 
     include("separable_hjm_model.jl")
     include("gaussian_hjm_model.jl")
+    include("quasi_gaussian_model.jl")
+    include("quasi_gaussian_short_rate_model.jl")
     include("forward_rate_volatility.jl")
     include("swap_rate_volatility.jl")
     include("swap_rate_calibration.jl")
