@@ -39,6 +39,23 @@ function discount(ts::FlatForward, t::ModelTime)
     return exp(-ts.rate * t)
 end
 
+"""
+    zero_rate(ts::FlatForward, t0::ModelTime, t1::ModelTime)
+
+Calculate continuous compounded zero rate over a period (t0, t1).
+"""
+function zero_rate(ts::FlatForward, t0::ModelTime, t1::ModelTime)
+    return ts.rate
+end
+
+"""
+    forward_rate(ts::FlatForward, t::ModelTime, dt=0.0)
+
+Calculate the forward rate at time t.
+"""
+function forward_rate(ts::FlatForward, t::ModelTime, dt=0.0)
+    return ts.rate
+end
 
 """
     struct ZeroCurve{T<:ModelValue, InterpolationType} <: YieldTermstructure

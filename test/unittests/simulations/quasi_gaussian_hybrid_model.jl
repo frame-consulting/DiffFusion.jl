@@ -3,7 +3,7 @@ using Test
 
 @testset "Quasi-Gaussian hybrid model simulation" begin
     
-    @info "Run quasi-Gaussian hybrid model simulation."
+    @info "Run QuasiGaussianMultiFactorModel hybrid model simulation."
 
     ch_one = DiffFusion.correlation_holder("One")
     ch_full = DiffFusion.correlation_holder("Full")

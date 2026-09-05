@@ -96,6 +96,30 @@ end
 
 
 """
+    serialise(o::QuasiGaussianShortRateModel)
+
+Serialise QuasiGaussianShortRateModel.
+"""
+function serialise(o::QuasiGaussianShortRateModel)
+    g = o.gaussian_model
+    d = OrderedDict{String, Any}()
+    d["typename"]    = _type_name_long(o)
+    d["constructor"] = "quasi_gaussian_short_rate_model"
+    d["alias"]       = serialise(g.alias)
+    d["chi"]         = serialise(g.chi)
+    d["sigma_f"]     = serialise(g.sigma_T.sigma_f)
+    if isnothing(g.quanto_model)
+        d["quanto_model"] = serialise(g.quanto_model)
+    else
+        d["quanto_model"] = serialise_key(g.quanto_model.alias)
+    end
+    d["volatility_function"] = serialise(o.volatility_function)
+    #
+    return d
+end
+
+
+"""
     serialise(o::LognormalAssetModel)
 
 Serialise LognormalAssetModel.

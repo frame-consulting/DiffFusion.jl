@@ -221,7 +221,7 @@ using YAML
         end
     end
 
-    @testset "Quasi-Gaussian model (de-)serialisation" begin
+    @testset "QuasiGaussianMultiFactorModel (de-)serialisation" begin
         models = setup_models(ch_full)
 
         sigma_min = 1.0e-4
@@ -367,6 +367,97 @@ using YAML
             @test s == d
             @test string(o) == string(qg_model_for)
         end
+    end
+
+
+    @testset "QuasiGaussianShortRateModel (de-)serialisation" begin
+        chi = DiffFusion.flat_parameter(0.03)
+        sigma_f = DiffFusion.flat_volatility(0.01)
+        volatility_function = DiffFusion.GaussianShortRateModelFunction()
+        model = DiffFusion.quasi_gaussian_short_rate_model(
+            "Std",
+            chi,
+            sigma_f,
+            nothing,
+            volatility_function,
+        )
+        s = DiffFusion.serialise(model)
+        d = OrderedDict(
+            "typename" => "DiffFusion.QuasiGaussianShortRateModel",
+            "constructor" => "quasi_gaussian_short_rate_model",
+            "alias" => "Std",
+            "chi" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatParameter",
+                "constructor" => "BackwardFlatParameter",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.03]],
+                ),
+            "sigma_f" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatVolatility",
+                "constructor" => "BackwardFlatVolatility",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.01]],
+                ),
+            "quanto_model" => "nothing",
+            "volatility_function" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.GaussianShortRateModelFunction",
+                "constructor" => "GaussianShortRateModelFunction",
+            ),
+        )
+        o = DiffFusion.deserialise(d, Dict())
+        @test s == d
+        @test string(o) == string(model)
+        #
+        sigma_fx = DiffFusion.flat_volatility("EUR-USD", 0.15)
+        fx_model = DiffFusion.lognormal_asset_model("EUR-USD", sigma_fx, ch_one, nothing)
+        volatility_function = DiffFusion.CirShortRateModelFunction(
+            DiffFusion.flat_forward(0.03),
+            0.0001,
+        )
+        model = DiffFusion.quasi_gaussian_short_rate_model(
+            "Std",
+            chi,
+            sigma_f,
+            fx_model,
+            volatility_function,
+        )
+        s = DiffFusion.serialise(model)
+        d = OrderedDict(
+            "typename" => "DiffFusion.QuasiGaussianShortRateModel",
+            "constructor" => "quasi_gaussian_short_rate_model",
+            "alias" => "Std",
+            "chi" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatParameter",
+                "constructor" => "BackwardFlatParameter",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.03]],
+                ),
+            "sigma_f" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.BackwardFlatVolatility",
+                "constructor" => "BackwardFlatVolatility",
+                "alias" => "",
+                "times" => [0.0],
+                "values" => [[0.01]],
+                ),
+            "quanto_model" => "{EUR-USD}",
+            "volatility_function" => OrderedDict{String, Any}(
+                "typename" => "DiffFusion.CirShortRateModelFunction",
+                "constructor" => "CirShortRateModelFunction",
+                "ts" => OrderedDict{String, Any}(
+                    "typename" => "DiffFusion.FlatForward",
+                    "constructor" => "FlatForward",
+                    "alias" => "",
+                    "rate" => 0.03,
+                ),
+                "min_value" => 0.0001,
+            ),
+        )
+        o = DiffFusion.deserialise(d, Dict("EUR-USD" => fx_model))
+        @test s == d
+        @test string(o) == string(model)
     end
 
 

@@ -5,7 +5,9 @@ using Test
 
 @testset "Quasi-Gaussian model simulation." begin
 
-    @info "Run Quasi-Gaussian simulation."
+    # We test quasi-Gaussian simulation via QuasiGaussianMultiFactorModel
+
+    @info "Run QuasiGaussianMultiFactorModel simulation."
 
     ch = DiffFusion.correlation_holder("Std")
     DiffFusion.set_correlation!(ch, "EUR_f_1", "EUR_f_2", 0.8)
