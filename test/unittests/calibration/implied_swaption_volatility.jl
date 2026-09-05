@@ -100,7 +100,7 @@ using Test
         volatility_model = nothing
         volatility_function = nothing
 
-        qg_model = DiffFusion.quasi_gaussian_model(
+        qg_model = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             volatility_model, volatility_function,
         )
@@ -186,7 +186,7 @@ using Test
         volatility_model = nothing
         volatility_function = nothing
         #
-        qg_model = DiffFusion.quasi_gaussian_model(
+        qg_model = DiffFusion.quasi_gaussian_multi_factor_model(
             gaussian_model, slope_d, slope_u, sigma_min, sigma_max,
             volatility_model, volatility_function,
         )

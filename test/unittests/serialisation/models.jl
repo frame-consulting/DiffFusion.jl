@@ -237,10 +237,10 @@ using YAML
         slope_d_for = DiffFusion.flat_parameter([ 10., 10., ] .* (-1.e-2) )
         slope_u_for = DiffFusion.flat_parameter([ 15., 15., ] .* (1.e-2) )
 
-        qg_model_dom = DiffFusion.quasi_gaussian_model(
+        qg_model_dom = DiffFusion.quasi_gaussian_multi_factor_model(
             models[1], slope_d_dom, slope_u_dom, sigma_min, sigma_max, ou_model, exp
         )
-        qg_model_for = DiffFusion.quasi_gaussian_model(
+        qg_model_for = DiffFusion.quasi_gaussian_multi_factor_model(
             models[3], slope_d_for, slope_u_for, sigma_min, sigma_max, nothing, nothing
         )
 
@@ -254,8 +254,8 @@ using YAML
 
         s = DiffFusion.serialise(qg_model_dom)
         d = OrderedDict(
-            "typename" => "DiffFusion.QuasiGaussianModel",
-            "constructor" => "quasi_gaussian_model",
+            "typename" => "DiffFusion.QuasiGaussianMultiFactorModel",
+            "constructor" => "quasi_gaussian_multi_factor_model",
             "alias" => "USD",
             "delta" => OrderedDict{String, Any}(
                 "typename" => "DiffFusion.BackwardFlatParameter",
@@ -312,8 +312,8 @@ using YAML
 
         s = DiffFusion.serialise(qg_model_for)
         d = OrderedDict(
-            "typename" => "DiffFusion.QuasiGaussianModel",
-            "constructor" => "quasi_gaussian_model",
+            "typename" => "DiffFusion.QuasiGaussianMultiFactorModel",
+            "constructor" => "quasi_gaussian_multi_factor_model",
             "alias" => "EUR",
             "delta" => OrderedDict{String, Any}(
                 "typename" => "DiffFusion.BackwardFlatParameter",

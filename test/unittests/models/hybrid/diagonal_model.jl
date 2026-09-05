@@ -310,14 +310,14 @@ using Test
         )
         volatility_function = exp
         #
-        quasi_gaussian_model = DiffFusion.quasi_gaussian_model(
+        quasi_gaussian_multi_factor_model = DiffFusion.quasi_gaussian_multi_factor_model(
             hjm_model_dom, slope_d, slope_u, sigma_min, sigma_max,
             volatility_model, volatility_function,
         )
         #
         m = DiffFusion.diagonal_model(
             "Std",
-            [ quasi_gaussian_model, volatility_model ],
+            [ quasi_gaussian_multi_factor_model, volatility_model ],
         )
         #
         @test DiffFusion.state_alias_Sigma(m) == ["USD_x_1", "USD_x_2", "USD_x_3", "USD_s", "OU_x"]
@@ -330,7 +330,7 @@ using Test
         #
         m = DiffFusion.diagonal_model(
             "Std",
-            [ volatility_model, quasi_gaussian_model ],
+            [ volatility_model, quasi_gaussian_multi_factor_model ],
         )
         #
         @test DiffFusion.state_alias_Sigma(m) == ["OU_x", "USD_x_1", "USD_x_2", "USD_x_3", "USD_s"]
