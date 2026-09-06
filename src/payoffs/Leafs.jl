@@ -136,6 +136,66 @@ string(p::ZeroBond) = @sprintf("P(%s, %.2f, %.2f)", p.key, p.obs_time, p.maturit
 
 
 """
+    struct NonDefaultProbability <: Leaf
+        obs_time::ModelTime
+        key::String
+    end
+
+The probability of non-default until observation time *t* for a given name.
+"""
+struct NonDefaultProbability <: Leaf
+    obs_time::ModelTime
+    key::String
+end
+
+"""
+    at(p::NonDefaultProbability, path::AbstractPath)
+
+Derive the non-default probability at a given path.
+"""
+at(p::NonDefaultProbability, path::AbstractPath) = non_default_probability(path, p.obs_time, p.key)
+
+"""
+    string(p::NonDefaultProbability)
+
+Formatted (and shortened) output for NonDefaultProbability payoff.
+"""
+string(p::NonDefaultProbability) = @sprintf("Q(%s, %.2f)", p.key, p.obs_time)
+
+
+"""
+    struct SurvivalProbability <: Leaf
+        obs_time::ModelTime
+        maturity_time::ModelTime
+        key::String
+    end
+
+The probability of survival between observation time *t* and maturity time *T*
+for a given name.
+"""
+struct SurvivalProbability <: Leaf
+    obs_time::ModelTime
+    maturity_time::ModelTime
+    key::String
+end
+
+"""
+    at(p::SurvivalProbability, path::AbstractPath)
+
+Derive the survival probability at a given path.
+"""
+at(p::SurvivalProbability, path::AbstractPath) = survival_probability(path, p.obs_time, p.maturity_time, p.key)
+
+
+"""
+    string(p::SurvivalProbability)
+
+Formatted (and shortened) output for SurvivalProbability payoff.
+"""
+string(p::SurvivalProbability) = @sprintf("Q(%s, %.2f, %.2f)", p.key, p.obs_time, p.maturity_time)
+
+
+"""
     struct Asset <: Leaf
         obs_time::ModelTime
         key::String
