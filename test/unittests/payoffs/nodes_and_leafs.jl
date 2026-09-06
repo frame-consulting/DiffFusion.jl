@@ -9,6 +9,8 @@ using Test
     DiffFusion.numeraire(p::ConstantPath, t::DiffFusion.ModelTime, curve_key::String) = t * ones(5)
     DiffFusion.bank_account(p::ConstantPath, t::DiffFusion.ModelTime, key::String) = 3.0 * ones(5)
     DiffFusion.zero_bond(p::ConstantPath, t::DiffFusion.ModelTime, T::DiffFusion.ModelTime, key::String) = 4.0 * ones(5)
+    DiffFusion.non_default_probability(p::ConstantPath, t::DiffFusion.ModelTime, key::String) = 1.0/3.0 .* ones(5)
+    DiffFusion.survival_probability(p::ConstantPath, t::DiffFusion.ModelTime, T::DiffFusion.ModelTime, key::String) = 4.0 * ones(5)
     DiffFusion.asset(p::ConstantPath, t::DiffFusion.ModelTime, key::String) = 5.0 * ones(5)
     DiffFusion.forward_asset(p::ConstantPath, t::DiffFusion.ModelTime, T::DiffFusion.ModelTime, key::String) = 6.0 * ones(5)
     DiffFusion.fixing(p::ConstantPath, t::DiffFusion.ModelTime, key::String) = 6.0 * ones(5)
@@ -61,6 +63,20 @@ using Test
         @test DiffFusion.at(p, path) == 4.0 * ones(5)
         @test p(path) == 4.0 * ones(5)
         @test string(p) == "P(USD, 4.00, 10.00)"
+        #
+        p = DiffFusion.NonDefaultProbability(2.0, "EUR")
+        @test DiffFusion.obs_time(p) == 2.0
+        @test DiffFusion.obs_times(p) == Set(2.0)
+        @test DiffFusion.at(p, path) == 1.0/3.0 * ones(5)
+        @test p(path) == 1.0/3.0 * ones(5)
+        @test string(p) == "Q(EUR, 2.00)"
+        #
+        p = DiffFusion.SurvivalProbability(2.0, 5.0, "EUR")
+        @test DiffFusion.obs_time(p) == 2.0
+        @test DiffFusion.obs_times(p) == Set(2.0)
+        @test DiffFusion.at(p, path) == 4.0 * ones(5)
+        @test p(path) == 4.0 * ones(5)
+        @test string(p) == "Q(EUR, 2.00, 5.00)"
         #
         p = DiffFusion.Asset(2.0, "GBP")
         @test DiffFusion.obs_time(p) == 2.0
