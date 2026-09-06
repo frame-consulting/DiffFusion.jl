@@ -134,6 +134,15 @@ Formatted (and shortened) output for ZeroBond payoff.
 """
 string(p::ZeroBond) = @sprintf("P(%s, %.2f, %.2f)", p.key, p.obs_time, p.maturity_time)
 
+"""
+    pay_time(p::ZeroBond)
+
+Specialisation of pay_time for ZeroBond payoff. The pay time is the maturity time.
+"""
+function pay_time(p::ZeroBond)
+    return p.maturity_time
+end
+
 
 """
     struct NonDefaultProbability <: Leaf

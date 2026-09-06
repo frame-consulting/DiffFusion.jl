@@ -39,6 +39,7 @@ using Test
         p = DiffFusion.ProcessValue(1.0, "Std")
         @test DiffFusion.obs_time(p) == 1.0
         @test DiffFusion.obs_times(p) == Set(1.0)
+        @test DiffFusion.pay_time(p) == 1.0
         @test DiffFusion.at(p, path) == 1.0 * ones(5)
         @test p(path) == 1.0 * ones(5)
         @test string(p) == "X(Std, 1.00, 1)"
@@ -46,6 +47,7 @@ using Test
         p = DiffFusion.Numeraire(1.0, "Std")
         @test DiffFusion.obs_time(p) == 1.0
         @test DiffFusion.obs_times(p) == Set(1.0)
+        @test DiffFusion.pay_time(p) == 1.0
         @test DiffFusion.at(p, path) == 1.0 * ones(5)
         @test p(path) == 1.0 * ones(5)
         @test string(p) == "N(Std, 1.00)"
@@ -53,6 +55,7 @@ using Test
         p = DiffFusion.BankAccount(2.0, "EUR")
         @test DiffFusion.obs_time(p) == 2.0
         @test DiffFusion.obs_times(p) == Set(2.0)
+        @test DiffFusion.pay_time(p) == 2.0
         @test DiffFusion.at(p, path) == 3.0 * ones(5)
         @test p(path) == 3.0 * ones(5)
         @test string(p) == "B(EUR, 2.00)"
@@ -60,6 +63,7 @@ using Test
         p = DiffFusion.ZeroBond(4.0, 10.0, "USD")
         @test DiffFusion.obs_time(p) == 4.0
         @test DiffFusion.obs_times(p) == Set(4.0)
+        @test DiffFusion.pay_time(p) == 10.0
         @test DiffFusion.at(p, path) == 4.0 * ones(5)
         @test p(path) == 4.0 * ones(5)
         @test string(p) == "P(USD, 4.00, 10.00)"
@@ -67,6 +71,7 @@ using Test
         p = DiffFusion.NonDefaultProbability(2.0, "EUR")
         @test DiffFusion.obs_time(p) == 2.0
         @test DiffFusion.obs_times(p) == Set(2.0)
+        @test DiffFusion.pay_time(p) == 2.0
         @test DiffFusion.at(p, path) == 1.0/3.0 * ones(5)
         @test p(path) == 1.0/3.0 * ones(5)
         @test string(p) == "Q(EUR, 2.00)"
@@ -74,6 +79,7 @@ using Test
         p = DiffFusion.SurvivalProbability(2.0, 5.0, "EUR")
         @test DiffFusion.obs_time(p) == 2.0
         @test DiffFusion.obs_times(p) == Set(2.0)
+        @test DiffFusion.pay_time(p) == 2.0
         @test DiffFusion.at(p, path) == 4.0 * ones(5)
         @test p(path) == 4.0 * ones(5)
         @test string(p) == "Q(EUR, 2.00, 5.00)"
@@ -81,6 +87,7 @@ using Test
         p = DiffFusion.Asset(2.0, "GBP")
         @test DiffFusion.obs_time(p) == 2.0
         @test DiffFusion.obs_times(p) == Set(2.0)
+        @test DiffFusion.pay_time(p) == 2.0
         @test DiffFusion.at(p, path) == 5.0 * ones(5)
         @test p(path) == 5.0 * ones(5)
         @test string(p) == "S(GBP, 2.00)"
@@ -88,6 +95,7 @@ using Test
         p = DiffFusion.ForwardAsset(2.0, 5.0, "GBP")
         @test DiffFusion.obs_time(p) == 2.0
         @test DiffFusion.obs_times(p) == Set(2.0)
+        @test DiffFusion.pay_time(p) == 2.0
         @test DiffFusion.at(p, path) == 6.0 * ones(5)
         @test p(path) == 6.0 * ones(5)
         @test string(p) == "S(GBP, 2.00, 5.00)"
@@ -95,6 +103,7 @@ using Test
         p = DiffFusion.Fixing(-0.5, "SOFR")
         @test DiffFusion.obs_time(p) == -0.5
         @test DiffFusion.obs_times(p) == Set(-0.5)
+        @test DiffFusion.pay_time(p) == -0.5
         @test DiffFusion.at(p, path) == 6.0 * ones(5)
         @test p(path) == 6.0 * ones(5)
         @test string(p) == "Idx(SOFR, -0.50)"
@@ -102,6 +111,7 @@ using Test
         p = DiffFusion.Fixed(3.5)
         @test DiffFusion.obs_time(p) == 0.0
         @test DiffFusion.obs_times(p) == Set(0.0)
+        @test DiffFusion.pay_time(p) == 0.0
         @test DiffFusion.at(p, path) == 3.5 * ones(5)
         @test p(path) == 3.5 * ones(5)
         @test string(p) == "3.5000"
@@ -109,6 +119,7 @@ using Test
         p = DiffFusion.ScalarValue(3.5)
         @test DiffFusion.obs_time(p) == 0.0
         @test DiffFusion.obs_times(p) == Set(0.0)
+        @test DiffFusion.pay_time(p) == 0.0
         @test DiffFusion.at(p, path) == 3.5
         @test p(path) == 3.5
         @test string(p) == "3.5000"
@@ -116,6 +127,7 @@ using Test
         p = DiffFusion.AssetConvexityAdjustment(5.0, 10.0, 15.0, 20.0, "EUR-USD")
         @test DiffFusion.obs_time(p) == 5.0
         @test DiffFusion.obs_times(p) == Set(5.0)
+        @test DiffFusion.pay_time(p) == 5.0
         @test DiffFusion.at(p, path) == ones(5)
         @test p(path) == ones(5)
         @test string(p) == "Exp{CA(EUR-USD, 5.00, 10.00, 15.00, 20.00)}"
@@ -123,6 +135,7 @@ using Test
         p = DiffFusion.ForwardIndex(5.0, 10.0, "EUHICP")
         @test DiffFusion.obs_time(p) == 5.0
         @test DiffFusion.obs_times(p) == Set(5.0)
+        @test DiffFusion.pay_time(p) == 5.0
         @test DiffFusion.at(p, path) == 2. * ones(5)
         @test p(path) == 2. * ones(5)
         @test string(p) == "I(EUHICP, 5.00, 10.00)"
@@ -131,6 +144,7 @@ using Test
         p = DiffFusion.IndexConvexityAdjustment(5.0, 10.0, 15.0, 20.0, "EUR-USD")
         @test DiffFusion.obs_time(p) == 5.0
         @test DiffFusion.obs_times(p) == Set(5.0)
+        @test DiffFusion.pay_time(p) == 5.0
         @test DiffFusion.at(p, path) == ones(5)
         @test p(path) == ones(5)
         @test string(p) == "Exp{CA(EUR-USD, 5.00, 10.00, 15.00, 20.00)}"
@@ -138,6 +152,7 @@ using Test
         p = DiffFusion.FutureIndex(5.0, 10.0, "NIK")
         @test DiffFusion.obs_time(p) == 5.0
         @test DiffFusion.obs_times(p) == Set(5.0)
+        @test DiffFusion.pay_time(p) == 5.0
         @test DiffFusion.at(p, path) == 3. * ones(5)
         @test p(path) == 3. * ones(5)
         @test string(p) == "F(NIK, 5.00, 10.00)"
@@ -149,6 +164,7 @@ using Test
         path = ConstantPath()
         p = DiffFusion.Pay(DiffFusion.Fixed(3.5), 1.0)
         @test DiffFusion.obs_time(p) == 1.0
+        @test DiffFusion.pay_time(p) == 1.0
         @test DiffFusion.obs_times(p) == Set([0.0, 1.0])
         @test DiffFusion.at(p, path) == 3.5 * ones(5)
         @test p(path) == 3.5 * ones(5)
@@ -157,6 +173,7 @@ using Test
         p = DiffFusion.Cache(DiffFusion.Fixed(3.5))
         @test DiffFusion.obs_time(p) == 0.0
         @test DiffFusion.obs_times(p) == Set(0.0)
+        @test DiffFusion.pay_time(p) == 0.0
         @test isnothing(p.path)
         @test isnothing(p.value)
         @test DiffFusion.at(p, path) == 3.5 * ones(5)
@@ -175,6 +192,7 @@ using Test
         p = DiffFusion.Exp(DiffFusion.Fixed(3.5))
         @test DiffFusion.obs_time(p) == 0.0
         @test DiffFusion.obs_times(p) == Set([0.0, ])
+        @test DiffFusion.pay_time(p) == 0.0
         @test DiffFusion.at(p, path) == exp(3.5) * ones(5)
         @test p(path) == exp(3.5) * ones(5)
         @test string(p) == "Exp(3.5000)"
@@ -182,6 +200,7 @@ using Test
         p = DiffFusion.Log(DiffFusion.Fixed(3.5))
         @test DiffFusion.obs_time(p) == 0.0
         @test DiffFusion.obs_times(p) == Set([0.0, ])
+        @test DiffFusion.pay_time(p) == 0.0
         @test DiffFusion.at(p, path) == log(3.5) * ones(5)
         @test p(path) == log(3.5) * ones(5)
         @test string(p) == "Log(3.5000)"
@@ -255,6 +274,8 @@ using Test
         @test DiffFusion.obs_time(DiffFusion.Asset(3.0, "USD") + DiffFusion.Asset(3.0, "USD")) == 3.0
         @test DiffFusion.obs_time(DiffFusion.Asset(3.0, "USD") + DiffFusion.Asset(4.0, "USD")) == 4.0
         @test DiffFusion.obs_times(1.0 + DiffFusion.Asset(3.0, "USD") + DiffFusion.Asset(4.0, "USD")) == Set([0.0, 3.0, 4.0])
+        @test DiffFusion.pay_time(DiffFusion.Asset(3.0, "USD") + DiffFusion.Asset(3.0, "USD")) == 3.0
+        @test DiffFusion.pay_time(DiffFusion.Asset(3.0, "USD") + DiffFusion.Asset(4.0, "USD")) == 4.0
         #
         p = 1.0 + DiffFusion.Asset(3.0, "USD") + DiffFusion.Asset(4.0, "USD")
         p = DiffFusion.Cache(p) * 2
@@ -263,6 +284,7 @@ using Test
         @test string(p) == "(({((1.0000 + S(USD, 3.00)) + S(USD, 4.00))} * 2.0000 / P(USD, 3.00, 5.00)) @ 7.00)"
         @test DiffFusion.obs_time(p) == 7.0
         @test DiffFusion.obs_times(p) == Set([0.0, 3.0, 4.0, 7.0])
+        @test DiffFusion.pay_time(p) == 7.0
         #
         if VERSION >= v"1.7"  # @test_warn does not work with Julia 1.6
             @test_warn "Pay time is before observation time." (p = DiffFusion.Pay(p, 2.0))

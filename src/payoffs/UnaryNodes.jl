@@ -58,6 +58,15 @@ Formatted (and shortened) output for Pay payoff.
 """
 string(p::Pay) = @sprintf("(%s @ %.2f)", string(p.x), p.obs_time)
 
+"""
+    pay_time(p::Pay)
+
+Specialisation of pay_time for Pay payoff.
+
+The pay time is the new observation time.
+"""
+pay_time(p::Pay) = p.obs_time
+
 
 """
     mutable struct Cache <: UnaryNode
