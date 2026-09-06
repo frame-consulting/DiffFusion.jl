@@ -11,6 +11,8 @@ using Test
         @test_throws ErrorException DiffFusion.zero_bond(NoPath(), 5.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.zero_bonds(NoPath(), 5.0, [8.0, 10.0], "Std")
         @test_throws ErrorException DiffFusion.compounding_factor(NoPath(), 5.0, 8.0, 10.0, "Std")
+        @test_throws ErrorException DiffFusion.non_default_probability(NoPath(), 5.0, "Std")
+        @test_throws ErrorException DiffFusion.survival_probability(NoPath(), 5.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.asset(NoPath(), 5.0, "Std")
         @test_throws ErrorException DiffFusion.forward_asset(NoPath(), 5.0, 10.0, "Std")
         @test_throws ErrorException DiffFusion.forward_asset_and_zero_bonds(NoPath(), 5.0, 10.0, "Std")
@@ -305,6 +307,13 @@ end
         @test_throws KeyError DiffFusion.zero_bond(p, t, T, "USD:LIB")
         @test_throws KeyError DiffFusion.zero_bond(p, t, T, "USD:OIS-LIB3M")
         @test_throws KeyError DiffFusion.zero_bond(p, t, T, "SXE50:OIS")
+        #
+        q0  = DiffFusion.non_default_probability(p, t, "USD")
+        q1  = DiffFusion.survival_probability(p, t, T, "USD")
+        cmp = DiffFusion.bank_account(p, t, "USD")
+        df1 = DiffFusion.zero_bond(p, t, T, "USD")
+        @test isapprox(q0, 1.0 ./ cmp, atol=1.0e-14)
+        @test isapprox(q1, df1, atol=1.0e-14)
         #
         X = zeros(length(DiffFusion.state_alias(m)), n_paths, length(times))
         sim = DiffFusion.Simulation(m, times, X, nothing)  # simplify calculations
