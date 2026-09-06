@@ -94,6 +94,7 @@ include("products/RelativeReturnCoupon.jl")
 include("products/RelativeReturnIndexCoupon.jl")
 
 include("products/CashFlowLeg.jl")
+include("products/CreditRiskyCashFlowLeg.jl")
 include("products/SwaptionLeg.jl")
 include("products/MtMCashFlowLeg.jl")
 include("products/CashAndAssetLegs.jl")

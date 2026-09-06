@@ -9,6 +9,7 @@ using Test
     include("relative_return_coupons.jl")
 
     include("cashflow_leg.jl")
+    include("credit_risky_cash_flow_leg.jl")
     include("mtm_cashflow_leg.jl")
     include("cash_and_asset_legs.jl")
     include("swaption_leg.jl")
