@@ -197,6 +197,30 @@ end
 
 
 """
+    non_default_probability(p::Path, t::ModelTime, key::String)
+
+Calculate the probability of not defaulting until t.
+
+See AbstractPath for details.
+"""
+function non_default_probability(p::Path, t::ModelTime, key::String)
+    return 1.0 ./ bank_account(p, t, key)
+end
+
+
+"""
+    survival_probability(p::Path, t::ModelTime, T::ModelTime, key::String)
+
+Calculate the probability of not defaulting from time t to time T.
+
+See AbstractPath for details.
+"""
+function survival_probability(p::Path, t::ModelTime, T::ModelTime, key::String)
+    return zero_bond(p, t, T, key)
+end
+
+
+"""
     asset(p::Path, t::ModelTime, key::String)
 
 Calculate asset price.
