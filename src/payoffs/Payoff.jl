@@ -141,3 +141,55 @@ obs_time(p::BinaryNode) = max(obs_time(p.x), obs_time(p.y))
 Derive all observation times from linked payoff.
 """
 obs_times(p::BinaryNode) = union(obs_times(p.x), obs_times(p.y))
+
+
+"""
+    pay_time(p::Payoff)
+
+Payoffs may represent discounted cash flows. The pay time is the time at which the
+corresponding cash flow is paid.
+
+Pay time is different from the observation time if the payoff contains a zero bond
+payoff. In that case, the pay time is the maturity time.
+
+The concept of pay time has some limitations. For example, a payoff may represent a
+portfolio of cash flows with different pay times. In that case, the pay time is the
+maximum of all pay times.
+
+Also, for some payoffs, the pay time may not be well-defined.
+"""
+function pay_time(p::Payoff)
+    error("Payoff needs to implement pay_time method.")
+end
+
+
+"""
+    pay_time(p::UnaryNode)
+
+Delegate pay time to linked payoff.
+"""
+function pay_time(p::UnaryNode)
+    return pay_time(p.x)
+end
+
+
+"""
+    pay_time(p::BinaryNode)
+
+Delegate pay time to linked payoffs.
+"""
+function pay_time(p::BinaryNode)
+    return max(pay_time(p.x), pay_time(p.y))
+end
+
+
+"""
+    pay_time(p::Leaf)
+
+Default implementation for leaf payoffs.
+
+This must be overridden, in particular, for zero bonds.
+"""
+function pay_time(p::Leaf)
+    return obs_time(p)
+end

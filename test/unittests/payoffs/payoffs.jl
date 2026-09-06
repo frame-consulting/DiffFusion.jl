@@ -12,6 +12,7 @@ using Test
         path = ConstantPath()
         @test_throws ErrorException DiffFusion.obs_time(p)
         @test_throws ErrorException DiffFusion.obs_times(p)
+        @test_throws ErrorException DiffFusion.pay_time(p)
         @test_throws ErrorException DiffFusion.at(p, path)
         @test_throws ErrorException p(path)
     end
