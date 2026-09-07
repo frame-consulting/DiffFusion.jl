@@ -128,7 +128,7 @@ function reference_rate_scaling(
         @assert isa(elm[2], Number)
     end
     A = hcat([
-        reference_rate_scaling(elm[1], elm[2], mdl, ctx)
+        reference_rate_scaling(elm[1], ModelTime(elm[2]), mdl, ctx)
         for elm in keys_and_terms
     ]...)
     return A
@@ -188,8 +188,8 @@ function reference_rate_covariance(
     t::ModelTime,
     )
     #
-    Y1 = reference_rate_scaling(R1[1], R1[2], mdl, ctx)
-    Y2 = reference_rate_scaling(R2[1], R2[2], mdl, ctx)
+    Y1 = reference_rate_scaling(R1[1], ModelTime(R1[2]), mdl, ctx)
+    Y2 = reference_rate_scaling(R2[1], ModelTime(R2[2]), mdl, ctx)
     return reference_rate_covariance(Y1, Y2, mdl, ch, s, t)
 end
 
