@@ -38,6 +38,14 @@ end
 
 
 """
+    alias(leg::CreditRiskyCashFlowLeg)
+
+Delegate to the underlying DeterministicCashFlowLeg.
+"""
+alias(leg::CreditRiskyCashFlowLeg) = alias(leg.cash_flow_leg)
+
+
+"""
     future_cashflows(leg::CreditRiskyCashFlowLeg, obs_time::ModelTime)
 
 Delegate future cash flow calculation to the underlying DeterministicCashFlowLeg.
@@ -62,13 +70,15 @@ function discounted_cashflows(leg::CreditRiskyCashFlowLeg, obs_time::ModelTime)
         # methodology should also work with other CashFlowLeg types
         @assert isa(payoff, Pay)
         maturity_time = pay_time(payoff.x)
+        N = NonDefaultProbability(obs_time, leg.credit_curve_key)
         Q = SurvivalProbability(obs_time, maturity_time, leg.credit_curve_key)
-        P = Q * payoff.x
+        P = N * Q * payoff.x
         push!(credit_risky_payoffs, Pay(P, payoff.obs_time))
     end
     # add default payoffs
     if leg.recovery_rate > 0.0
         # this is specific for DeterministicCashFlowLeg
+        N = NonDefaultProbability(obs_time, leg.credit_curve_key)
         # we assume last cash flow is notional payment
         notional = leg.cash_flow_leg.notionals[end]
         amount = expected_amount(leg.cash_flow_leg.cashflows[end], obs_time)
@@ -90,7 +100,7 @@ function discounted_cashflows(leg::CreditRiskyCashFlowLeg, obs_time::ModelTime)
             if !isnothing(leg.cash_flow_leg.fx_key)
                 P = Asset(obs_time, leg.cash_flow_leg.fx_key) * P
             end
-            P = (Q0 - Q1) * P
+            P = N * (Q0 - Q1) * P
             push!(credit_risky_payoffs, Pay(P, obs_time))
         end
     end
