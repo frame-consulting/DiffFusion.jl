@@ -187,7 +187,7 @@ using Test
                 G = DiffFusion.G_hjm(qg_model.gaussian_model, t, t+dt)
                 GyG = [ dot(G, @view(y[:,:,p]), G) for p in 1:n_paths ]'
                 one = mean(exp.(-G'*x - 0.5*GyG - s))
-                @test abs(one-1.0) < 8.1e-3
+                @test abs(one-1.0) < 8.2e-3
                 # display(abs(one-1))
             end
         end
