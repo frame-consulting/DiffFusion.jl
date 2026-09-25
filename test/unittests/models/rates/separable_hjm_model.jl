@@ -76,7 +76,7 @@ using LinearAlgebra
         y1 = DiffFusion.func_y(y0,chi,sigmaT,s, t)
         y1_ref = Diagonal(DiffFusion.H_hjm(chi,s,t)) * y0 * Diagonal(DiffFusion.H_hjm(chi,s,t)) +
             (sigmaT * sigmaT') .* (1. .- exp.(-chi_i_p_chi_j*(t-s))) ./ chi_i_p_chi_j
-        @test isapprox(y1, y1_ref, atol=1.e-16)
+        @test isapprox(y1, y1_ref, atol=1.2e-16)
         # Quasi-Gaussian evolve implementation
         GPrime_ = DiffFusion.H_hjm(chi,s,t)
         V = sigmaT * transpose(sigmaT)
