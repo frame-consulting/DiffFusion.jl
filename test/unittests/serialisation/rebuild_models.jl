@@ -61,7 +61,9 @@ using Test
         @test length(d) == 1
         @test haskey(d, DiffFusion.alias(usd_model))
         d = d[DiffFusion.alias(usd_model)]
-        for (a, b) in zip(keys(d), ["correlation_holder", "quanto_model", "chi", "sigma_f", "scaling_type", "type", "delta", "alias"])
+        keys_tst = sort(collect(keys(d)))
+        keys_ref = [ "alias", "chi", "correlation_holder", "delta", "quanto_model", "scaling_type", "sigma_f", "type", ]
+        for (a, b) in zip(keys_tst, keys_ref)
             @test a == b
         end
         #
@@ -69,12 +71,16 @@ using Test
         @test length(d) == 1
         @test haskey(d, DiffFusion.alias(eur_usd_model))
         d = d[DiffFusion.alias(eur_usd_model)]
-        for (a, b) in zip(keys(d), ["quanto_model", "sigma_x", "type", "correlation_holder", "alias"])
+        keys_tst = sort(collect(keys(d)))
+        keys_ref = [ "alias", "correlation_holder", "quanto_model", "sigma_x", "type", ]
+        for (a, b) in zip(keys_tst, keys_ref)
             @test a == b
         end
         #
         d = DiffFusion.model_parameters(full_model)
-        for (a, b) in zip(keys(d), ["EUR", "Std", "Full", "EUR-USD", "SXE50-EUR", "USD"])
+        keys_tst = sort(collect(keys(d)))
+        keys_ref = ["EUR", "EUR-USD", "Full", "SXE50-EUR", "Std", "USD"]
+        for (a, b) in zip(keys_tst, keys_ref)
             @test a == b
         end
         # Simple 1F model

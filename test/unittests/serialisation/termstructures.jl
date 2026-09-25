@@ -183,7 +183,12 @@ using Test
             ),
             "sep" => "<>",
         )
-        @test string(DiffFusion.deserialise(d)) == string(ch)
+        ch_tst = DiffFusion.deserialise(d)
+        @test DiffFusion.alias(ch_tst) == DiffFusion.alias(ch)
+        @test length(ch_tst.correlations) == 3
+        for key in keys(ch_tst.correlations)
+            @test ch_tst.correlations[key] == ch.correlations[key]
+        end
         # println(deserialise(d))
     end
 
