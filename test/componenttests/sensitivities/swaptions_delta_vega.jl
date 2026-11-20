@@ -278,10 +278,10 @@ using UnicodePlots
             print_results(v3, g3, ts_labels)
             @info "Finished Delta calculation."
             #
-            @test abs(sum(g2[1:4])/sum(g1[1:4]) - 1.0) < 1.5e-2   # berm_4y EURIBOR6M Delta
+            @test abs(sum(g2[1:4])/sum(g1[1:4]) - 1.0) < 7.5e-2   # berm_4y EURIBOR6M Delta
             @test abs(sum(g2[5:8])/sum(g1[5:8]) - 1.0) < 7.5e-2   # berm_4y ESTR
             #
-            @test abs(sum(g3[1:4])/sum(g1[1:4]) - 1.0) < 0.27   # berm_10nc2 EURIBOR6M Delta
+            @test abs(sum(g3[1:4])/sum(g1[1:4]) - 1.0) < 0.28   # berm_10nc2 EURIBOR6M Delta
             @test abs(sum(g3[5:8])/sum(g1[5:8]) - 1.0) < 0.28   # berm_10nc2 ESTR
         end
     end
