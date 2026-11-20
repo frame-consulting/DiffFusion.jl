@@ -29,8 +29,8 @@ function model_price_and_deltas_zygote(
     obj_function(ts_dict) = begin
         path_ = path(path_obj.sim, ts_dict, path_obj.context, path_obj.interpolation)
         X = zeros(length(path_))
-        if length(payoffs) > 0
-            X += sum(( p(path_) for p in payoffs ))
+        for p in payoffs
+            X = X .+ p(path_)
         end
         if !isnothing(discount_curve_key)
             num = numeraire(path_, pay_time, discount_curve_key)
