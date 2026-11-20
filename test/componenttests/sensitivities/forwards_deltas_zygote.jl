@@ -79,9 +79,9 @@ using ForwardDiff
         sim = DiffFusion.simple_simulation(model, ch, times, n_paths, with_progress_bar = false, brownian_increments = DiffFusion.sobol_brownian_increments)
         path = DiffFusion.path(sim, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
         gradient_vector = [
-            [0.0, 0.0, 0.0, 0.0, 0.0,  0.0,                0.0, 1.0,                0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, -0.6154863068313337, 0.0, 0.9847780909301339, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, -2.378310467107729,  0.0, 0.9513241868430915, 0.0],
+            [ 0.0,                0.0, 0.0, 0.0, 0.0, 0.0, 1.0,                0.0, 0.0],
+            [-0.6154863068313339, 0.0, 0.0, 0.0, 0.0, 0.0, 0.9847780909301339, 0.0, 0.0],
+            [-2.378310467107728,  0.0, 0.0, 0.0, 0.0, 0.0, 0.9513241868430914, 0.0, 0.0],
         ]
         #
         for (obs_time, g_ref) in zip((0.0, 0.5, 2.0,), gradient_vector)
