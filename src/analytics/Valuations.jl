@@ -49,8 +49,8 @@ function model_price(
     pay_time = _effective_pay_time(payoffs, pay_time, discount_curve_key)
     #
     X = zeros(length(path_obj))
-    if length(payoffs) > 0
-        X += sum(( p(path_obj) for p in payoffs ))
+    for p in payoffs
+        X = X .+ p(path_obj)
     end
     if !isnothing(discount_curve_key)
         num = numeraire(path_obj, pay_time, discount_curve_key)
@@ -108,8 +108,8 @@ function model_price_and_deltas(
         end
         #
         X = zeros(length(path_))
-        if length(payoffs) > 0
-            X += sum(( p(path_) for p in payoffs ))
+        for p in payoffs
+            X = X .+ p(path_)
         end
         if !isnothing(discount_curve_key)
             num = numeraire(path_, pay_time, discount_curve_key)
@@ -201,8 +201,8 @@ function model_price_and_vegas(
         end
         #
         X = zeros(length(path_))
-        if length(payoffs) > 0
-            X += sum(( p(path_) for p in payoffs ))
+        for p in payoffs
+            X = X .+ p(path_)
         end
         if !isnothing(discount_curve_key)
             num = numeraire(path_, pay_time, discount_curve_key)
