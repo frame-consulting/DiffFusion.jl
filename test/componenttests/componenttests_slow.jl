@@ -9,11 +9,11 @@ using Test
     include("sensitivities/swaptions_delta_vega.jl")
 
     if DiffFusion._use_zygote
-        # Zygote segfaults with v1.12
+        # Zygote used to segfault with v1.12
         include("sensitivities/forwards_deltas_zygote.jl")
         include("sensitivities/option_deltas_zygote.jl")
         include("sensitivities/swap_deltas_zygote.jl")
-        # include("sensitivities/option_vegas_zygote.jl")
+        include("sensitivities/option_vegas_zygote.jl")
     end
 
 end
