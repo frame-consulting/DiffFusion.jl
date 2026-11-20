@@ -102,7 +102,7 @@ state_dependent_Sigma(m::LognormalAssetModel) = false  # COV_EXCL_LINE
 """
 An `AssetVolatility` for a `LognormalAssetModel`.
 """
-struct LognormalAssetVolatility{T<:ModelTime} <: AssetVolatility
+struct LognormalAssetVolatility{T<:ModelValue} <: AssetVolatility
     sigma_x::BackwardFlatVolatility{T}
 end
 

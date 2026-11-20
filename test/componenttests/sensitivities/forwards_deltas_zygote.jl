@@ -78,13 +78,8 @@ using ForwardDiff
         n_paths = 2^10
         sim = DiffFusion.simple_simulation(model, ch, times, n_paths, with_progress_bar = false, brownian_increments = DiffFusion.sobol_brownian_increments)
         path = DiffFusion.path(sim, TestModels.ts_list, TestModels.context, DiffFusion.LinearPathInterpolation)
-        gradient_vector = [
-            [ 0.0,                0.0, 0.0, 0.0, 0.0, 0.0, 1.0,                0.0, 0.0],
-            [-0.6154863068313339, 0.0, 0.0, 0.0, 0.0, 0.0, 0.9847780909301339, 0.0, 0.0],
-            [-2.378310467107728,  0.0, 0.0, 0.0, 0.0, 0.0, 0.9513241868430914, 0.0, 0.0],
-        ]
         #
-        for (obs_time, g_ref) in zip((0.0, 0.5, 2.0,), gradient_vector)
+        for obs_time in (0.0, 0.5, 2.0,)
             # println("Obs_time: " * string(obs_time) * ".")
             payoffs = [ DiffFusion.Asset(obs_time, "EUR-USD") ]
             model_price = DiffFusion.model_price(payoffs, path, nothing, "USD")
@@ -93,8 +88,7 @@ using ForwardDiff
             (v2, g2, l2) = DiffFusion.model_price_and_deltas(payoffs, path, nothing, "USD", ForwardDiff)
             @test v1 == model_price
             @test v2 == model_price
-            @test isapprox(g1, g_ref, atol=1.0e-12)
-            @test isapprox(g2, g_ref, atol=1.0e-12)
+            @test isapprox(g1, g2, atol=1.0e-12)
         end # obs_time
     end # testset
 

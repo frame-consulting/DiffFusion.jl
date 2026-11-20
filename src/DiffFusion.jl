@@ -144,7 +144,7 @@ module Examples
     include("examples/Products.jl")
 end # module
 
-# Zygote is broken with Julia 1.12; we may exclude Zygote at some point
+# Zygote was broken with Julia 1.12; we may exclude Zygote at some point
 const _use_zygote = true
 if _use_zygote
     include("analytics/ValuationsViaZygote.jl")
