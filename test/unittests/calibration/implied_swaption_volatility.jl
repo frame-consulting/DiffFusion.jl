@@ -17,7 +17,7 @@ using Test
         fixed_weights = [ 1.0, 1.0, 1.0 ]
         disc_key = "USD:SOFR"
         relative_strikes = [ -200.0, -100.0, -50.0, 0.0, 50.0, 100.0, 200.0 ] * 1e-4
-        vols = DiffFusion.implied_swaption_volatilities(
+        (vols, _) = DiffFusion.implied_swaption_volatilities(
             path,
             expiry_time,
             fixed_times,
@@ -38,7 +38,7 @@ using Test
         @test isapprox(vols, vols, atol=1.0e-14)
 
         # alternative methods
-        vols_1 = DiffFusion.implied_swaption_volatilities(
+        (vols_1, swap_rate, swap_rate_yts) = DiffFusion.implied_swaption_volatilities(
             path.sim,
             path.ts_dict["yc/USD:SOFR"],
             expiry_time,
@@ -47,7 +47,7 @@ using Test
             relative_strikes,
         )
         @test vols_1 == vols
-
+        @test isapprox(swap_rate, swap_rate_yts, atol=1.3e-4)
     end
 
     @testset "3F Gaussian model implied volatilities." begin
@@ -62,7 +62,7 @@ using Test
         fixed_weights = [ 1.0, 1.0, 1.0 ]
         disc_key = "EUR:ESTR"
         relative_strikes = [ -200.0, -100.0, -50.0, 0.0, 50.0, 100.0, 200.0 ] * 1e-4
-        vols = DiffFusion.implied_swaption_volatilities(
+        (vols, _) = DiffFusion.implied_swaption_volatilities(
             path,
             expiry_time,
             fixed_times,
@@ -124,7 +124,7 @@ using Test
         fixed_weights = [ 1.0, 1.0, 1.0 ]
         disc_key = "EUR"
         relative_strikes = [ -200.0, -100.0, -50.0, 0.0, 50.0, 100.0, 200.0 ] * 1e-4
-        vols = DiffFusion.implied_swaption_volatilities(
+        (vols, _) = DiffFusion.implied_swaption_volatilities(
             path,
             expiry_time,
             fixed_times,
@@ -210,7 +210,7 @@ using Test
         fixed_weights = [ 1.0, 1.0, 1.0 ]
         disc_key = "EUR"
         relative_strikes = [ -200.0, -100.0, -50.0, 0.0, 50.0, 100.0, 200.0 ] * 1e-4
-        vols = DiffFusion.implied_swaption_volatilities(
+        (vols, _) = DiffFusion.implied_swaption_volatilities(
             path,
             expiry_time,
             fixed_times,
