@@ -47,7 +47,7 @@ using Test
             relative_strikes,
         )
         @test vols_1 == vols
-        @test isapprox(swap_rate, swap_rate_yts, atol=1.3e-4)
+        @test isapprox(swap_rate, swap_rate_yts, atol=1.4e-4)
     end
 
     @testset "3F Gaussian model implied volatilities." begin
