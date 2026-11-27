@@ -43,10 +43,13 @@ function implied_swaption_volatilities(
     option_1 = vec(option_0) ./ annuity_0
     #
     vols = [
-        bachelier_implied_volatility(option, strike, swap_rate, expiry_time, cp)
+        bachelier_implied_volatility_jaeckel(option, strike, swap_rate, expiry_time, cp)
         for (option, strike, cp) in zip(option_1, abs_strikes, call_put)
     ]
-    return vols
+    return (
+        volatilities = vols,
+        swap_rate = swap_rate,
+    )
 end
 
 
@@ -81,12 +84,23 @@ function implied_swaption_volatilities(
     )
     p = path(sim, [yts], ctx, LinearPathInterpolation)
     #
-    return implied_swaption_volatilities(
+    (vols, swap_rate) = implied_swaption_volatilities(
         p,
         expiry_time,
         fixed_times,
         fixed_weights,
         ccy_key,
         relative_strikes,
+    )
+    #
+    float_leg_0 = discount(yts, fixed_times[begin]) - discount(yts, fixed_times[end])
+    discounts = [ discount(yts, t) for t in fixed_times[begin+1:end] ]
+    annuity_0 = sum( discounts .* fixed_weights )
+    swap_rate_0 = float_leg_0 / annuity_0
+    #
+    return (
+        volatilities = vols,
+        swap_rate = swap_rate,
+        swap_rate_yts = swap_rate_0,
     )
 end
